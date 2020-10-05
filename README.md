@@ -1,5 +1,7 @@
-# layer5-repo-template
-This repository is used as the boilerplate for consistency across all Layer5 repos.
+# Meshery Adapter Library
+The Meshery Adapter Library provides a common and consistent set of functionality that Meshery adapters use for managing the lifecycle, configuration, operation, and performance of service meshes and their workloads.
+
+
 
 <div>&nbsp;</div>
 
