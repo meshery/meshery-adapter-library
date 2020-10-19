@@ -370,3 +370,33 @@ func (h *BaseHandler) applyK8sManifest(ctx context.Context, request OperationReq
 
 	return nil
 }
+
+func (h *BaseHandler) getServicePorts(ctx context.Context, svc, namespace string) ([]int64, error) {
+	ns := &unstructured.Unstructured{}
+	res := schema.GroupVersionResource{
+		Version:  "v1",
+		Resource: "services",
+	}
+	ns.SetName(svc)
+	ns.SetNamespace(namespace)
+	ns, err := h.getResource(ctx, res, ns)
+	if err != nil {
+		err = gherrors.Wrapf(err, "unable to get service details")
+		logrus.Error(err)
+		return nil, err
+	}
+	svcInst := ns.UnstructuredContent()
+	spec := svcInst["spec"].(map[string]interface{})
+	ports, _ := spec["ports"].([]interface{})
+	nodePorts := []int64{}
+	for _, port := range ports {
+		p, _ := port.(map[string]interface{})
+		np, ok := p["nodePort"]
+		if ok {
+			npi, _ := np.(int64)
+			nodePorts = append(nodePorts, npi)
+		}
+	}
+	logrus.Debugf("retrieved svc: %+#v", ns)
+	return nodePorts, nil
+}

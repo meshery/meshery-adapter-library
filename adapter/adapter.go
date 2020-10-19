@@ -61,19 +61,19 @@ func (h *BaseHandler) CreateInstance(kubeconfig []byte, contextName string, ch *
 	h.Channel = ch
 	h.KubeConfigPath = h.Config.GetKey("kube-config-path")
 
-	config, err := h.k8sClientConfig(kubeconfig, contextName)
+	k8sConfig, err := h.k8sClientConfig(kubeconfig, contextName)
 	if err != nil {
 		return ErrClientConfig(err)
 	}
 
-	clientset, err := kubernetes.NewForConfig(config)
+	clientset, err := kubernetes.NewForConfig(k8sConfig)
 	if err != nil {
 		return ErrClientSet(err)
 	}
 
 	h.KubeClient = clientset
 
-	dynamicClient, err := dynamic.NewForConfig(config)
+	dynamicClient, err := dynamic.NewForConfig(k8sConfig)
 	if err != nil {
 		return err
 	}
@@ -91,6 +91,15 @@ func (h *BaseHandler) CreateNamespace(isDelete bool, namespace string) error {
 		}
 	}
 	return nil
+}
+
+func (h *BaseHandler) GetServicePorts(serviceName, namespace string) ([]int64, error) {
+	ports, err := h.getServicePorts(context.TODO(), serviceName, namespace)
+	if err != nil {
+		logrus.Error(err)
+		return nil, err
+	}
+	return ports, nil
 }
 
 func (h *BaseHandler) ApplyKubernetesManifest(request OperationRequest, operation Operation, mergeData map[string]string, templatePath string) error {
