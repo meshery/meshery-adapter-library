@@ -27,3 +27,7 @@ var (
 func ErrViper(err error) error {
 	return errors.New(errors.ErrViper, fmt.Sprintf("Viper initialization failed with error: %s", err.Error()))
 }
+
+func ErrInMem(err error) error {
+	return errors.New(errors.ErrInMem, fmt.Sprintf("InMem initialization failed with error: %s", err.Error()))
+}

@@ -14,6 +14,13 @@
 
 package adapter
 
+const (
+	OperationDescriptionKey  = "description"
+	OperationVersionKey      = "version"
+	OperationTemplateNameKey = "templateName"
+	OperationServiceNameKey  = "serviceName"
+)
+
 type Operation struct {
 	Type       int32             `json:"type,string,omitempty"`
 	Properties map[string]string `json:"properties,omitempty"`

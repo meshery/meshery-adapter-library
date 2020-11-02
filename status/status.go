@@ -12,20 +12,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package config
+package status
 
-type Handler interface {
-	SetKey(key string, value string)
+const (
+	NotInstalled = "not installed"
+	Installing   = "installing"
+	Installed    = "installed"
 
-	GetKey(key string) string
+	NotDeployed = "not deployed"
+	Deploying   = "deploying"
+	Deployed    = "deployed"
 
-	GetObject(result interface{}) error
-}
+	NotRemoved = "not removed"
+	Removing   = "removing"
+	Removed    = "removed"
 
-type Options struct {
-	ServerConfig   map[string]string
-	MeshSpec       map[string]string
-	MeshInstance   map[string]string
-	ProviderConfig map[string]string
-	Operations     adapter.Operations
-}
+	NotConnected = "not connected"
+	Connecting   = "connecting"
+	Connected    = "connected"
+)
