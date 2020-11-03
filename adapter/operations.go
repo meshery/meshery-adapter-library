@@ -21,6 +21,15 @@ const (
 	OperationServiceNameKey  = "serviceName"
 )
 
+type OperationRequest struct {
+	OperationName     string
+	Namespace         string
+	Username          string
+	CustomBody        string
+	IsDeleteOperation bool
+	OperationID       string
+}
+
 type Operation struct {
 	Type       int32             `json:"type,string,omitempty"`
 	Properties map[string]string `json:"properties,omitempty"`

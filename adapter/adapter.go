@@ -48,15 +48,6 @@ type BaseHandler struct {
 	SmiChart          string
 }
 
-type OperationRequest struct {
-	OperationName     string
-	Namespace         string
-	Username          string
-	CustomBody        string
-	IsDeleteOperation bool
-	OperationID       string
-}
-
 func (h *BaseHandler) CreateInstance(kubeconfig []byte, contextName string, ch *chan interface{}) error {
 	h.Channel = ch
 	h.KubeConfigPath = h.Config.GetKey("kube-config-path")
