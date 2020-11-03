@@ -29,5 +29,5 @@ func ErrViper(err error) error {
 }
 
 func ErrInMem(err error) error {
-	return errors.New(errors.ErrInMem, fmt.Sprintf("InMem initialization failed with error: %s", err.Error()))
+	return errors.New(errors.ErrLocal, fmt.Sprintf("InMem initialization failed with error: %s", err.Error()))
 }

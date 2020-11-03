@@ -7,14 +7,8 @@ import (
 
 const (
 	//Provider keys
-	Viper = "viper"
-	InMem = "in-mem"
-
-	// Config keys
-	ServerKey       = "server"
-	MeshSpecKey     = "mesh"
-	MeshInstanceKey = "instance"
-	OperationsKey   = "operations"
+	ViperKey = "viper"
+	InMemKey = "in-mem"
 )
 
 type Options struct {

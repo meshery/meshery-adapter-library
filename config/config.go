@@ -19,5 +19,5 @@ type Handler interface {
 
 	GetKey(key string) string
 
-	GetObject(result interface{}) error
+	GetObject(key string, result interface{}) error
 }

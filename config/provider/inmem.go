@@ -16,6 +16,7 @@ package provider
 
 import (
 	"github.com/layer5io/gokit/utils"
+	"github.com/layer5io/meshery-adapter-library/adapter"
 	"github.com/layer5io/meshery-adapter-library/config"
 )
 
@@ -25,33 +26,32 @@ type InMem struct {
 }
 
 // NewInMem intializes an in-memory instance for config
-func NewInMem(opts config.Options) (config.Handler, error) {
-
+func NewInMem(opts Options) (config.Handler, error) {
 	store := make(map[string]string)
 
 	val, err := utils.Marshal(opts.ServerConfig)
 	if err != nil {
 		return nil, config.ErrInMem(err)
 	}
-	store[config.ServerKey] = val
+	store[adapter.ServerKey] = val
 
 	val, err = utils.Marshal(opts.MeshSpec)
 	if err != nil {
 		return nil, config.ErrInMem(err)
 	}
-	store[config.MeshSpecKey] = val
+	store[adapter.MeshSpecKey] = val
 
 	val, err = utils.Marshal(opts.MeshInstance)
 	if err != nil {
 		return nil, config.ErrInMem(err)
 	}
-	store[config.MeshInstanceKey] = val
+	store[adapter.MeshInstanceKey] = val
 
 	val, err = utils.Marshal(opts.Operations)
 	if err != nil {
 		return nil, config.ErrInMem(err)
 	}
-	store[config.OperationsKey] = val
+	store[adapter.OperationsKey] = val
 
 	return &InMem{
 		store: store,

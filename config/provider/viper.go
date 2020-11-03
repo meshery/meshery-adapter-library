@@ -15,6 +15,7 @@
 package provider
 
 import (
+	"github.com/layer5io/meshery-adapter-library/adapter"
 	"github.com/layer5io/meshery-adapter-library/config"
 	"github.com/spf13/viper"
 )
@@ -29,7 +30,7 @@ type Viper struct {
 	instance *viper.Viper
 }
 
-func NewViper(opts config.Options) (config.Handler, error) {
+func NewViper(opts Options) (config.Handler, error) {
 	v := viper.New()
 	v.AddConfigPath(opts.ProviderConfig[FilePath])
 	v.SetConfigType(opts.ProviderConfig[FileType])
@@ -37,19 +38,19 @@ func NewViper(opts config.Options) (config.Handler, error) {
 	v.AutomaticEnv()
 
 	for key, value := range opts.ServerConfig {
-		v.SetDefault(config.ServerKey+"."+key, value)
+		v.SetDefault(adapter.ServerKey+"."+key, value)
 	}
 
 	for key, value := range opts.MeshSpec {
-		v.SetDefault(config.MeshSpecKey+"."+key, value)
+		v.SetDefault(adapter.MeshSpecKey+"."+key, value)
 	}
 
 	for key, value := range opts.MeshInstance {
-		v.SetDefault(config.MeshInstanceKey+"."+key, value)
+		v.SetDefault(adapter.MeshInstanceKey+"."+key, value)
 	}
 
 	for key, value := range opts.Operations {
-		v.Set(config.OperationsKey+"."+key, value)
+		v.Set(adapter.OperationsKey+"."+key, value)
 	}
 
 	if err := viper.ReadInConfig(); err != nil {

@@ -39,7 +39,7 @@ type Operations map[string]*Operation
 
 func (h *BaseHandler) ListOperations() (Operations, error) {
 	operations := make(Operations)
-	err := h.Config.Operations(&operations)
+	err := h.Config.GetObject(OperationsKey, &operations)
 	if err != nil {
 		return nil, err
 	}

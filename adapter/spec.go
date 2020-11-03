@@ -14,6 +14,14 @@
 
 package adapter
 
+const (
+	// Config keys
+	ServerKey       = "server"
+	MeshSpecKey     = "mesh"
+	MeshInstanceKey = "instance"
+	OperationsKey   = "operations"
+)
+
 type Spec struct {
 	Name    string `json:"name"`
 	Status  string `json:"status"`
@@ -22,7 +30,7 @@ type Spec struct {
 
 func (h *BaseHandler) GetName() string {
 	spec := &Spec{}
-	err := h.Config.MeshSpec(&spec)
+	err := h.Config.GetObject(MeshSpecKey, &spec)
 	if err != nil {
 		h.Log.Err("1000", err.Error())
 		return "Not set"
