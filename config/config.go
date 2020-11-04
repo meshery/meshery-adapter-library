@@ -19,11 +19,5 @@ type Handler interface {
 
 	GetKey(key string) string
 
-	Server(result interface{}) error
-
-	MeshSpec(result interface{}) error
-
-	MeshInstance(result interface{}) error
-
-	Operations(result interface{}) error
+	GetObject(key string, result interface{}) error
 }

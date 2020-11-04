@@ -33,7 +33,7 @@ import (
 	v1 "k8s.io/api/core/v1"
 
 	"github.com/ghodss/yaml"
-	"github.com/layer5io/gokit/models"
+	"github.com/layer5io/meshkit/models"
 
 	"github.com/sirupsen/logrus"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -45,7 +45,35 @@ import (
 	"k8s.io/client-go/tools/clientcmd"
 )
 
-func (h *BaseHandler) k8sClientConfig(kubeconfig []byte, contextName string) (*rest.Config, error) {
+// creates the namespace unless it is 'default', or it is a delete operation
+func (h *Adapter) CreateNamespace(isDelete bool, namespace string) error {
+	if !isDelete && namespace != "default" {
+		if err := h.createNamespace(context.TODO(), namespace); err != nil {
+			logrus.Error(err)
+			return err
+		}
+	}
+	return nil
+}
+
+func (h *Adapter) GetServicePorts(serviceName, namespace string) ([]int64, error) {
+	ports, err := h.getServicePorts(context.TODO(), serviceName, namespace)
+	if err != nil {
+		logrus.Error(err)
+		return nil, err
+	}
+	return ports, nil
+}
+
+func (h *Adapter) ApplyKubernetesManifest(request OperationRequest, operation Operation, mergeData map[string]string, templatePath string) error {
+	if err := h.applyK8sManifest(context.TODO(), request, operation, mergeData, templatePath); err != nil {
+		logrus.Error(err)
+		return err
+	}
+	return nil
+}
+
+func (h *Adapter) k8sClientConfig(kubeconfig []byte, contextName string) (*rest.Config, error) {
 	if len(kubeconfig) > 0 {
 		ccfg, err := clientcmd.Load(kubeconfig)
 		if err != nil {
@@ -86,7 +114,7 @@ func writeKubeconfig(kubeconfig []byte, contextName string, path string) error {
 	return nil
 }
 
-func (h *BaseHandler) executeRule(ctx context.Context, data *unstructured.Unstructured, namespace string, isDelete, isCustomOp bool) error {
+func (h *Adapter) executeRule(ctx context.Context, data *unstructured.Unstructured, namespace string, isDelete, isCustomOp bool) error {
 	if namespace != "" {
 		data.SetNamespace(namespace)
 	}
@@ -137,7 +165,7 @@ func (h *BaseHandler) executeRule(ctx context.Context, data *unstructured.Unstru
 	return nil
 }
 
-func (h *BaseHandler) createResource(ctx context.Context, res schema.GroupVersionResource, data *unstructured.Unstructured) error {
+func (h *Adapter) createResource(ctx context.Context, res schema.GroupVersionResource, data *unstructured.Unstructured) error {
 	_, err := h.DynamicKubeClient.Resource(res).Namespace(data.GetNamespace()).Create(ctx, data, metav1.CreateOptions{})
 	if err != nil {
 		err = gherrors.Wrapf(err, "unable to create the requested resource, attempting operation without namespace")
@@ -153,7 +181,7 @@ func (h *BaseHandler) createResource(ctx context.Context, res schema.GroupVersio
 	return nil
 }
 
-func (h *BaseHandler) deleteResource(ctx context.Context, res schema.GroupVersionResource, data *unstructured.Unstructured) error {
+func (h *Adapter) deleteResource(ctx context.Context, res schema.GroupVersionResource, data *unstructured.Unstructured) error {
 	if h.DynamicKubeClient == nil {
 		return errors.New("mesh client has not been created")
 	}
@@ -193,7 +221,7 @@ func (h *BaseHandler) deleteResource(ctx context.Context, res schema.GroupVersio
 	return nil
 }
 
-func (h *BaseHandler) getResource(ctx context.Context, res schema.GroupVersionResource, data *unstructured.Unstructured) (*unstructured.Unstructured, error) {
+func (h *Adapter) getResource(ctx context.Context, res schema.GroupVersionResource, data *unstructured.Unstructured) (*unstructured.Unstructured, error) {
 	data1, err := h.DynamicKubeClient.Resource(res).Namespace(data.GetNamespace()).Get(ctx, data.GetName(), metav1.GetOptions{})
 	if err != nil {
 		err = gherrors.Wrap(err, "unable to retrieve the resource with a matching name, attempting operation without namespace")
@@ -210,7 +238,7 @@ func (h *BaseHandler) getResource(ctx context.Context, res schema.GroupVersionRe
 	return data1, nil
 }
 
-func (h *BaseHandler) updateResource(ctx context.Context, res schema.GroupVersionResource, data *unstructured.Unstructured) error {
+func (h *Adapter) updateResource(ctx context.Context, res schema.GroupVersionResource, data *unstructured.Unstructured) error {
 	if _, err := h.DynamicKubeClient.Resource(res).Namespace(data.GetNamespace()).Update(ctx, data, metav1.UpdateOptions{}); err != nil {
 		err = gherrors.Wrap(err, "unable to update resource with the given name, attempting operation without namespace")
 		logrus.Warn(err)
@@ -225,7 +253,7 @@ func (h *BaseHandler) updateResource(ctx context.Context, res schema.GroupVersio
 	return nil
 }
 
-func (h *BaseHandler) applyConfigChange(ctx context.Context, yamlFileContents, namespace string, isDelete, isCustomOp bool) error {
+func (h *Adapter) applyConfigChange(ctx context.Context, yamlFileContents, namespace string, isDelete, isCustomOp bool) error {
 	yamls, err := h.splitYAML(yamlFileContents)
 	if err != nil {
 		err = gherrors.Wrap(err, "error while splitting yaml")
@@ -253,7 +281,7 @@ func (h *BaseHandler) applyConfigChange(ctx context.Context, yamlFileContents, n
 	return nil
 }
 
-func (h *BaseHandler) applyRulePayload(ctx context.Context, namespace string, newBytes []byte, isDelete, isCustomOp bool) error {
+func (h *Adapter) applyRulePayload(ctx context.Context, namespace string, newBytes []byte, isDelete, isCustomOp bool) error {
 	if h.DynamicKubeClient == nil {
 		return errors.New("mesh client has not been created")
 	}
@@ -283,7 +311,7 @@ func (h *BaseHandler) applyRulePayload(ctx context.Context, namespace string, ne
 	return nil
 }
 
-func (h *BaseHandler) splitYAML(yamlContents string) ([]string, error) {
+func (h *Adapter) splitYAML(yamlContents string) ([]string, error) {
 	yamlDecoder, ok := NewDocumentDecoder(ioutil.NopCloser(bytes.NewReader([]byte(yamlContents)))).(*YAMLDecoder)
 	if !ok {
 		err := fmt.Errorf("unable to create a yaml decoder")
@@ -324,7 +352,7 @@ func (h *BaseHandler) splitYAML(yamlContents string) ([]string, error) {
 }
 
 // creates the namespace if it doesn't exist
-func (h *BaseHandler) createNamespace(ctx context.Context, namespace string) error {
+func (h *Adapter) createNamespace(ctx context.Context, namespace string) error {
 	logrus.Debugf("creating namespace: %s", namespace)
 	_, errGetNs := h.KubeClient.CoreV1().Namespaces().Get(ctx, namespace, metav1.GetOptions{})
 	if apierrors.IsNotFound(errGetNs) {
@@ -335,7 +363,7 @@ func (h *BaseHandler) createNamespace(ctx context.Context, namespace string) err
 	return errGetNs
 }
 
-func (h *BaseHandler) executeTemplate(ctx context.Context, data map[string]string, templatePath string) (string, error) {
+func (h *Adapter) executeTemplate(ctx context.Context, data map[string]string, templatePath string) (string, error) {
 	tmpl, err := template.ParseFiles(templatePath)
 	if err != nil {
 		err = gherrors.Wrapf(err, "unable to parse template")
@@ -352,7 +380,7 @@ func (h *BaseHandler) executeTemplate(ctx context.Context, data map[string]strin
 	return buf.String(), nil
 }
 
-func (h *BaseHandler) applyK8sManifest(ctx context.Context, request OperationRequest, operation Operation, data map[string]string, templatePath string) error {
+func (h *Adapter) applyK8sManifest(ctx context.Context, request OperationRequest, operation Operation, data map[string]string, templatePath string) error {
 	merged, err := h.executeTemplate(ctx, data, templatePath)
 	if err != nil {
 		err = gherrors.Wrapf(err, "unable to apply kubernetes manifest (executeTemplate) ")
@@ -371,7 +399,7 @@ func (h *BaseHandler) applyK8sManifest(ctx context.Context, request OperationReq
 	return nil
 }
 
-func (h *BaseHandler) getServicePorts(ctx context.Context, svc, namespace string) ([]int64, error) {
+func (h *Adapter) getServicePorts(ctx context.Context, svc, namespace string) ([]int64, error) {
 	ns := &unstructured.Unstructured{}
 	res := schema.GroupVersionResource{
 		Version:  "v1",

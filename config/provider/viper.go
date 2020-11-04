@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package configprovider
+package provider
 
 import (
 	"github.com/layer5io/meshery-adapter-library/adapter"
@@ -21,37 +21,36 @@ import (
 )
 
 const (
-	ServerKey       = "server"
-	MeshSpecKey     = "mesh"
-	MeshInstanceKey = "instance"
-	OperationsKey   = "operations"
+	FilePath = "filepath"
+	FileType = "filetype"
+	FileName = "filename"
 )
 
 type Viper struct {
 	instance *viper.Viper
 }
 
-func NewViper(serverConfig map[string]string, meshSpec map[string]string, meshInstance map[string]string, providerConfig map[string]string, operations adapter.Operations) (config.Handler, error) {
+func NewViper(opts Options) (config.Handler, error) {
 	v := viper.New()
-	v.AddConfigPath(providerConfig["filepath"])
-	v.SetConfigType(providerConfig["filetype"])
-	v.SetConfigName(providerConfig["filename"])
+	v.AddConfigPath(opts.ProviderConfig[FilePath])
+	v.SetConfigType(opts.ProviderConfig[FileType])
+	v.SetConfigName(opts.ProviderConfig[FileName])
 	v.AutomaticEnv()
 
-	for key, value := range serverConfig {
-		v.SetDefault(ServerKey+"."+key, value)
+	for key, value := range opts.ServerConfig {
+		v.SetDefault(adapter.ServerKey+"."+key, value)
 	}
 
-	for key, value := range meshSpec {
-		v.SetDefault(MeshSpecKey+"."+key, value)
+	for key, value := range opts.MeshSpec {
+		v.SetDefault(adapter.MeshSpecKey+"."+key, value)
 	}
 
-	for key, value := range meshInstance {
-		v.SetDefault(MeshInstanceKey+"."+key, value)
+	for key, value := range opts.MeshInstance {
+		v.SetDefault(adapter.MeshInstanceKey+"."+key, value)
 	}
 
-	for key, value := range operations {
-		v.Set(OperationsKey+"."+key, value)
+	for key, value := range opts.Operations {
+		v.Set(adapter.OperationsKey+"."+key, value)
 	}
 
 	if err := viper.ReadInConfig(); err != nil {
@@ -75,18 +74,6 @@ func (v *Viper) GetKey(key string) string {
 	return v.instance.Get(key).(string)
 }
 
-func (v *Viper) Server(result interface{}) error {
-	return v.instance.Sub(ServerKey).Unmarshal(result)
-}
-
-func (v *Viper) MeshSpec(result interface{}) error {
-	return v.instance.Sub(MeshSpecKey).Unmarshal(result)
-}
-
-func (v *Viper) MeshInstance(result interface{}) error {
-	return v.instance.Sub(MeshInstanceKey).Unmarshal(result)
-}
-
-func (v *Viper) Operations(result interface{}) error {
-	return v.instance.Sub(OperationsKey).Unmarshal(result)
+func (v *Viper) GetObject(key string, result interface{}) error {
+	return v.instance.Sub(key).Unmarshal(result)
 }

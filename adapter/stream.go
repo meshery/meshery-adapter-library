@@ -14,10 +14,6 @@
 
 package adapter
 
-import (
-	"github.com/layer5io/gokit/errors"
-)
-
 type Event struct {
 	Operationid string `json:"operationid,omitempty"`
 	EType       int32  `json:"type,string,omitempty"`
@@ -25,13 +21,13 @@ type Event struct {
 	Details     string `json:"details,omitempty"`
 }
 
-func (h *BaseHandler) StreamErr(e *Event, err error) {
-	h.Log.Err(errors.GetCode(err), err.Error())
+func (h *Adapter) StreamErr(e *Event, err error) {
+	h.Log.Error(err)
 	e.EType = 2
 	*h.Channel <- e
 }
 
-func (h *BaseHandler) StreamInfo(e *Event) {
+func (h *Adapter) StreamInfo(e *Event) {
 	h.Log.Info("Sending event")
 	e.EType = 0
 	*h.Channel <- e

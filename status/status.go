@@ -12,20 +12,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package config
+package status
 
-import (
-	"github.com/layer5io/meshkit/errors"
+const (
+	NotInstalled = "not installed"
+	Installing   = "installing"
+	Installed    = "installed"
+
+	NotDeployed = "not deployed"
+	Deploying   = "deploying"
+	Deployed    = "deployed"
+
+	NotRemoved = "not removed"
+	Removing   = "removing"
+	Removed    = "removed"
+
+	NotConnected = "not connected"
+	Connecting   = "connecting"
+	Connected    = "connected"
 )
-
-var (
-	ErrEmptyConfig = errors.NewDefault(errors.ErrEmptyConfig, "Config not initialized")
-)
-
-func ErrViper(err error) error {
-	return errors.NewDefault(errors.ErrViper, "Viper initialization failed with error: ", err.Error())
-}
-
-func ErrInMem(err error) error {
-	return errors.NewDefault(errors.ErrInMem, "InMem initialization failed with error: ", err.Error())
-}

@@ -15,35 +15,34 @@
 package adapter
 
 import (
-	"fmt"
-
-	"github.com/layer5io/gokit/errors"
+	"github.com/layer5io/meshkit/errors"
 )
 
 var (
-	ErrOpInvalid = errors.New(errors.ErrOpInvalid, "Invalid operation")
+	ErrOpInvalid = errors.NewDefault(errors.ErrOpInvalid, "Invalid operation")
+	ErrGetName   = errors.NewDefault(errors.ErrGetName, "Unable to get mesh name")
 )
 
 func ErrInstallMesh(err error) error {
-	return errors.New(errors.ErrInstallMesh, fmt.Sprintf("Error installing mesh: %s", err.Error()))
+	return errors.NewDefault(errors.ErrInstallMesh, "Error installing mesh: ", err.Error())
 }
 
 func ErrMeshConfig(err error) error {
-	return errors.New(errors.ErrMeshConfig, fmt.Sprintf("Error configuration mesh: %s", err.Error()))
+	return errors.NewDefault(errors.ErrMeshConfig, "Error configuration mesh: ", err.Error())
 }
 
 func ErrPortForward(err error) error {
-	return errors.New(errors.ErrPortForward, fmt.Sprintf("Error portforwarding mesh gui: %s", err.Error()))
+	return errors.NewDefault(errors.ErrPortForward, "Error portforwarding mesh gui: ", err.Error())
 }
 
 func ErrClientConfig(err error) error {
-	return errors.New(errors.ErrClientConfig, fmt.Sprintf("Error setting client Config: %s", err.Error()))
+	return errors.NewDefault(errors.ErrClientConfig, "Error setting client Config: ", err.Error())
 }
 
 func ErrClientSet(err error) error {
-	return errors.New(errors.ErrClientSet, fmt.Sprintf("Error setting clientset: %s", err.Error()))
+	return errors.NewDefault(errors.ErrClientSet, "Error setting clientset: ", err.Error())
 }
 
 func ErrStreamEvent(err error) error {
-	return errors.New(errors.ErrStreamEvent, fmt.Sprintf("Error streaming event: %s", err.Error()))
+	return errors.NewDefault(errors.ErrStreamEvent, "Error streaming event: ", err.Error())
 }

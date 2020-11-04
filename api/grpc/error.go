@@ -17,21 +17,21 @@ package grpc
 import (
 	"fmt"
 
-	"github.com/layer5io/gokit/errors"
+	"github.com/layer5io/meshkit/errors"
 )
 
 var (
-	ErrRequestInvalid = errors.New("603", "Apply Request invalid")
+	ErrRequestInvalid = errors.NewDefault("603", "Apply Request invalid")
 )
 
 func ErrPanic(r interface{}) error {
-	return errors.New(errors.ErrPanic, fmt.Sprintf("%v", r))
+	return errors.NewDefault(errors.ErrPanic, fmt.Sprintf("%v", r))
 }
 
 func ErrGrpcListener(err error) error {
-	return errors.New(errors.ErrGrpcListener, fmt.Sprintf("Error during grpc listener initialization : %v", err))
+	return errors.NewDefault(errors.ErrGrpcListener, fmt.Sprintf("Error during grpc listener initialization : %v", err))
 }
 
 func ErrGrpcServer(err error) error {
-	return errors.New(errors.ErrGrpcServer, fmt.Sprintf("Error during grpc server initialization : %v", err))
+	return errors.NewDefault(errors.ErrGrpcServer, fmt.Sprintf("Error during grpc server initialization : %v", err))
 }

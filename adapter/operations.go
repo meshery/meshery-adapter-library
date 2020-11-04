@@ -14,6 +14,24 @@
 
 package adapter
 
+import "context"
+
+const (
+	OperationDescriptionKey  = "description"
+	OperationVersionKey      = "version"
+	OperationTemplateNameKey = "templateName"
+	OperationServiceNameKey  = "serviceName"
+)
+
+type OperationRequest struct {
+	OperationName     string
+	Namespace         string
+	Username          string
+	CustomBody        string
+	IsDeleteOperation bool
+	OperationID       string
+}
+
 type Operation struct {
 	Type       int32             `json:"type,string,omitempty"`
 	Properties map[string]string `json:"properties,omitempty"`
@@ -21,11 +39,15 @@ type Operation struct {
 
 type Operations map[string]*Operation
 
-func (h *BaseHandler) ListOperations() (Operations, error) {
+func (h *Adapter) ListOperations() (Operations, error) {
 	operations := make(Operations)
-	err := h.Config.Operations(&operations)
+	err := h.Config.GetObject(OperationsKey, &operations)
 	if err != nil {
 		return nil, err
 	}
 	return operations, nil
+}
+
+func (h *Adapter) ApplyOperation(context.Context, OperationRequest) error {
+	return nil
 }

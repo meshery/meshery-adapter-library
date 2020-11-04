@@ -14,18 +14,31 @@
 
 package adapter
 
+import (
+	"fmt"
+
+	"github.com/layer5io/meshkit/utils"
+)
+
+var (
+	ServerKey         = "server"
+	MeshSpecKey       = "mesh"
+	MeshInstanceKey   = "instance"
+	OperationsKey     = "operations"
+	KubeconfigPathKey = fmt.Sprintf("%s/.kube/config", utils.GetHome())
+)
+
 type Spec struct {
 	Name    string `json:"name"`
 	Status  string `json:"status"`
 	Version string `json:"version"`
 }
 
-func (h *BaseHandler) GetName() string {
+func (h *Adapter) GetName() string {
 	spec := &Spec{}
-	err := h.Config.MeshSpec(&spec)
+	err := h.Config.GetObject(MeshSpecKey, &spec)
 	if err != nil {
-		h.Log.Err("1000", err.Error())
-		return "Not set"
+		return " "
 	}
 	return spec.Name
 }
