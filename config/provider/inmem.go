@@ -15,9 +15,9 @@
 package provider
 
 import (
-	"github.com/layer5io/gokit/utils"
 	"github.com/layer5io/meshery-adapter-library/adapter"
 	"github.com/layer5io/meshery-adapter-library/config"
+	"github.com/layer5io/meshkit/utils"
 )
 
 // InMem instance for configuration

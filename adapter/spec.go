@@ -17,7 +17,7 @@ package adapter
 import (
 	"fmt"
 
-	"github.com/layer5io/gokit/utils"
+	"github.com/layer5io/meshkit/utils"
 )
 
 var (
@@ -38,8 +38,7 @@ func (h *Adapter) GetName() string {
 	spec := &Spec{}
 	err := h.Config.GetObject(MeshSpecKey, &spec)
 	if err != nil {
-		h.Log.Err("1000", err.Error())
-		return "Not set"
+		return " "
 	}
 	return spec.Name
 }

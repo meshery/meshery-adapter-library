@@ -4,9 +4,9 @@ package config
 import (
 	"fmt"
 
-	"github.com/layer5io/gokit/utils"
 	configprovider "github.com/layer5io/meshery-adapter-library/config/provider"
 	"github.com/layer5io/meshery-adapter-library/status"
+	"github.com/layer5io/meshkit/utils"
 )
 
 var (

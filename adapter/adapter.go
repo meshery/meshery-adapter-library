@@ -21,8 +21,8 @@ import (
 
 	"k8s.io/client-go/kubernetes"
 
-	"github.com/layer5io/gokit/logger"
 	"github.com/layer5io/meshery-adapter-library/config"
+	"github.com/layer5io/meshkit/logger"
 )
 
 type Handler interface {
@@ -65,7 +65,7 @@ func (h *Adapter) CreateInstance(kubeconfig []byte, contextName string, ch *chan
 
 	dynamicClient, err := dynamic.NewForConfig(k8sConfig)
 	if err != nil {
-		return err
+		return ErrClientSet(err)
 	}
 	h.DynamicKubeClient = dynamicClient
 

@@ -33,7 +33,7 @@ import (
 	v1 "k8s.io/api/core/v1"
 
 	"github.com/ghodss/yaml"
-	"github.com/layer5io/gokit/models"
+	"github.com/layer5io/meshkit/models"
 
 	"github.com/sirupsen/logrus"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"

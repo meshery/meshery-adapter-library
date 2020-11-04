@@ -15,19 +15,17 @@
 package config
 
 import (
-	"fmt"
-
-	"github.com/layer5io/gokit/errors"
+	"github.com/layer5io/meshkit/errors"
 )
 
 var (
-	ErrEmptyConfig = errors.New(errors.ErrEmptyConfig, "Config not initialized")
+	ErrEmptyConfig = errors.NewDefault(errors.ErrEmptyConfig, "Config not initialized")
 )
 
 func ErrViper(err error) error {
-	return errors.New(errors.ErrViper, fmt.Sprintf("Viper initialization failed with error: %s", err.Error()))
+	return errors.NewDefault(errors.ErrViper, "Viper initialization failed with error: ", err.Error())
 }
 
 func ErrInMem(err error) error {
-	return errors.New(errors.ErrLocal, fmt.Sprintf("InMem initialization failed with error: %s", err.Error()))
+	return errors.NewDefault(errors.ErrInMem, "InMem initialization failed with error: ", err.Error())
 }
