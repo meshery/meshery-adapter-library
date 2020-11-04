@@ -25,13 +25,13 @@ type Event struct {
 	Details     string `json:"details,omitempty"`
 }
 
-func (h *BaseHandler) StreamErr(e *Event, err error) {
+func (h *Adapter) StreamErr(e *Event, err error) {
 	h.Log.Err(errors.GetCode(err), err.Error())
 	e.EType = 2
 	*h.Channel <- e
 }
 
-func (h *BaseHandler) StreamInfo(e *Event) {
+func (h *Adapter) StreamInfo(e *Event) {
 	h.Log.Info("Sending event")
 	e.EType = 0
 	*h.Channel <- e

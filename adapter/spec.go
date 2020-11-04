@@ -14,12 +14,18 @@
 
 package adapter
 
-const (
-	// Config keys
-	ServerKey       = "server"
-	MeshSpecKey     = "mesh"
-	MeshInstanceKey = "instance"
-	OperationsKey   = "operations"
+import (
+	"fmt"
+
+	"github.com/layer5io/gokit/utils"
+)
+
+var (
+	ServerKey         = "server"
+	MeshSpecKey       = "mesh"
+	MeshInstanceKey   = "instance"
+	OperationsKey     = "operations"
+	KubeconfigPathKey = fmt.Sprintf("%s/.kube/config", utils.GetHome())
 )
 
 type Spec struct {
@@ -28,7 +34,7 @@ type Spec struct {
 	Version string `json:"version"`
 }
 
-func (h *BaseHandler) GetName() string {
+func (h *Adapter) GetName() string {
 	spec := &Spec{}
 	err := h.Config.GetObject(MeshSpecKey, &spec)
 	if err != nil {

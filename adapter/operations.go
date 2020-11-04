@@ -14,6 +14,8 @@
 
 package adapter
 
+import "context"
+
 const (
 	OperationDescriptionKey  = "description"
 	OperationVersionKey      = "version"
@@ -37,11 +39,15 @@ type Operation struct {
 
 type Operations map[string]*Operation
 
-func (h *BaseHandler) ListOperations() (Operations, error) {
+func (h *Adapter) ListOperations() (Operations, error) {
 	operations := make(Operations)
 	err := h.Config.GetObject(OperationsKey, &operations)
 	if err != nil {
 		return nil, err
 	}
 	return operations, nil
+}
+
+func (h *Adapter) ApplyOperation(context.Context, OperationRequest) error {
+	return nil
 }

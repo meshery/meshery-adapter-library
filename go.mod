@@ -8,9 +8,8 @@ require (
 	github.com/ghodss/yaml v1.0.0
 	github.com/golang/protobuf v1.4.2
 	github.com/grpc-ecosystem/go-grpc-middleware v1.2.0
-	github.com/imdario/mergo v0.3.8 // indirect
-	github.com/layer5io/gokit v0.1.12
-	github.com/pkg/errors v0.8.1
+	github.com/layer5io/gokit v0.1.16
+	github.com/pkg/errors v0.9.1
 	github.com/sirupsen/logrus v1.6.0
 	github.com/spf13/viper v1.7.1
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc v0.11.0

@@ -17,8 +17,6 @@ package adapter
 import (
 	"context"
 
-	"github.com/sirupsen/logrus"
-
 	"k8s.io/client-go/dynamic"
 
 	"k8s.io/client-go/kubernetes"
@@ -33,11 +31,12 @@ type Handler interface {
 	ApplyOperation(context.Context, OperationRequest) error
 	ListOperations() (Operations, error)
 
+	// Need not implement this method and can be reused
 	StreamErr(*Event, error)
 	StreamInfo(*Event)
 }
 
-type BaseHandler struct {
+type Adapter struct {
 	Config  config.Handler
 	Log     logger.Handler
 	Channel *chan interface{}
@@ -48,9 +47,9 @@ type BaseHandler struct {
 	SmiChart          string
 }
 
-func (h *BaseHandler) CreateInstance(kubeconfig []byte, contextName string, ch *chan interface{}) error {
+func (h *Adapter) CreateInstance(kubeconfig []byte, contextName string, ch *chan interface{}) error {
 	h.Channel = ch
-	h.KubeConfigPath = h.Config.GetKey("kube-config-path")
+	h.KubeConfigPath = h.Config.GetKey(KubeconfigPathKey)
 
 	k8sConfig, err := h.k8sClientConfig(kubeconfig, contextName)
 	if err != nil {
@@ -70,33 +69,5 @@ func (h *BaseHandler) CreateInstance(kubeconfig []byte, contextName string, ch *
 	}
 	h.DynamicKubeClient = dynamicClient
 
-	return nil
-}
-
-// creates the namespace unless it is 'default', or it is a delete operation
-func (h *BaseHandler) CreateNamespace(isDelete bool, namespace string) error {
-	if !isDelete && namespace != "default" {
-		if err := h.createNamespace(context.TODO(), namespace); err != nil {
-			logrus.Error(err)
-			return err
-		}
-	}
-	return nil
-}
-
-func (h *BaseHandler) GetServicePorts(serviceName, namespace string) ([]int64, error) {
-	ports, err := h.getServicePorts(context.TODO(), serviceName, namespace)
-	if err != nil {
-		logrus.Error(err)
-		return nil, err
-	}
-	return ports, nil
-}
-
-func (h *BaseHandler) ApplyKubernetesManifest(request OperationRequest, operation Operation, mergeData map[string]string, templatePath string) error {
-	if err := h.applyK8sManifest(context.TODO(), request, operation, mergeData, templatePath); err != nil {
-		logrus.Error(err)
-		return err
-	}
 	return nil
 }
