@@ -1,5 +1,5 @@
 // This is a sample config file which is to be added in every adapter according to their config attributes/values
-package config
+package common
 
 import (
 	"fmt"

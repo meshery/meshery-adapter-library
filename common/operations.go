@@ -1,4 +1,4 @@
-package config
+package common
 
 import (
 	"github.com/layer5io/meshery-adapter-library/adapter"
@@ -23,16 +23,16 @@ var (
 			Properties: map[string]string{
 				adapter.OperationDescriptionKey:  "Istio Book Info Application",
 				adapter.OperationVersionKey:      "",
-				adapter.OperationTemplateNameKey: "bookinfo.yaml",
+				adapter.OperationTemplateNameKey: "templates/bookinfo.yaml",
 				adapter.OperationServiceNameKey:  "productpage",
 			},
 		},
 		InstallHTTPBinCommand: &adapter.Operation{
 			Type: int32(meshes.OpCategory_SAMPLE_APPLICATION),
 			Properties: map[string]string{
-				adapter.OperationDescriptionKey:  "HTTPbin Application",
+				adapter.OperationDescriptionKey:  "HTTPBin Application",
 				adapter.OperationVersionKey:      "",
-				adapter.OperationTemplateNameKey: "httpbin-consul.yaml",
+				adapter.OperationTemplateNameKey: "templates/httpbin.yaml",
 				adapter.OperationServiceNameKey:  "httpbin",
 			},
 		},
@@ -41,8 +41,8 @@ var (
 			Properties: map[string]string{
 				adapter.OperationDescriptionKey:  "Image Hub Application",
 				adapter.OperationVersionKey:      "",
-				adapter.OperationTemplateNameKey: "image-hub.yaml",
-				adapter.OperationServiceNameKey:  "ingess",
+				adapter.OperationTemplateNameKey: "templates/imagehub.yaml",
+				adapter.OperationServiceNameKey:  "web",
 			},
 		},
 		CustomOpCommand: &adapter.Operation{
@@ -50,7 +50,7 @@ var (
 			Properties: map[string]string{
 				adapter.OperationDescriptionKey:  "Custom YAML",
 				adapter.OperationVersionKey:      "",
-				adapter.OperationTemplateNameKey: "image-hub.yaml",
+				adapter.OperationTemplateNameKey: "templates/custom.yaml",
 			},
 		},
 	}
