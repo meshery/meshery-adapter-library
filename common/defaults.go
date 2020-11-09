@@ -40,6 +40,6 @@ var (
 		MeshSpec:       defaultMeshSpec,
 		MeshInstance:   defaultMeshInstance,
 		ProviderConfig: defaultProviderConfig,
-		Operations:     CommonOperations,
+		Operations:     Operations,
 	}
 )

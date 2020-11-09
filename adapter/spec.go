@@ -14,18 +14,12 @@
 
 package adapter
 
-import (
-	"fmt"
-
-	"github.com/layer5io/meshkit/utils"
-)
-
-var (
+const (
 	ServerKey         = "server"
 	MeshSpecKey       = "mesh"
 	MeshInstanceKey   = "instance"
 	OperationsKey     = "operations"
-	KubeconfigPathKey = fmt.Sprintf("%s/.kube/config", utils.GetHome())
+	KubeconfigPathKey = "kubeconfig-path"
 )
 
 type Spec struct {
@@ -37,8 +31,17 @@ type Spec struct {
 func (h *Adapter) GetName() string {
 	spec := &Spec{}
 	err := h.Config.GetObject(MeshSpecKey, &spec)
-	if err != nil {
+	if err != nil && len(spec.Name) > 0 {
 		return " "
 	}
 	return spec.Name
+}
+
+func (h *Adapter) GetVersion() string {
+	spec := &Spec{}
+	err := h.Config.GetObject(MeshSpecKey, &spec)
+	if err != nil && len(spec.Version) > 0 {
+		return " "
+	}
+	return spec.Version
 }
