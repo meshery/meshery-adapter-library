@@ -43,7 +43,7 @@ func (h *Adapter) ListOperations() (Operations, error) {
 	operations := make(Operations)
 	err := h.Config.GetObject(OperationsKey, &operations)
 	if err != nil {
-		return nil, err
+		return nil, ErrListOperations(err)
 	}
 	return operations, nil
 }

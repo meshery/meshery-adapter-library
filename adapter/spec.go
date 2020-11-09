@@ -14,12 +14,6 @@
 
 package adapter
 
-import (
-	"fmt"
-
-	"github.com/layer5io/meshkit/utils"
-)
-
 const (
 	ServerKey         = "server"
 	MeshSpecKey       = "mesh"

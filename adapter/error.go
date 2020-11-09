@@ -18,31 +18,57 @@ import (
 	"github.com/layer5io/meshkit/errors"
 )
 
+const (
+	ErrGetNameCode        = "1000"
+	ErrInstallMeshCode    = "1001"
+	ErrMeshConfigCode     = "1002"
+	ErrPortForwardCode    = "1003"
+	ErrClientConfigCode   = "1004"
+	ErrClientSetCode      = "1005"
+	ErrStreamEventCode    = "1006"
+	ErrOpInvalidCode      = "1007"
+	ErrApplyOperationCode = "1008"
+	ErrListOperationsCode = "1009"
+	ErrNewSmiCode         = "1010"
+	ErrRunSmiCode         = "1011"
+)
+
 var (
-	ErrOpInvalid = errors.NewDefault(errors.ErrOpInvalid, "Invalid operation")
-	ErrGetName   = errors.NewDefault(errors.ErrGetName, "Unable to get mesh name")
+	ErrGetName   = errors.NewDefault(ErrGetNameCode, "Unable to get mesh name")
+	ErrOpInvalid = errors.NewDefault(ErrOpInvalidCode, "Invalid operation")
 )
 
 func ErrInstallMesh(err error) error {
-	return errors.NewDefault(errors.ErrInstallMesh, "Error installing mesh: ", err.Error())
+	return errors.NewDefault(ErrInstallMeshCode, "Error installing mesh: ", err.Error())
 }
 
 func ErrMeshConfig(err error) error {
-	return errors.NewDefault(errors.ErrMeshConfig, "Error configuration mesh: ", err.Error())
+	return errors.NewDefault(ErrMeshConfigCode, "Error configuration mesh: ", err.Error())
 }
 
 func ErrPortForward(err error) error {
-	return errors.NewDefault(errors.ErrPortForward, "Error portforwarding mesh gui: ", err.Error())
+	return errors.NewDefault(ErrPortForwardCode, "Error portforwarding mesh gui: ", err.Error())
 }
 
 func ErrClientConfig(err error) error {
-	return errors.NewDefault(errors.ErrClientConfig, "Error setting client Config: ", err.Error())
+	return errors.NewDefault(ErrClientConfigCode, "Error setting client Config: ", err.Error())
 }
 
 func ErrClientSet(err error) error {
-	return errors.NewDefault(errors.ErrClientSet, "Error setting clientset: ", err.Error())
+	return errors.NewDefault(ErrClientSetCode, "Error setting clientset: ", err.Error())
 }
 
 func ErrStreamEvent(err error) error {
-	return errors.NewDefault(errors.ErrStreamEvent, "Error streaming event: ", err.Error())
+	return errors.NewDefault(ErrStreamEventCode, "Error streaming event: ", err.Error())
+}
+func ErrListOperations(err error) error {
+	return errors.NewDefault(ErrListOperationsCode, "Error listing operations: ", err.Error())
+}
+
+func ErrNewSmi(err error) error {
+	return errors.NewDefault(ErrNewSmiCode, "Error creating new SMI test client: ", err.Error())
+}
+
+func ErrRunSmi(err error) error {
+	return errors.NewDefault(ErrRunSmiCode, "Error running SMI conformance test: ", err.Error())
 }
