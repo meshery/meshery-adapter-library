@@ -17,7 +17,7 @@ const (
 )
 
 var (
-	CommonOperations = adapter.Operations{
+	Operations = adapter.Operations{
 		InstallBookInfoCommand: &adapter.Operation{
 			Type: int32(meshes.OpCategory_SAMPLE_APPLICATION),
 			Properties: map[string]string{
