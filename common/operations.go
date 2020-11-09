@@ -12,6 +12,9 @@ const (
 	InstallHTTPBinCommand  = "install_http_bin"
 	InstallImageHubCommand = "install_image_hub"
 
+	// Validate Operation Commands
+	ValidateSmiConformance = "validate_smi_conformance_test"
+
 	// Custom Operation Commands
 	CustomOpCommand = "custom"
 )
@@ -51,6 +54,13 @@ var (
 				adapter.OperationDescriptionKey:  "Custom YAML",
 				adapter.OperationVersionKey:      "",
 				adapter.OperationTemplateNameKey: "templates/custom.yaml",
+			},
+		},
+
+		ValidateSmiConformance: &adapter.Operation{
+			Type: int32(meshes.OpCategory_VALIDATE),
+			Properties: map[string]string{
+				adapter.OperationDescriptionKey: "SMI Conformance Test",
 			},
 		},
 	}
