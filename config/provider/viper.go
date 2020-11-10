@@ -26,10 +26,12 @@ const (
 	FileName = "filename"
 )
 
+// Type Viper implements the config interface Handler for a Viper configuration registry.
 type Viper struct {
 	instance *viper.Viper
 }
 
+// NewViper returns a new instance of a Viper configuration provider using the provided Options opts.
 func NewViper(opts Options) (config.Handler, error) {
 	v := viper.New()
 	v.AddConfigPath(opts.ProviderConfig[FilePath])
