@@ -19,6 +19,7 @@ import (
 )
 
 var (
+	// ErrEmptyConfig is returned when the config has not been initialized.
 	ErrEmptyConfig = errors.NewDefault(errors.ErrEmptyConfig, "Config not initialized")
 )
 

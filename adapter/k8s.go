@@ -45,7 +45,7 @@ import (
 	"k8s.io/client-go/tools/clientcmd"
 )
 
-// creates the namespace unless it is 'default', or it is a delete operation
+// CreateNamespace creates the namespace specified unless it is 'default', or a delete operation.
 func (h *Adapter) CreateNamespace(isDelete bool, namespace string) error {
 	if !isDelete && namespace != "default" {
 		if err := h.createNamespace(context.TODO(), namespace); err != nil {
@@ -56,6 +56,7 @@ func (h *Adapter) CreateNamespace(isDelete bool, namespace string) error {
 	return nil
 }
 
+// GetServicePorts returns the node port(s) for a specific service in the namespace given.
 func (h *Adapter) GetServicePorts(serviceName, namespace string) ([]int64, error) {
 	ports, err := h.getServicePorts(context.TODO(), serviceName, namespace)
 	if err != nil {
@@ -65,6 +66,8 @@ func (h *Adapter) GetServicePorts(serviceName, namespace string) ([]int64, error
 	return ports, nil
 }
 
+// ApplyKubernetesManifest merges the file given by templatePath with mergeData and applies it. For a delete operation, the resources are deleted.
+// The namespace specified in the operation has to exist.
 func (h *Adapter) ApplyKubernetesManifest(request OperationRequest, operation Operation, mergeData map[string]string, templatePath string) error {
 	if err := h.applyK8sManifest(context.TODO(), request, operation, mergeData, templatePath); err != nil {
 		logrus.Error(err)

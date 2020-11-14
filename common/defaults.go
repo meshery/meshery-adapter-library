@@ -25,6 +25,7 @@ import (
 
 // The values provided here are examples of config objects that can be used as a starting point for adapter specific configuration.
 // Note that most of the entries given here are mandatory.
+// For more information about the various config option groups, see the config/provider package.
 var (
 	defaultServerConfig = map[string]string{
 		"name":     "sample-adapter",
@@ -51,6 +52,7 @@ var (
 		"filetype": "yaml",
 	}
 
+	// DefaultOpts is an example of options to be injected into a config providers.
 	DefaultOpts = configprovider.Options{
 		ServerConfig:   defaultServerConfig,
 		MeshSpec:       defaultMeshSpec,

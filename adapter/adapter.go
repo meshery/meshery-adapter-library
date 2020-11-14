@@ -12,6 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Package adapter provides the default implementation of an adapter Handler, called by the MeshServiceServer implementation.
+//
+// It implements also common Kubernetes operations, leveraging the comparatively low-level client-go library, and handling of YAML-documents.
 package adapter
 
 import (
@@ -25,17 +28,20 @@ import (
 	"github.com/layer5io/meshkit/logger"
 )
 
+// Interface Handler is extended by adapters, and used in package api/grpc that implements the MeshServiceServer.
 type Handler interface {
-	GetName() string
-	CreateInstance([]byte, string, *chan interface{}) error
-	ApplyOperation(context.Context, OperationRequest) error
-	ListOperations() (Operations, error)
+	GetName() string                                        // Returns the name of the adapter.
+	CreateInstance([]byte, string, *chan interface{}) error // Instantiates clients used in deploying and managing mesh instances, e.g. Kubernetes clients.
+	ApplyOperation(context.Context, OperationRequest) error // Applies an adapter operation. This is adapter specific and needs to be implemented by each adapter.
+	ListOperations() (Operations, error)                    // List all operations an adapter supports.
 
 	// Need not implement this method and can be reused
-	StreamErr(*Event, error)
-	StreamInfo(*Event)
+	StreamErr(*Event, error) // Streams an error event, e.g. to a channel
+	StreamInfo(*Event)       // Streams an informational event, e.g. to a channel
 }
 
+// Adapter contains all handlers, channels, clients, and other parameters for an adapter.
+// Use type embedding in a specific adapter to extend it.
 type Adapter struct {
 	Config  config.Handler
 	Log     logger.Handler
@@ -46,6 +52,8 @@ type Adapter struct {
 	KubeConfigPath    string
 }
 
+// Instantiates clients used in deploying and managing mesh instances, e.g. Kubernetes clients.
+// This needs to be called before applying operations.
 func (h *Adapter) CreateInstance(kubeconfig []byte, contextName string, ch *chan interface{}) error {
 	h.Channel = ch
 	h.KubeConfigPath = h.Config.GetKey(KubeconfigPathKey)

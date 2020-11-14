@@ -23,22 +23,26 @@ const (
 	OperationServiceNameKey  = "serviceName"
 )
 
+// OperationRequest contains the request data from meshes.ApplyRuleRequest.
 type OperationRequest struct {
-	OperationName     string
-	Namespace         string
-	Username          string
-	CustomBody        string
-	IsDeleteOperation bool
-	OperationID       string
+	OperationName     string // The name of the operation. This is used as lookup key in the Operations map.
+	Namespace         string // The namespace to use in the environment, e.g. Kubernetes, where the operation is applied.
+	Username          string // User to execute operation as, if any.
+	CustomBody        string // Custom operation manifest, for OpCategory_CUSTOM.
+	IsDeleteOperation bool   // If true, the operation specified by OperationName, is reverted, i.e. all resources created are deleted.
+	OperationID       string // ID of the operation, if any.
 }
 
+// Operation represents an operation of a given Type (see meshes.OpCategory), with a set of properties.
 type Operation struct {
 	Type       int32             `json:"type,string,omitempty"`
 	Properties map[string]string `json:"properties,omitempty"`
 }
 
+// Operations contains all operations supported by an adapter.
 type Operations map[string]*Operation
 
+// List all operations an adapter supports.
 func (h *Adapter) ListOperations() (Operations, error) {
 	operations := make(Operations)
 	err := h.Config.GetObject(OperationsKey, &operations)
@@ -48,6 +52,7 @@ func (h *Adapter) ListOperations() (Operations, error) {
 	return operations, nil
 }
 
+// Applies an adapter operation. This is adapter specific and needs to be implemented by each adapter.
 func (h *Adapter) ApplyOperation(context.Context, OperationRequest) error {
 	return nil
 }

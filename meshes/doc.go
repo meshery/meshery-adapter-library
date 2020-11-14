@@ -12,26 +12,5 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package status contains constants for mesh and operation status.
-package status
-
-const (
-	None    = "none"
-	Default = "default"
-
-	NotInstalled = "not installed"
-	Installing   = "installing"
-	Installed    = "installed"
-
-	NotDeployed = "not deployed"
-	Deploying   = "deploying"
-	Deployed    = "deployed"
-
-	NotRemoved = "not removed"
-	Removing   = "removing"
-	Removed    = "removed"
-
-	NotConnected = "not connected"
-	Connecting   = "connecting"
-	Connected    = "connected"
-)
+// Package meshes contains the MeshService ProtoBuf definition.
+package meshes
