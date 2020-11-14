@@ -15,6 +15,9 @@
 package status
 
 const (
+	None    = "none"
+	Default = "default"
+
 	NotInstalled = "not installed"
 	Installing   = "installing"
 	Installed    = "installed"

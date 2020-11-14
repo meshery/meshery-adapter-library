@@ -44,7 +44,6 @@ type Adapter struct {
 	KubeClient        *kubernetes.Clientset
 	DynamicKubeClient dynamic.Interface
 	KubeConfigPath    string
-	SmiChart          string
 }
 
 func (h *Adapter) CreateInstance(kubeconfig []byte, contextName string, ch *chan interface{}) error {
