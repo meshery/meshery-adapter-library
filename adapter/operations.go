@@ -25,12 +25,12 @@ const (
 
 // OperationRequest contains the request data from meshes.ApplyRuleRequest.
 type OperationRequest struct {
-	OperationName     string // The name of the operation. This is used as lookup key in the Operations map.
+	OperationName     string // The identifier of the operation. It is used as key in the Operations map. Avoid using a verb as part of the name, as it designates both provisioning as deprovisioning operations.
 	Namespace         string // The namespace to use in the environment, e.g. Kubernetes, where the operation is applied.
 	Username          string // User to execute operation as, if any.
-	CustomBody        string // Custom operation manifest, for OpCategory_CUSTOM.
-	IsDeleteOperation bool   // If true, the operation specified by OperationName, is reverted, i.e. all resources created are deleted.
-	OperationID       string // ID of the operation, if any.
+	CustomBody        string // Custom operation manifest, in the case of a custom operation (OpCategory_CUSTOM).
+	IsDeleteOperation bool   // If true, the operation specified by OperationName is reverted, i.e. all resources created are deleted.
+	OperationID       string // ID of the operation, if any. This identifies a specific operation invocation.
 }
 
 // Operation represents an operation of a given Type (see meshes.OpCategory), with a set of properties.

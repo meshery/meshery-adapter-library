@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package status contains constants for mesh and operation status.
+// Package status contains constants for an operation's status.
 package status
 
 const (
