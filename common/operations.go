@@ -7,10 +7,11 @@ import (
 
 const (
 
-	// Install Operation Commands
-	InstallBookInfoCommand = "install_book_info"
-	InstallHTTPBinCommand  = "install_http_bin"
-	InstallImageHubCommand = "install_image_hub"
+	// Operation Commands
+	BookInfoCommand  = "bookinfo"
+	HTTPBinCommand   = "httpbin"
+	ImageHubCommand  = "imagehub"
+	EmojiVotoCommand = "emojivoto"
 
 	// Validate Operation Commands
 	ValidateSmiConformance = "validate_smi_conformance_test"
@@ -21,47 +22,39 @@ const (
 
 var (
 	Operations = adapter.Operations{
-		InstallBookInfoCommand: &adapter.Operation{
-			Type: int32(meshes.OpCategory_SAMPLE_APPLICATION),
-			Properties: map[string]string{
-				adapter.OperationDescriptionKey:  "Istio Book Info Application",
-				adapter.OperationVersionKey:      "",
-				adapter.OperationTemplateNameKey: "templates/bookinfo.yaml",
-				adapter.OperationServiceNameKey:  "productpage",
-			},
+		BookInfoCommand: &adapter.Operation{
+			Type:        int32(meshes.OpCategory_SAMPLE_APPLICATION),
+			Description: "Istio Book Info Application",
+			Versions:    adapter.NoneVersion,
+			Template:    "templates/bookinfo.yaml",
 		},
-		InstallHTTPBinCommand: &adapter.Operation{
-			Type: int32(meshes.OpCategory_SAMPLE_APPLICATION),
-			Properties: map[string]string{
-				adapter.OperationDescriptionKey:  "HTTPBin Application",
-				adapter.OperationVersionKey:      "",
-				adapter.OperationTemplateNameKey: "templates/httpbin.yaml",
-				adapter.OperationServiceNameKey:  "httpbin",
-			},
+		HTTPBinCommand: &adapter.Operation{
+			Type:        int32(meshes.OpCategory_SAMPLE_APPLICATION),
+			Description: "HTTPBin Application",
+			Versions:    adapter.NoneVersion,
+			Template:    "templates/httpbin.yaml",
 		},
-		InstallImageHubCommand: &adapter.Operation{
-			Type: int32(meshes.OpCategory_SAMPLE_APPLICATION),
-			Properties: map[string]string{
-				adapter.OperationDescriptionKey:  "Image Hub Application",
-				adapter.OperationVersionKey:      "",
-				adapter.OperationTemplateNameKey: "templates/imagehub.yaml",
-				adapter.OperationServiceNameKey:  "web",
-			},
+		ImageHubCommand: &adapter.Operation{
+			Type:        int32(meshes.OpCategory_SAMPLE_APPLICATION),
+			Description: "Image Hub Application",
+			Versions:    adapter.NoneVersion,
+			Template:    "templates/imagehub.yaml",
+		},
+		EmojiVotoCommand: &adapter.Operation{
+			Type:        int32(meshes.OpCategory_SAMPLE_APPLICATION),
+			Description: "EmojiVoto Application",
+			Versions:    adapter.NoneVersion,
+			Template:    "templates/emojivoto.yaml",
 		},
 		CustomOpCommand: &adapter.Operation{
-			Type: int32(meshes.OpCategory_CUSTOM),
-			Properties: map[string]string{
-				adapter.OperationDescriptionKey:  "Custom YAML",
-				adapter.OperationVersionKey:      "",
-				adapter.OperationTemplateNameKey: "templates/custom.yaml",
-			},
+			Type:        int32(meshes.OpCategory_CUSTOM),
+			Description: "Custom YAML",
+			Template:    "templates/custom.yaml",
 		},
 
 		ValidateSmiConformance: &adapter.Operation{
-			Type: int32(meshes.OpCategory_VALIDATE),
-			Properties: map[string]string{
-				adapter.OperationDescriptionKey: "SMI Conformance Test",
-			},
+			Type:        int32(meshes.OpCategory_VALIDATE),
+			Description: "SMI Conformance",
 		},
 	}
 )

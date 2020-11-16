@@ -16,12 +16,20 @@ package adapter
 
 import "context"
 
-const (
-	OperationDescriptionKey  = "description"
-	OperationVersionKey      = "version"
-	OperationTemplateNameKey = "templateName"
-	OperationServiceNameKey  = "serviceName"
+var (
+	NoneVersion = []Version{"none"}
 )
+
+type Version string
+
+type Operation struct {
+	Type        int32     `json:"type,string,omitempty"`
+	Description string    `json:"description,omitempty"`
+	Versions    []Version `json:"versions,omitempty"`
+	Template    string    `json:"template,omitempty"`
+}
+
+type Operations map[string]*Operation
 
 type OperationRequest struct {
 	OperationName     string
@@ -31,13 +39,6 @@ type OperationRequest struct {
 	IsDeleteOperation bool
 	OperationID       string
 }
-
-type Operation struct {
-	Type       int32             `json:"type,string,omitempty"`
-	Properties map[string]string `json:"properties,omitempty"`
-}
-
-type Operations map[string]*Operation
 
 func (h *Adapter) ListOperations() (Operations, error) {
 	operations := make(Operations)

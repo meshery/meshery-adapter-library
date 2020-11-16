@@ -83,7 +83,7 @@ func (s *Service) SupportedOperations(ctx context.Context, req *meshes.Supported
 	for key, val := range result {
 		operations = append(operations, &meshes.SupportedOperation{
 			Key:      key,
-			Value:    val.Properties[adapter.OperationDescriptionKey],
+			Value:    val.Description,
 			Category: meshes.OpCategory(val.Type),
 		})
 	}
