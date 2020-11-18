@@ -15,6 +15,8 @@
 package provider
 
 import (
+	"fmt"
+
 	"github.com/layer5io/meshery-adapter-library/adapter"
 	"github.com/layer5io/meshery-adapter-library/config"
 	"github.com/spf13/viper"
@@ -37,30 +39,42 @@ func NewViper(opts Options) (config.Handler, error) {
 	v.SetConfigName(opts.ProviderConfig[FileName])
 	v.AutomaticEnv()
 
-	for key, value := range opts.ServerConfig {
-		v.SetDefault(adapter.ServerKey+"."+key, value)
+	if opts.ServerConfig != nil && opts.MeshSpec != nil && opts.Operations != nil {
+		v.SetDefault(adapter.ServerKey, opts.ServerConfig)
+		v.SetDefault(adapter.MeshSpecKey, opts.MeshSpec)
+		v.SetDefault(adapter.OperationsKey, opts.Operations)
 	}
 
-	for key, value := range opts.MeshSpec {
-		v.SetDefault(adapter.MeshSpecKey+"."+key, value)
-	}
-
-	for key, value := range opts.MeshInstance {
-		v.SetDefault(adapter.MeshInstanceKey+"."+key, value)
-	}
-
-	for key, value := range opts.Operations {
-		v.Set(adapter.OperationsKey+"."+key, value)
-	}
-
-	if err := viper.ReadInConfig(); err != nil {
+	if err := v.WriteConfig(); err != nil {
 		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
 			// Config file not found; ignore error
+			// Hack until viper issue #433 is fixed
+			er := v.WriteConfigAs(fmt.Sprintf("%s/%s.%s", opts.ProviderConfig[FilePath], opts.ProviderConfig[FileName], opts.ProviderConfig[FileType]))
+			if er != nil {
+				return nil, config.ErrViper(err)
+			}
+			_ = v.WriteConfig()
 		} else {
 			// Config file was found but another error was produced
 			return nil, config.ErrViper(err)
 		}
 	}
+
+	if err := viper.ReadInConfig(); err != nil {
+		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
+			// Config file not found; ignore error
+			// Hack until viper issue #433 is fixed
+			er := v.WriteConfigAs(fmt.Sprintf("%s/%s.%s", opts.ProviderConfig[FilePath], opts.ProviderConfig[FileName], opts.ProviderConfig[FileType]))
+			if er != nil {
+				return nil, config.ErrViper(err)
+			}
+			_ = v.WriteConfig()
+		} else {
+			// Config file was found but another error was produced
+			return nil, config.ErrViper(err)
+		}
+	}
+
 	return &Viper{
 		instance: v,
 	}, nil
@@ -68,6 +82,7 @@ func NewViper(opts Options) (config.Handler, error) {
 
 func (v *Viper) SetKey(key string, value string) {
 	v.instance.Set(key, value)
+	_ = v.instance.WriteConfig()
 }
 
 func (v *Viper) GetKey(key string) string {
@@ -76,4 +91,13 @@ func (v *Viper) GetKey(key string) string {
 
 func (v *Viper) GetObject(key string, result interface{}) error {
 	return v.instance.Sub(key).Unmarshal(result)
+}
+
+func (v *Viper) SetObject(key string, value interface{}) error {
+	v.instance.SetDefault(key, value)
+	err := v.instance.WriteConfig()
+	if err != nil {
+		return config.ErrViper(err)
+	}
+	return nil
 }

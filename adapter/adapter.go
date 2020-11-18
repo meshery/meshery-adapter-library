@@ -17,12 +17,14 @@ package adapter
 import (
 	"context"
 
-	"k8s.io/client-go/dynamic"
-
-	"k8s.io/client-go/kubernetes"
-
 	"github.com/layer5io/meshery-adapter-library/config"
 	"github.com/layer5io/meshkit/logger"
+
+	"k8s.io/client-go/dynamic"
+	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/rest"
+	"k8s.io/client-go/tools/clientcmd"
+	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 )
 
 type Handler interface {
@@ -37,36 +39,85 @@ type Handler interface {
 }
 
 type Adapter struct {
-	Config  config.Handler
-	Log     logger.Handler
+	Config config.Handler
+	Log    logger.Handler
+
 	Channel *chan interface{}
 
 	KubeClient        *kubernetes.Clientset
 	DynamicKubeClient dynamic.Interface
-	KubeConfigPath    string
+	RestConfig        rest.Config
+	ClientcmdConfig   *clientcmdapi.Config
 }
 
 func (h *Adapter) CreateInstance(kubeconfig []byte, contextName string, ch *chan interface{}) error {
-	h.Channel = ch
-	h.KubeConfigPath = h.Config.GetKey(KubeconfigPathKey)
-
-	k8sConfig, err := h.k8sClientConfig(kubeconfig, contextName)
+	err := h.validateKubeconfig(kubeconfig)
 	if err != nil {
-		return ErrClientConfig(err)
+		return ErrCreateInstance(err)
 	}
 
-	clientset, err := kubernetes.NewForConfig(k8sConfig)
+	err = h.createKubeClient(kubeconfig)
+	if err != nil {
+		return ErrCreateInstance(err)
+	}
+
+	h.ClientcmdConfig.CurrentContext = contextName
+	h.Channel = ch
+
+	return nil
+}
+
+func (h *Adapter) createKubeClient(kubeconfig []byte) error {
+	var (
+		restConfig *rest.Config
+		err        error
+	)
+
+	if len(kubeconfig) > 0 {
+		restConfig, err = clientcmd.RESTConfigFromKubeConfig(kubeconfig)
+		if err != nil {
+			return ErrClientSet(err)
+		}
+	} else {
+		restConfig, err = rest.InClusterConfig()
+		if err != nil {
+			return ErrClientSet(err)
+		}
+	}
+
+	clientset, err := kubernetes.NewForConfig(restConfig)
+	if err != nil {
+		return ErrClientSet(err)
+	}
+
+	dynamicClient, err := dynamic.NewForConfig(restConfig)
 	if err != nil {
 		return ErrClientSet(err)
 	}
 
 	h.KubeClient = clientset
-
-	dynamicClient, err := dynamic.NewForConfig(k8sConfig)
-	if err != nil {
-		return ErrClientSet(err)
-	}
 	h.DynamicKubeClient = dynamicClient
+	h.RestConfig = *restConfig
+	return nil
+}
+
+func (h *Adapter) validateKubeconfig(kubeconfig []byte) error {
+	clientcmdConfig, err := clientcmd.Load(kubeconfig)
+	if err != nil {
+		return ErrValidateKubeconfig(err)
+	}
+
+	err = clientcmdapi.FlattenConfig(clientcmdConfig)
+	if err != nil {
+		return ErrValidateKubeconfig(err)
+	}
+
+	err = clientcmdapi.MinifyConfig(clientcmdConfig)
+	if err != nil {
+		return ErrValidateKubeconfig(err)
+	}
+
+	h.ClientcmdConfig = clientcmdConfig
 
 	return nil
 }

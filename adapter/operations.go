@@ -14,14 +14,45 @@
 
 package adapter
 
-import "context"
+import (
+	"context"
+	"net/url"
 
-const (
-	OperationDescriptionKey  = "description"
-	OperationVersionKey      = "version"
-	OperationTemplateNameKey = "templateName"
-	OperationServiceNameKey  = "serviceName"
+	"github.com/layer5io/meshkit/utils"
 )
+
+var (
+	NoneVersion  = []Version{"none"}
+	NoneTemplate = []Template{"none"}
+)
+
+type Version string
+
+type Template string
+
+func (t Template) String() string {
+	_, err := url.ParseRequestURI(string(t))
+	if err != nil {
+		return string(t)
+	}
+
+	st, err := utils.ReadRemoteFile(string(t))
+	if err != nil {
+		return ""
+	}
+
+	return st
+}
+
+type Operation struct {
+	Type                 int32             `json:"type,string,omitempty"`
+	Description          string            `json:"description,omitempty"`
+	Versions             []Version         `json:"versions,omitempty"`
+	Templates            []Template        `json:"templates,omitempty"`
+	AdditionalProperties map[string]string `json:"additional_properties,omitempty"`
+}
+
+type Operations map[string]*Operation
 
 type OperationRequest struct {
 	OperationName     string
@@ -31,13 +62,6 @@ type OperationRequest struct {
 	IsDeleteOperation bool
 	OperationID       string
 }
-
-type Operation struct {
-	Type       int32             `json:"type,string,omitempty"`
-	Properties map[string]string `json:"properties,omitempty"`
-}
-
-type Operations map[string]*Operation
 
 func (h *Adapter) ListOperations() (Operations, error) {
 	operations := make(Operations)
