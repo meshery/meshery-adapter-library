@@ -13,6 +13,8 @@ on:
 jobs:
   golangci:
     name: golangci-lint
+    env:
+      ACTIONS_ALLOW_UNSECURE_COMMANDS: true
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -20,7 +22,7 @@ jobs:
         uses: golangci/golangci-lint-action@v1
         with:
           # Required: the version of golangci-lint is required and must be specified without patch version: we always use the latest patch version.
-          version: v1.30
+          version: v1.31
 
           # Optional: working directory, useful for monorepos
           # working-directory: somedir
