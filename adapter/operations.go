@@ -38,7 +38,7 @@ func (t Template) String() string {
 
 	st, err := utils.ReadRemoteFile(string(t))
 	if err != nil {
-		return "none"
+		return ""
 	}
 
 	return st

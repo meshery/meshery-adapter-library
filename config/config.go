@@ -20,4 +20,6 @@ type Handler interface {
 	GetKey(key string) string
 
 	GetObject(key string, result interface{}) error
+
+	SetObject(key string, value interface{}) error
 }

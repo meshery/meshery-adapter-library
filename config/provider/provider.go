@@ -14,7 +14,6 @@ const (
 type Options struct {
 	ServerConfig   map[string]string
 	MeshSpec       map[string]string
-	MeshInstance   map[string]string
 	ProviderConfig map[string]string
 	Operations     adapter.Operations
 }

@@ -19,18 +19,18 @@ import (
 )
 
 const (
-	ErrGetNameCode        = "1000"
-	ErrInstallMeshCode    = "1001"
-	ErrMeshConfigCode     = "1002"
-	ErrPortForwardCode    = "1003"
-	ErrClientConfigCode   = "1004"
-	ErrClientSetCode      = "1005"
-	ErrStreamEventCode    = "1006"
-	ErrOpInvalidCode      = "1007"
-	ErrApplyOperationCode = "1008"
-	ErrListOperationsCode = "1009"
-	ErrNewSmiCode         = "1010"
-	ErrRunSmiCode         = "1011"
+	ErrGetNameCode            = "1000"
+	ErrCreateInstanceCode     = "1001"
+	ErrMeshConfigCode         = "1002"
+	ErrValidateKubeconfigCode = "1003"
+	ErrClientConfigCode       = "1004"
+	ErrClientSetCode          = "1005"
+	ErrStreamEventCode        = "1006"
+	ErrOpInvalidCode          = "1007"
+	ErrApplyOperationCode     = "1008"
+	ErrListOperationsCode     = "1009"
+	ErrNewSmiCode             = "1010"
+	ErrRunSmiCode             = "1011"
 )
 
 var (
@@ -38,16 +38,16 @@ var (
 	ErrOpInvalid = errors.NewDefault(ErrOpInvalidCode, "Invalid operation")
 )
 
-func ErrInstallMesh(err error) error {
-	return errors.NewDefault(ErrInstallMeshCode, "Error installing mesh: ", err.Error())
+func ErrCreateInstance(err error) error {
+	return errors.NewDefault(ErrCreateInstanceCode, "Error creating adapter instance: ", err.Error())
 }
 
 func ErrMeshConfig(err error) error {
 	return errors.NewDefault(ErrMeshConfigCode, "Error configuration mesh: ", err.Error())
 }
 
-func ErrPortForward(err error) error {
-	return errors.NewDefault(ErrPortForwardCode, "Error portforwarding mesh gui: ", err.Error())
+func ErrValidateKubeconfig(err error) error {
+	return errors.NewDefault(ErrValidateKubeconfigCode, "Error validating kubeconfig: ", err.Error())
 }
 
 func ErrClientConfig(err error) error {

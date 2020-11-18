@@ -17,7 +17,6 @@ package adapter
 const (
 	ServerKey         = "server"
 	MeshSpecKey       = "mesh"
-	MeshInstanceKey   = "instance"
 	OperationsKey     = "operations"
 	KubeconfigPathKey = "kubeconfig-path"
 )

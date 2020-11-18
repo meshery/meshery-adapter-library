@@ -41,12 +41,6 @@ func NewInMem(opts Options) (config.Handler, error) {
 	}
 	store[adapter.MeshSpecKey] = val
 
-	val, err = utils.Marshal(opts.MeshInstance)
-	if err != nil {
-		return nil, config.ErrInMem(err)
-	}
-	store[adapter.MeshInstanceKey] = val
-
 	val, err = utils.Marshal(opts.Operations)
 	if err != nil {
 		return nil, config.ErrInMem(err)
@@ -73,4 +67,14 @@ func (l *InMem) GetKey(key string) string {
 // GetObject gets an object value for the key
 func (l *InMem) GetObject(key string, result interface{}) error {
 	return utils.Unmarshal(l.store[key], result)
+}
+
+// SetObject sets an object value for the key
+func (l *InMem) SetObject(key string, value interface{}) error {
+	val, err := utils.Marshal(value)
+	if err != nil {
+		return config.ErrInMem(err)
+	}
+	l.store[key] = val
+	return nil
 }
