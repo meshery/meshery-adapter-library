@@ -7,52 +7,78 @@ import (
 
 const (
 
-	// Operation Commands
-	BookInfoCommand  = "bookinfo"
-	HTTPBinCommand   = "httpbin"
-	ImageHubCommand  = "imagehub"
-	EmojiVotoCommand = "emojivoto"
+	// Common Operations
+	BookInfoOperation  = "bookinfo"
+	HTTPBinOperation   = "httpbin"
+	ImageHubOperation  = "imagehub"
+	EmojiVotoOperation = "emojivoto"
 
-	// Validate Operation Commands
-	ValidateSmiConformance = "validate_smi_conformance_test"
+	// Validate Operations
+	SmiConformanceOperation = "smi_conformance"
 
-	// Custom Operation Commands
-	CustomOpCommand = "custom"
+	// Custom Operation
+	CustomOperation = "custom"
+
+	// Additional Properties
+	ServiceName = "service_name"
 )
 
 var (
 	Operations = adapter.Operations{
-		BookInfoCommand: &adapter.Operation{
+		BookInfoOperation: &adapter.Operation{
 			Type:        int32(meshes.OpCategory_SAMPLE_APPLICATION),
 			Description: "Istio Book Info Application",
 			Versions:    adapter.NoneVersion,
-			Template:    "templates/bookinfo.yaml",
+			Templates: []adapter.Template{
+				"https://raw.githubusercontent.com/istio/istio/master/samples/bookinfo/platform/kube/bookinfo.yaml",
+			},
+			AdditionalProperties: map[string]string{
+				ServiceName: BookInfoOperation,
+			},
 		},
-		HTTPBinCommand: &adapter.Operation{
+		HTTPBinOperation: &adapter.Operation{
 			Type:        int32(meshes.OpCategory_SAMPLE_APPLICATION),
 			Description: "HTTPBin Application",
 			Versions:    adapter.NoneVersion,
-			Template:    "templates/httpbin.yaml",
+			Templates: []adapter.Template{
+				"https://raw.githubusercontent.com/istio/istio/master/samples/httpbin/httpbin.yaml",
+			},
+			AdditionalProperties: map[string]string{
+				ServiceName: HTTPBinOperation,
+			},
 		},
-		ImageHubCommand: &adapter.Operation{
+		ImageHubOperation: &adapter.Operation{
 			Type:        int32(meshes.OpCategory_SAMPLE_APPLICATION),
 			Description: "Image Hub Application",
 			Versions:    adapter.NoneVersion,
-			Template:    "templates/imagehub.yaml",
+			Templates: []adapter.Template{
+				"https://raw.githubusercontent.com/layer5io/image-hub/master/deployment.yaml",
+			},
+			AdditionalProperties: map[string]string{
+				ServiceName: ImageHubOperation,
+			},
 		},
-		EmojiVotoCommand: &adapter.Operation{
+		EmojiVotoOperation: &adapter.Operation{
 			Type:        int32(meshes.OpCategory_SAMPLE_APPLICATION),
 			Description: "EmojiVoto Application",
 			Versions:    adapter.NoneVersion,
-			Template:    "templates/emojivoto.yaml",
+			Templates: []adapter.Template{
+				"https://raw.githubusercontent.com/BuoyantIO/emojivoto/main/kustomize/deployment/emoji.yml",
+				"https://raw.githubusercontent.com/BuoyantIO/emojivoto/main/kustomize/deployment/vote-bot.yml",
+				"https://raw.githubusercontent.com/BuoyantIO/emojivoto/main/kustomize/deployment/voting.yml",
+				"https://raw.githubusercontent.com/BuoyantIO/emojivoto/main/kustomize/deployment/web.yml",
+			},
+			AdditionalProperties: map[string]string{
+				ServiceName: EmojiVotoOperation,
+			},
 		},
-		CustomOpCommand: &adapter.Operation{
+		CustomOperation: &adapter.Operation{
 			Type:        int32(meshes.OpCategory_CUSTOM),
 			Description: "Custom YAML",
-			Template:    "templates/custom.yaml",
+			Templates:   adapter.NoneTemplate,
 		},
 
-		ValidateSmiConformance: &adapter.Operation{
+		SmiConformanceOperation: &adapter.Operation{
 			Type:        int32(meshes.OpCategory_VALIDATE),
 			Description: "SMI Conformance",
 		},
