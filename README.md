@@ -1,7 +1,32 @@
 # Meshery Adapter Library
 The Meshery Adapter Library provides a common and consistent set of functionality that Meshery adapters use for managing the lifecycle, configuration, operation, and performance of service meshes and their workloads.
 
+## Purpose 
 
+The main purpose of the meshery-adapter-library is to 
+* provide a set of interfaces, some with default implementations, to be used and extended by adapters.
+* implement common cross cutting concerns like logging, errors, and tracing
+* provide a mini framework implementing the gRPC server that allows plugging in the mesh specific configuration and 
+    operations implemented in the adapters.
+
+### Overview and usage 
+
+The library consists of interfaces and default implementations for the main and common functionality of an adapter. 
+It also provides a mini-framework that runs the gRPC adapter service, calling the functions of handlers injected by the 
+adapter code. This is represented in an UML-ish style in the figure below. The library is used in the Consul adapter, 
+and others will follow. 
+
+<img alt="Overview and usage of meshery-adapter-library" src="./doc/meshery-adapter-library-overview.png" align="center"/>
+
+### Package dependencies hierarchy
+A clear picture of dependencies between packages in a module helps avoid circular dependencies (import cycles), 
+understand where to put code, design coherent packages etc.
+
+Referring to the figure below, the packages `config` and `meshes` (which contains the adapter service proto definition) 
+are at the top of the dependency hierarchy and can be used by any other package. Thinking in layers (L), `config`  
+would be in the top layer, L1, `adapter` in L2, and `config/provider`  in L3. Packages can always be imported and used in lower layers.
+
+<img alt="Package dependencies hierarchy" src="./doc/mesher-adapter-library-package-dependencies.png" align="center"/>
 
 <div>&nbsp;</div>
 

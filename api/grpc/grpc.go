@@ -12,6 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Package grpc implements the MeshServiceServer which is the server API for MeshService service.
+//
+// A specific adapter creates an instance of the struct Service (see below) and populates it with parameters, the adapter handler, etc.
+// The adapter handler extends the default adapter handler (see package adapter).
+// The struct Service is used as parameter in the func Start (see below) that starts and runs the MeshServiceServer.
+// This is usually implemented in the package main of an adapter.
 package grpc
 
 import (
@@ -45,13 +51,13 @@ type Service struct {
 	Channel   chan interface{}
 }
 
-// panicHandler is the handler function to handle panic errors
+// panicHandler is the handler function to handle panic errors.
 func panicHandler(r interface{}) error {
 	fmt.Println("600 Error")
 	return ErrPanic(r)
 }
 
-// Start starts grpc server
+// Start starts grpc server.
 func Start(s *Service, tr tracing.Handler) error {
 	address := fmt.Sprintf(":%s", s.Port)
 	listener, err := net.Listen("tcp", address)

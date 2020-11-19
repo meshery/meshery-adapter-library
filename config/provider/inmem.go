@@ -20,12 +20,12 @@ import (
 	"github.com/layer5io/meshkit/utils"
 )
 
-// InMem instance for configuration
+// Type InMem implements the config interface Handler for an in-memory configuration registry.
 type InMem struct {
 	store map[string]string
 }
 
-// NewInMem intializes an in-memory instance for config
+// NewInMem returns a new instance of an in-memory configuration provider using the provided Options opts.
 func NewInMem(opts Options) (config.Handler, error) {
 	store := make(map[string]string)
 

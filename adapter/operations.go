@@ -44,6 +44,7 @@ func (t Template) String() string {
 	return st
 }
 
+// Operation represents an operation of a given Type (see meshes.OpCategory), with a set of properties.
 type Operation struct {
 	Type                 int32             `json:"type,string,omitempty"`
 	Description          string            `json:"description,omitempty"`
@@ -52,17 +53,20 @@ type Operation struct {
 	AdditionalProperties map[string]string `json:"additional_properties,omitempty"`
 }
 
+// Operations contains all operations supported by an adapter.
 type Operations map[string]*Operation
 
+// OperationRequest contains the request data from meshes.ApplyRuleRequest.
 type OperationRequest struct {
-	OperationName     string
-	Namespace         string
-	Username          string
-	CustomBody        string
-	IsDeleteOperation bool
-	OperationID       string
+	OperationName     string // The identifier of the operation. It is used as key in the Operations map. Avoid using a verb as part of the name, as it designates both provisioning as deprovisioning operations.
+	Namespace         string // The namespace to use in the environment, e.g. Kubernetes, where the operation is applied.
+	Username          string // User to execute operation as, if any.
+	CustomBody        string // Custom operation manifest, in the case of a custom operation (OpCategory_CUSTOM).
+	IsDeleteOperation bool   // If true, the operation specified by OperationName is reverted, i.e. all resources created are deleted.
+	OperationID       string // ID of the operation, if any. This identifies a specific operation invocation.
 }
 
+// List all operations an adapter supports.
 func (h *Adapter) ListOperations() (Operations, error) {
 	operations := make(Operations)
 	err := h.Config.GetObject(OperationsKey, &operations)
@@ -72,6 +76,7 @@ func (h *Adapter) ListOperations() (Operations, error) {
 	return operations, nil
 }
 
+// Applies an adapter operation. This is adapter specific and needs to be implemented by each adapter.
 func (h *Adapter) ApplyOperation(context.Context, OperationRequest) error {
 	return nil
 }
