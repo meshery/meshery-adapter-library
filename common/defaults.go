@@ -40,12 +40,6 @@ var (
 		"version": "1.8.2",
 	}
 
-	defaultMeshInstance = map[string]string{
-		"name":    "Sample",
-		"status":  status.NotInstalled,
-		"version": "1.8.2",
-	}
-
 	defaultProviderConfig = map[string]string{
 		"filepath": fmt.Sprintf("%s/.meshery", utils.GetHome()),
 		"filename": "sample.yml",
@@ -56,7 +50,6 @@ var (
 	DefaultOpts = configprovider.Options{
 		ServerConfig:   defaultServerConfig,
 		MeshSpec:       defaultMeshSpec,
-		MeshInstance:   defaultMeshInstance,
 		ProviderConfig: defaultProviderConfig,
 		Operations:     Operations,
 	}

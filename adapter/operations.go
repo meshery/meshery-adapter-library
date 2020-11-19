@@ -14,14 +14,47 @@
 
 package adapter
 
-import "context"
+import (
+	"context"
+	"net/url"
 
-const (
-	OperationDescriptionKey  = "description"
-	OperationVersionKey      = "version"
-	OperationTemplateNameKey = "templateName"
-	OperationServiceNameKey  = "serviceName"
+	"github.com/layer5io/meshkit/utils"
 )
+
+var (
+	NoneVersion  = []Version{"none"}
+	NoneTemplate = []Template{"none"}
+)
+
+type Version string
+
+type Template string
+
+func (t Template) String() string {
+	_, err := url.ParseRequestURI(string(t))
+	if err != nil {
+		return string(t)
+	}
+
+	st, err := utils.ReadRemoteFile(string(t))
+	if err != nil {
+		return ""
+	}
+
+	return st
+}
+
+// Operation represents an operation of a given Type (see meshes.OpCategory), with a set of properties.
+type Operation struct {
+	Type                 int32             `json:"type,string,omitempty"`
+	Description          string            `json:"description,omitempty"`
+	Versions             []Version         `json:"versions,omitempty"`
+	Templates            []Template        `json:"templates,omitempty"`
+	AdditionalProperties map[string]string `json:"additional_properties,omitempty"`
+}
+
+// Operations contains all operations supported by an adapter.
+type Operations map[string]*Operation
 
 // OperationRequest contains the request data from meshes.ApplyRuleRequest.
 type OperationRequest struct {
@@ -32,15 +65,6 @@ type OperationRequest struct {
 	IsDeleteOperation bool   // If true, the operation specified by OperationName is reverted, i.e. all resources created are deleted.
 	OperationID       string // ID of the operation, if any. This identifies a specific operation invocation.
 }
-
-// Operation represents an operation of a given Type (see meshes.OpCategory), with a set of properties.
-type Operation struct {
-	Type       int32             `json:"type,string,omitempty"`
-	Properties map[string]string `json:"properties,omitempty"`
-}
-
-// Operations contains all operations supported by an adapter.
-type Operations map[string]*Operation
 
 // List all operations an adapter supports.
 func (h *Adapter) ListOperations() (Operations, error) {

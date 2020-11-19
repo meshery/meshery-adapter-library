@@ -29,4 +29,6 @@ type Handler interface {
 	// An example of such an object is map[string]string. These objects can e.g. be set in the factory function for a specific
 	// config provider implementation.
 	GetObject(key string, result interface{}) error
+
+	SetObject(key string, value interface{}) error
 }
