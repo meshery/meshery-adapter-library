@@ -30,7 +30,7 @@ const (
 // Type Options contains config options for various aspects of an adapter.
 type Options struct {
 	ServerConfig   map[string]string  // ServerConfig options are used configure the gRPC service of the adapter.
-	MeshSpec       map[string]string   // MeshSpec options are used to configure the service mesh to be used.
-	ProviderConfig map[string]string // ProviderConfig options are used to configure the config provider.
+	MeshSpec       map[string]string  // MeshSpec options are used to configure the service mesh to be used.
+	ProviderConfig map[string]string  // ProviderConfig options are used to configure the config provider.
 	Operations     adapter.Operations // Operations contains the properties of the operations the adapter supports.
 }
