@@ -39,36 +39,36 @@ var (
 )
 
 func ErrCreateInstance(err error) error {
-	return errors.NewDefault(ErrCreateInstanceCode, "Error creating adapter instance: ", err.Error())
+	return errors.NewDefault(ErrCreateInstanceCode, "Error creating adapter instance", err.Error())
 }
 
 func ErrMeshConfig(err error) error {
-	return errors.NewDefault(ErrMeshConfigCode, "Error configuration mesh: ", err.Error())
+	return errors.NewDefault(ErrMeshConfigCode, "Error configuration mesh", err.Error())
 }
 
 func ErrValidateKubeconfig(err error) error {
-	return errors.NewDefault(ErrValidateKubeconfigCode, "Error validating kubeconfig: ", err.Error())
+	return errors.NewDefault(ErrValidateKubeconfigCode, "Error validating kubeconfig", err.Error())
 }
 
 func ErrClientConfig(err error) error {
-	return errors.NewDefault(ErrClientConfigCode, "Error setting client Config: ", err.Error())
+	return errors.NewDefault(ErrClientConfigCode, "Error setting client Config", err.Error())
 }
 
 func ErrClientSet(err error) error {
-	return errors.NewDefault(ErrClientSetCode, "Error setting clientset: ", err.Error())
+	return errors.NewDefault(ErrClientSetCode, "Error setting clientset", err.Error())
 }
 
 func ErrStreamEvent(err error) error {
-	return errors.NewDefault(ErrStreamEventCode, "Error streaming event: ", err.Error())
+	return errors.NewDefault(ErrStreamEventCode, "Error streaming event", err.Error())
 }
 func ErrListOperations(err error) error {
-	return errors.NewDefault(ErrListOperationsCode, "Error listing operations: ", err.Error())
+	return errors.NewDefault(ErrListOperationsCode, "Error listing operations", err.Error())
 }
 
 func ErrNewSmi(err error) error {
-	return errors.NewDefault(ErrNewSmiCode, "Error creating new SMI test client: ", err.Error())
+	return errors.NewDefault(ErrNewSmiCode, "Error creating new SMI test client", err.Error())
 }
 
 func ErrRunSmi(err error) error {
-	return errors.NewDefault(ErrRunSmiCode, "Error running SMI conformance test: ", err.Error())
+	return errors.NewDefault(ErrRunSmiCode, "Error running SMI conformance test", err.Error())
 }
