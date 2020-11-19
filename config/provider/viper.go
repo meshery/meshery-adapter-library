@@ -88,18 +88,25 @@ func (v *Viper) SetKey(key string, value string) {
 }
 
 func (v *Viper) GetKey(key string) string {
+	_ = v.instance.ReadInConfig()
 	return v.instance.Get(key).(string)
 }
 
 func (v *Viper) GetObject(key string, result interface{}) error {
-	return v.instance.Sub(key).Unmarshal(result)
+	_ = v.instance.ReadInConfig()
+	err := v.instance.Sub(key).Unmarshal(&result)
+	if err != nil {
+		return config.ErrViper(err)
+	}
+	return err
 }
 
 func (v *Viper) SetObject(key string, value interface{}) error {
-	v.instance.SetDefault(key, value)
+	v.instance.Set(key, value)
 	err := v.instance.WriteConfig()
 	if err != nil {
 		return config.ErrViper(err)
 	}
+
 	return nil
 }
