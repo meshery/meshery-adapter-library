@@ -34,4 +34,9 @@ const (
 	NotConnected = "not connected"
 	Connecting   = "connecting"
 	Connected    = "connected"
+
+	Stopping  = "stopping"
+	Starting  = "starting"
+	Running   = "running"
+	Completed = "completed"
 )
