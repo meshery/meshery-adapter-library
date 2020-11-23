@@ -22,6 +22,7 @@ import (
 
 	"github.com/layer5io/meshery-adapter-library/config"
 	"github.com/layer5io/meshkit/logger"
+	mesherykube "github.com/layer5io/meshkit/utils/kubernetes"
 
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/kubernetes"
@@ -54,4 +55,5 @@ type Adapter struct {
 	DynamicKubeClient dynamic.Interface
 	RestConfig        rest.Config
 	ClientcmdConfig   *clientcmdapi.Config
+	MesheryKubeclient *mesherykube.Client
 }

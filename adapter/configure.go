@@ -2,6 +2,7 @@ package adapter
 
 import (
 	"github.com/layer5io/meshkit/models"
+	mesherykube "github.com/layer5io/meshkit/utils/kubernetes"
 	yaml "gopkg.in/yaml.v2"
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/kubernetes"
@@ -24,6 +25,11 @@ func (h *Adapter) CreateInstance(kubeconfig []byte, contextName string, ch *chan
 	}
 
 	err = h.createKubeconfig(kubeconfig)
+	if err != nil {
+		return ErrCreateInstance(err)
+	}
+
+	err = h.createMesheryKubeclient(kubeconfig)
 	if err != nil {
 		return ErrCreateInstance(err)
 	}
@@ -51,6 +57,10 @@ func (h *Adapter) createKubeClient(kubeconfig []byte) error {
 			return ErrClientSet(err)
 		}
 	}
+
+	// To perform operations faster
+	restConfig.QPS = float32(50)
+	restConfig.Burst = int(100)
 
 	clientset, err := kubernetes.NewForConfig(restConfig)
 	if err != nil {
@@ -120,5 +130,14 @@ func (h *Adapter) createKubeconfig(kubeconfig []byte) error {
 		return err
 	}
 
+	return nil
+}
+
+func (h *Adapter) createMesheryKubeclient(kubeconfig []byte) error {
+	client, err := mesherykube.New(h.KubeClient, h.RestConfig)
+	if err != nil {
+		return err
+	}
+	h.MesheryKubeclient = client
 	return nil
 }
