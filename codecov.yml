@@ -1,0 +1,68 @@
+codecov:
+  require_ci_to_pass: yes
+
+coverage:
+  # Do not need token here, because of the public repo here
+  # token:
+  # bot:
+  # ci:
+  # The age you want coverage reports to expire at(hours)
+  max_report_age: 24
+  # Should Codecov wait for all other statues to pass before sending it's status.
+  require_ci_to_pass: yes
+  notify:
+    # How many uploaded reports Codecov should wait to receive before sending statuses
+    after_n_builds: 2
+    # Should Codecov wait for all CI statuses to complete before sending ours.
+    wait_for_ci: yes
+
+  # What precision do you want the coverage value to be
+  precision: 2
+  # Which direction to you want to round the coverage value
+  round: down
+  range: "50...100"
+
+  status:
+    project:
+      default:
+        # basic
+        target: auto
+        # Allow the coverage to drop by X%, and posting a success status.
+        threshold: 0%
+        base: auto
+        # advanced
+        branches:
+          - master
+        if_not_found: success
+        if_ci_failed: error
+        informational: false
+        only_pulls: false
+      api:
+        target: 50%
+        flags:
+          - api
+
+flags:
+  # filer the folder(s) you wish to measure by that flag
+  api:
+    # only inlcude files in the pkg
+    paths:
+      - /
+    # help only update coverage on tests that were run,If you do not test all of your repo code on each commit.
+    carryforward: true
+
+parsers:
+  # Here can add multiple language support
+  gcov:
+    branch_detection:
+      conditional: yes
+      loop: yes
+      method: no
+      macro: no
+
+comment:
+  layout: "reach,diff,flags,files,tree"
+  behavior: default
+  require_changes: false
+  require_base: yes
+  require_head: yes
