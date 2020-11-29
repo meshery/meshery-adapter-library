@@ -30,6 +30,8 @@ type Version string
 
 type Template string
 
+type Service string
+
 func (t Template) String() string {
 	_, err := url.ParseRequestURI(string(t))
 	if err != nil {
@@ -50,6 +52,7 @@ type Operation struct {
 	Description          string            `json:"description,omitempty"`
 	Versions             []Version         `json:"versions,omitempty"`
 	Templates            []Template        `json:"templates,omitempty"`
+	Services             []Service         `json:"services,omitempty"`
 	AdditionalProperties map[string]string `json:"additional_properties,omitempty"`
 }
 
