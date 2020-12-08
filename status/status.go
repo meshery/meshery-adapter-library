@@ -27,6 +27,14 @@ const (
 	Deploying   = "deploying"
 	Deployed    = "deployed"
 
+	NotPatched = "not patched"
+	Patching   = "patching"
+	Patched    = "patched"
+
+	NotApplied = "not applied"
+	Applying   = "applying"
+	Applied    = "applied"
+
 	NotRemoved = "not removed"
 	Removing   = "removing"
 	Removed    = "removed"
