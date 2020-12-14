@@ -7,7 +7,8 @@ replace github.com/kudobuilder/kuttl => github.com/layer5io/kuttl v0.4.1-0.20200
 require (
 	github.com/golang/protobuf v1.4.2
 	github.com/grpc-ecosystem/go-grpc-middleware v1.2.0
-	github.com/layer5io/meshkit v0.1.28
+	github.com/layer5io/learn-layer5/smi-conformance v0.0.0-20201022191033-40468652a54f
+	github.com/layer5io/meshkit v0.1.30
 	github.com/spf13/viper v1.7.1
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc v0.11.0
 	go.opentelemetry.io/otel v0.11.0
