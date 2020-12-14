@@ -26,7 +26,7 @@ func ErrRunSmi(err error) error {
 	return errors.NewDefault(errors.ErrRunSmi, fmt.Sprintf("Error running smi tool: %s", err.Error()))
 }
 
-// ErrDeleteSmi is the error for deleteing smi tool
+// ErrDeleteSmi is the error for deleting smi tool
 func ErrDeleteSmi(err error) error {
 	return errors.NewDefault(errors.ErrDeleteSmi, fmt.Sprintf("Error deleting smi tool: %s", err.Error()))
 }

@@ -20,7 +20,7 @@ var (
 	smiManifest = "https://raw.githubusercontent.com/layer5io/learn-layer5/master/smi-conformance/manifest.yml"
 )
 
-type SmiTest struct {
+type Test struct {
 	id             string
 	adaptorVersion string
 	adaptorName    string
@@ -32,7 +32,7 @@ type SmiTest struct {
 }
 
 type Response struct {
-	Id                string    `json:"id,omitempty"`
+	ID                string    `json:"id,omitempty"`
 	Date              string    `json:"date,omitempty"`
 	MeshName          string    `json:"mesh_name,omitempty"`
 	MeshVersion       string    `json:"mesh_version,omitempty"`
@@ -70,7 +70,7 @@ func RunTest(
 		return Response{}, ErrSmiInit(fmt.Sprintf("error creating meshery kubernetes client: %v", err))
 	}
 
-	test := &SmiTest{
+	test := &Test{
 		ctx:            ctx,
 		id:             id,
 		adaptorName:    adapterName,
@@ -81,7 +81,7 @@ func RunTest(
 	}
 
 	response := Response{
-		Id:                test.id,
+		ID:                test.id,
 		Date:              time.Now().Format(time.RFC3339),
 		MeshName:          test.adaptorName,
 		MeshVersion:       test.adaptorVersion,
@@ -115,7 +115,7 @@ func RunTest(
 }
 
 // installConformanceTool installs the smi conformance tool
-func (test *SmiTest) installConformanceTool() error {
+func (test *Test) installConformanceTool() error {
 	// Fetch the meanifest
 	manifest, err := utils.ReadRemoteFile(smiManifest)
 	if err != nil {
@@ -132,7 +132,7 @@ func (test *SmiTest) installConformanceTool() error {
 }
 
 // deleteConformanceTool deletes the smi conformance tool
-func (test *SmiTest) deleteConformanceTool() error {
+func (test *Test) deleteConformanceTool() error {
 	// Fetch the meanifest
 	manifest, err := utils.ReadRemoteFile(smiManifest)
 	if err != nil {
@@ -146,7 +146,7 @@ func (test *SmiTest) deleteConformanceTool() error {
 }
 
 // connectConformanceTool initiates the connection
-func (test *SmiTest) connectConformanceTool() error {
+func (test *Test) connectConformanceTool() error {
 	endpoint, err := test.kclient.GetServiceEndpoint(test.ctx, name, namespace)
 	if err != nil {
 		return err
@@ -157,8 +157,7 @@ func (test *SmiTest) connectConformanceTool() error {
 }
 
 // runConformanceTest runs the conformance test
-func (test *SmiTest) runConformanceTest(response *Response) error {
-
+func (test *Test) runConformanceTest(response *Response) error {
 	cClient, err := conformance.CreateClient(context.TODO(), test.smiAddress)
 	if err != nil {
 		return err
