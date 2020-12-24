@@ -38,6 +38,10 @@ const (
 var (
 	ErrGetName   = errors.NewDefault(ErrGetNameCode, "Unable to get mesh name")
 	ErrOpInvalid = errors.NewDefault(ErrOpInvalidCode, "Invalid operation")
+
+	// ErrAuthInfosInvalidMsg is the error message when the all of auth infos have invalid or inaccessible paths
+	// as there certificate paths
+	ErrAuthInfosInvalidMsg = fmt.Errorf("none of the auth infos are valid either the certificate path is invalid or is inaccessible")
 )
 
 func ErrCreateInstance(err error) error {

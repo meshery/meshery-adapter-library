@@ -1,6 +1,8 @@
 package adapter
 
 import (
+	"os"
+
 	"github.com/layer5io/meshkit/models"
 	mesherykube "github.com/layer5io/meshkit/utils/kubernetes"
 	yaml "gopkg.in/yaml.v2"
@@ -84,13 +86,15 @@ func (h *Adapter) validateKubeconfig(kubeconfig []byte) error {
 		return ErrValidateKubeconfig(err)
 	}
 
-	err = clientcmdapi.FlattenConfig(clientcmdConfig)
-	if err != nil {
+	if err := filterK8sConfigAuthInfos(clientcmdConfig.AuthInfos); err != nil {
 		return ErrValidateKubeconfig(err)
 	}
 
-	err = clientcmdapi.MinifyConfig(clientcmdConfig)
-	if err != nil {
+	if err := clientcmdapi.FlattenConfig(clientcmdConfig); err != nil {
+		return ErrValidateKubeconfig(err)
+	}
+
+	if err := clientcmdapi.MinifyConfig(clientcmdConfig); err != nil {
 		return ErrValidateKubeconfig(err)
 	}
 
@@ -139,5 +143,35 @@ func (h *Adapter) createMesheryKubeclient(kubeconfig []byte) error {
 		return err
 	}
 	h.MesheryKubeclient = client
+	return nil
+}
+
+// filterK8sConfigAuthInfos takes in the authInfos map and deletes any invalid
+// authInfo.
+//
+// An authInfo is invalid if the certificate path mentioned in it is either
+// invalid or is inaccessible to the adapter
+//
+// The function will throw an error if after filtering the authInfos it becomes
+// empty which indicates that the kubeconfig cannot be used for communicating
+// with the kubernetes server.
+func filterK8sConfigAuthInfos(authInfos map[string]*clientcmdapi.AuthInfo) error {
+	for key, authInfo := range authInfos {
+		// If clientCertficateData is not present then proceed to check
+		// the client certicate path
+		if len(authInfo.ClientCertificateData) == 0 {
+			if _, err := os.Stat(authInfo.ClientCertificate); err != nil {
+				// If the path is inaccessible or invalid then delete that authinfo
+				delete(authInfos, key)
+			}
+		}
+	}
+
+	// In the end if the authInfos map is empty then the kubeconfig is
+	// invalid and cannot be used for communicating with kubernetes
+	if len(authInfos) == 0 {
+		return ErrAuthInfosInvalidMsg
+	}
+
 	return nil
 }
