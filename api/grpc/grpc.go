@@ -49,6 +49,8 @@ type Service struct {
 	TraceURL  string    `json:"traceurl"`
 	Handler   adapter.Handler
 	Channel   chan interface{}
+
+	meshes.UnimplementedMeshServiceServer
 }
 
 // panicHandler is the handler function to handle panic errors.
@@ -59,6 +61,7 @@ func panicHandler(r interface{}) error {
 
 // Start starts grpc server.
 func Start(s *Service, tr tracing.Handler) error {
+	fmt.Println("BAAMMM")
 	address := fmt.Sprintf(":%s", s.Port)
 	listener, err := net.Listen("tcp", address)
 	if err != nil {

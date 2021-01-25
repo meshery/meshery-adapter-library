@@ -69,6 +69,13 @@ type OperationRequest struct {
 	OperationID       string // ID of the operation, if any. This identifies a specific operation invocation.
 }
 
+type OAMRequest struct {
+	Username  string
+	DeleteOp  bool
+	OamComps  []string
+	OamConfig string
+}
+
 // List all operations an adapter supports.
 func (h *Adapter) ListOperations() (Operations, error) {
 	operations := make(Operations)
@@ -81,5 +88,10 @@ func (h *Adapter) ListOperations() (Operations, error) {
 
 // Applies an adapter operation. This is adapter specific and needs to be implemented by each adapter.
 func (h *Adapter) ApplyOperation(context.Context, OperationRequest) error {
+	return nil
+}
+
+// ProcessOAM processes OAM components. This is adapter specific and needs to be implemented by each adapter.
+func (h *Adapter) ProcessOAM(context.Context, OAMRequest) error {
 	return nil
 }
