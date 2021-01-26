@@ -18,10 +18,10 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"strings"
 
 	"github.com/layer5io/meshery-adapter-library/status"
 	"github.com/layer5io/meshkit/smi"
+	smp "github.com/layer5io/service-mesh-performance/spec"
 )
 
 type SmiTestOptions struct {
@@ -38,7 +38,7 @@ func (h *Adapter) ValidateSMIConformance(opts *SmiTestOptions) error {
 		Details:     "None",
 	}
 
-	test, err := smi.New(opts.Ctx, opts.OpID, h.GetVersion(), strings.ToLower(h.GetName()), h.KubeClient)
+	test, err := smi.New(opts.Ctx, opts.OpID, h.GetVersion(), smp.ServiceMesh_Type(smp.ServiceMesh_Type_value[h.GetType()]), h.KubeClient)
 	if err != nil {
 		e.Summary = "Error while creating smi-conformance tool"
 		e.Details = err.Error()
@@ -46,9 +46,18 @@ func (h *Adapter) ValidateSMIConformance(opts *SmiTestOptions) error {
 		return err
 	}
 
-	result, err := test.Run(opts.Labels, opts.Annotations)
+	Labels := make(map[string]string)
+	Annotations := make(map[string]string)
+	if opts.Labels != nil {
+		Labels = opts.Labels
+	}
+	if opts.Annotations != nil {
+		Annotations = opts.Annotations
+	}
+
+	result, err := test.Run(Labels, Annotations)
 	if err != nil {
-		e.Summary = fmt.Sprintf("Error while %s running smi-conformance test", result.Status)
+		e.Summary = fmt.Sprintf("Error while %s running smi-conformance test: Annotation %s : Labels: %s", result.Status, opts.Annotations, opts.Labels)
 		e.Details = err.Error()
 		h.StreamErr(e, ErrRunSmi(err))
 		return err

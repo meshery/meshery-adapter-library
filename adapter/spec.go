@@ -23,6 +23,7 @@ const (
 
 type Spec struct {
 	Name    string `json:"name"`
+	Type    string `json:"type"`
 	Status  string `json:"status"`
 	Version string `json:"version"`
 }
@@ -43,4 +44,13 @@ func (h *Adapter) GetVersion() string {
 		return " "
 	}
 	return spec.Version
+}
+
+func (h *Adapter) GetType() string {
+	spec := &Spec{}
+	err := h.Config.GetObject(MeshSpecKey, &spec)
+	if err != nil && len(spec.Type) > 0 {
+		return "INVALID_MESH"
+	}
+	return spec.Type
 }
