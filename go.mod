@@ -2,7 +2,10 @@ module github.com/layer5io/meshery-adapter-library
 
 go 1.13
 
-replace github.com/kudobuilder/kuttl => github.com/layer5io/kuttl v0.4.1-0.20200806180306-b7e46afd657f
+replace (
+	github.com/kudobuilder/kuttl => github.com/layer5io/kuttl v0.4.1-0.20200806180306-b7e46afd657f
+	github.com/layer5io/meshkit v0.1.30 => ../meshkit
+)
 
 require (
 	github.com/golang/protobuf v1.4.2
