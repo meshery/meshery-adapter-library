@@ -16,11 +16,13 @@ package adapter
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"strings"
 	"time"
 
 	"github.com/layer5io/learn-layer5/smi-conformance/conformance"
+	"github.com/layer5io/meshery-adapter-library/status"
 	"github.com/layer5io/meshkit/utils"
 	mesherykube "github.com/layer5io/meshkit/utils/kubernetes"
 	smp "github.com/layer5io/service-mesh-performance/spec"
@@ -82,6 +84,12 @@ type SMITestOptions struct {
 
 // RunSMITest runs the SMI test on the adapter's service mesh
 func (h *Adapter) RunSMITest(opts SMITestOptions) (Response, error) {
+	e := &Event{
+		Operationid: opts.OperationID,
+		Summary:     status.Deploying,
+		Details:     "None",
+	}
+
 	meshVersion := h.GetVersion()
 	meshType := smp.ServiceMesh_Type(smp.ServiceMesh_Type_value[h.GetType()])
 	name := "smi-conformance"
@@ -132,6 +140,12 @@ func (h *Adapter) RunSMITest(opts SMITestOptions) (Response, error) {
 	}
 
 	response.Status = "completed"
+
+	e.Summary = fmt.Sprintf("Smi conformance test %s successfully", response.Status)
+	jsondata, _ := json.Marshal(response)
+	e.Details = string(jsondata)
+	h.StreamInfo(e)
+
 	return response, nil
 }
 

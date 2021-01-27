@@ -57,7 +57,7 @@ func (h *Adapter) ValidateSMIConformance(opts *SmiTestOptions) error {
 
 	result, err := test.Run(Labels, Annotations)
 	if err != nil {
-		e.Summary = fmt.Sprintf("Error while %s running smi-conformance test: Annotation %s : Labels: %s", result.Status, opts.Annotations, opts.Labels)
+		e.Summary = fmt.Sprintf("Error while %s running smi-conformance test", result.Status)
 		e.Details = err.Error()
 		h.StreamErr(e, ErrRunSmi(err))
 		return err
