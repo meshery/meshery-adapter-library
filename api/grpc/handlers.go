@@ -124,6 +124,6 @@ func (s *Service) ProcessOAM(ctx context.Context, srv *meshes.ProcessOAMRequest)
 		OamConfig: srv.OamConfig,
 	}
 
-	err := s.Handler.ProcessOAM(ctx, operation)
-	return &meshes.ProcessOAMResponse{}, err
+	msg, err := s.Handler.ProcessOAM(ctx, operation)
+	return &meshes.ProcessOAMResponse{Message: msg}, err
 }

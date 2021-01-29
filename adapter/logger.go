@@ -57,14 +57,14 @@ func (s *adapterLogger) ApplyOperation(ctx context.Context, op OperationRequest)
 	return err
 }
 
-func (s *adapterLogger) ProcessOAM(ctx context.Context, oamRequest OAMRequest) error {
+func (s *adapterLogger) ProcessOAM(ctx context.Context, oamRequest OAMRequest) (string, error) {
 	s.log.Info("Process OAM components")
-	err := s.next.ProcessOAM(ctx, oamRequest)
+	msg, err := s.next.ProcessOAM(ctx, oamRequest)
 	if err != nil {
 		s.log.Error(err)
 	}
 
-	return err
+	return msg, err
 }
 
 func (s *adapterLogger) ListOperations() (Operations, error) {
