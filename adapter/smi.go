@@ -16,24 +16,27 @@ package adapter
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/layer5io/learn-layer5/smi-conformance/conformance"
-
+	"github.com/layer5io/meshery-adapter-library/status"
 	"github.com/layer5io/meshkit/utils"
 	mesherykube "github.com/layer5io/meshkit/utils/kubernetes"
+	smp "github.com/layer5io/service-mesh-performance/spec"
 )
 
 type SMITest struct {
-	id             string
-	adaptorVersion string
-	adaptorName    string
-	ctx            context.Context
-	kclient        *mesherykube.Client
-	smiAddress     string
-	annotations    map[string]string
-	labels         map[string]string
+	id          string
+	meshVersion string
+	meshType    smp.ServiceMesh_Type
+	ctx         context.Context
+	kclient     *mesherykube.Client
+	smiAddress  string
+	annotations map[string]string
+	labels      map[string]string
 }
 
 type Response struct {
@@ -81,8 +84,14 @@ type SMITestOptions struct {
 
 // RunSMITest runs the SMI test on the adapter's service mesh
 func (h *Adapter) RunSMITest(opts SMITestOptions) (Response, error) {
-	adapterName := h.GetName()
-	adapterVersion := h.GetVersion()
+	e := &Event{
+		Operationid: opts.OperationID,
+		Summary:     status.Deploying,
+		Details:     "None",
+	}
+
+	meshVersion := h.GetVersion()
+	meshType := smp.ServiceMesh_Type(smp.ServiceMesh_Type_value[h.GetType()])
 	name := "smi-conformance"
 
 	kclient, err := mesherykube.New(h.KubeClient, h.RestConfig)
@@ -91,20 +100,20 @@ func (h *Adapter) RunSMITest(opts SMITestOptions) (Response, error) {
 	}
 
 	test := &SMITest{
-		ctx:            opts.Ctx,
-		id:             opts.OperationID,
-		adaptorName:    adapterName,
-		adaptorVersion: adapterVersion,
-		labels:         opts.Labels,
-		annotations:    opts.Annotations,
-		kclient:        kclient,
+		ctx:         opts.Ctx,
+		id:          opts.OperationID,
+		meshType:    meshType,
+		meshVersion: meshVersion,
+		labels:      opts.Labels,
+		annotations: opts.Annotations,
+		kclient:     kclient,
 	}
 
 	response := Response{
 		ID:                test.id,
 		Date:              time.Now().Format(time.RFC3339),
-		MeshName:          test.adaptorName,
-		MeshVersion:       test.adaptorVersion,
+		MeshName:          strings.Title(strings.ToLower(strings.ReplaceAll(test.meshType.String(), "_", " "))),
+		MeshVersion:       test.meshVersion,
 		CasesPassed:       "0",
 		PassingPercentage: "0",
 		Status:            "deploying",
@@ -131,6 +140,12 @@ func (h *Adapter) RunSMITest(opts SMITestOptions) (Response, error) {
 	}
 
 	response.Status = "completed"
+
+	e.Summary = fmt.Sprintf("Smi conformance test %s successfully", response.Status)
+	jsondata, _ := json.Marshal(response)
+	e.Details = string(jsondata)
+	h.StreamInfo(e)
+
 	return response, nil
 }
 
@@ -187,10 +202,12 @@ func (test *SMITest) runConformanceTest(response *Response) error {
 	}
 
 	result, err := cClient.CClient.RunTest(context.TODO(), &conformance.Request{
-		Annotations: test.annotations,
-		Labels:      test.labels,
-		Meshname:    test.adaptorName,
-		Meshversion: test.adaptorVersion,
+		Mesh: &smp.ServiceMesh{
+			Annotations: test.annotations,
+			Labels:      test.labels,
+			Type:        test.meshType,
+			Version:     test.meshVersion,
+		},
 	})
 	if err != nil {
 		return err
@@ -202,14 +219,26 @@ func (test *SMITest) runConformanceTest(response *Response) error {
 	details := make([]*Detail, 0)
 
 	for _, d := range result.Details {
+		result := ""
+		reason := ""
+
+		if d.Result.GetMessage() != "" {
+			result = d.Result.GetMessage()
+			reason = ""
+		} else {
+			result = d.Result.GetError().ShortDescription
+			reason = d.Result.GetError().LongDescription
+		}
+
 		details = append(details, &Detail{
 			SmiSpecification: d.Smispec,
-			Time:             d.Time,
-			Assertions:       d.Assertions,
-			Result:           d.Result,
-			Reason:           d.Reason,
-			Capability:       d.Capability,
-			Status:           d.Status,
+			SmiVersion:       d.Specversion,
+			Time:             d.Duration,
+			Assertions:       d.Assertion,
+			Result:           result,
+			Reason:           reason,
+			Capability:       d.Capability.String(),
+			Status:           d.Status.String(),
 		})
 	}
 
