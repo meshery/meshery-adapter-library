@@ -90,8 +90,3 @@ func (h *Adapter) ListOperations() (Operations, error) {
 func (h *Adapter) ApplyOperation(context.Context, OperationRequest) error {
 	return nil
 }
-
-// ProcessOAM processes OAM components. This is adapter specific and needs to be implemented by each adapter.
-func (h *Adapter) ProcessOAM(context.Context, OAMRequest) error {
-	return nil
-}
