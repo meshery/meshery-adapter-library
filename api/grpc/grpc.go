@@ -49,6 +49,8 @@ type Service struct {
 	TraceURL  string    `json:"traceurl"`
 	Handler   adapter.Handler
 	Channel   chan interface{}
+
+	meshes.UnimplementedMeshServiceServer
 }
 
 // panicHandler is the handler function to handle panic errors.

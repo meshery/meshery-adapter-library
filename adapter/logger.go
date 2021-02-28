@@ -57,6 +57,17 @@ func (s *adapterLogger) ApplyOperation(ctx context.Context, op OperationRequest)
 	return err
 }
 
+// ProcessOAM wraps the Handler's ProcessOAM method along with relevant logging
+func (s *adapterLogger) ProcessOAM(ctx context.Context, oamRequest OAMRequest) (string, error) {
+	s.log.Info("Process OAM components")
+	msg, err := s.next.ProcessOAM(ctx, oamRequest)
+	if err != nil {
+		s.log.Error(err)
+	}
+
+	return msg, err
+}
+
 func (s *adapterLogger) ListOperations() (Operations, error) {
 	s.log.Info("Listing Operations")
 	ops, err := s.next.ListOperations()

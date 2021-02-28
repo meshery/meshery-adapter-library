@@ -114,3 +114,16 @@ func (s *Service) StreamEvents(ctx *meshes.EventsRequest, srv meshes.MeshService
 		time.Sleep(500 * time.Millisecond)
 	}
 }
+
+// ProcessOAM is the handler function for the method ProcessOAM
+func (s *Service) ProcessOAM(ctx context.Context, srv *meshes.ProcessOAMRequest) (*meshes.ProcessOAMResponse, error) {
+	operation := adapter.OAMRequest{
+		Username:  srv.Username,
+		DeleteOp:  srv.DeleteOp,
+		OamComps:  srv.OamComps,
+		OamConfig: srv.OamConfig,
+	}
+
+	msg, err := s.Handler.ProcessOAM(ctx, operation)
+	return &meshes.ProcessOAMResponse{Message: msg}, err
+}
