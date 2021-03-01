@@ -1,5 +1,5 @@
 # Meshery Adapter Library
-The Meshery Adapter Library provides a common and consistent set of functionality that Meshery adapters use for managing the lifecycle, configuration, operation, and performance of service meshes and their workloads.
+The Meshery Adapter Library provides a common and consistent set of functionality that Meshery adapters use for managing the lifecycle, configuration, operation, and performance of service meshes and their workloads. . See [Introducing MeshKit and the Meshery Adapter Library](https://layer5.io/blog/meshery/introducing-meshkit-and-the-meshery-adapter-library) for more.
 
 ## Purpose 
 
