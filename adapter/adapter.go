@@ -22,8 +22,8 @@ import (
 
 	"github.com/layer5io/meshery-adapter-library/config"
 	"github.com/layer5io/meshkit/logger"
-	mesherykube "github.com/layer5io/meshkit/utils/kubernetes"
 
+	mesherykube "github.com/layer5io/meshkit/utils/kubernetes"
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"

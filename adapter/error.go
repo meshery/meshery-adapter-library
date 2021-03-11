@@ -33,11 +33,13 @@ const (
 	ErrListOperationsCode     = "1009"
 	ErrNewSmiCode             = "1010"
 	ErrRunSmiCode             = "1011"
+	ErrNoResponseCode         = "1011"
 )
 
 var (
-	ErrGetName   = errors.NewDefault(ErrGetNameCode, "Unable to get mesh name")
-	ErrOpInvalid = errors.NewDefault(ErrOpInvalidCode, "Invalid operation")
+	ErrGetName    = errors.NewDefault(ErrGetNameCode, "Unable to get mesh name")
+	ErrOpInvalid  = errors.NewDefault(ErrOpInvalidCode, "Invalid operation")
+	ErrNoResponse = errors.NewDefault(ErrNoResponseCode, "No response from the smi tool")
 
 	// ErrAuthInfosInvalidMsg is the error message when the all of auth infos have invalid or inaccessible paths
 	// as there certificate paths
