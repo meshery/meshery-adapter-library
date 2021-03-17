@@ -2,15 +2,12 @@ module github.com/layer5io/meshery-adapter-library
 
 go 1.13
 
-replace (
-github.com/kudobuilder/kuttl => github.com/layer5io/kuttl v0.4.1-0.20200806180306-b7e46afd657f
-// github.com/layer5io/learn-layer5/smi-conformance v0.0.0-20210125055931-43e1dc9563c4 => /home/dell/layer5io/learn-layer5/smi-conformance
-)
+replace github.com/kudobuilder/kuttl => github.com/layer5io/kuttl v0.4.1-0.20200806180306-b7e46afd657f
 
 require (
 	github.com/golang/protobuf v1.4.2
 	github.com/grpc-ecosystem/go-grpc-middleware v1.2.0
-	github.com/layer5io/learn-layer5/smi-conformance v0.0.0-20210125055931-43e1dc9563c4
+	github.com/layer5io/learn-layer5/smi-conformance v0.0.0-20210317075357-06b4f88b3e34
 	github.com/layer5io/meshkit v0.2.6
 	github.com/layer5io/service-mesh-performance v0.3.2
 	github.com/spf13/viper v1.7.1

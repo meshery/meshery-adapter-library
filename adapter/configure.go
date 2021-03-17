@@ -112,7 +112,7 @@ func filterK8sConfigAuthInfos(authInfos map[string]*clientcmdapi.AuthInfo) error
 	for key, authInfo := range authInfos {
 		// If clientCertficateData is not present then proceed to check
 		// the client certicate path
-		if len(authInfo.ClientCertificateData) == 0 {
+		if len(authInfo.ClientCertificateData) == 0 && authInfo.AuthProvider == nil {
 			if _, err := os.Stat(authInfo.ClientCertificate); err != nil {
 				// If the path is inaccessible or invalid then delete that authinfo
 				delete(authInfos, key)
