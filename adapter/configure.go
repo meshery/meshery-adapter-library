@@ -6,9 +6,7 @@ import (
 	"github.com/layer5io/meshkit/models"
 	mesherykube "github.com/layer5io/meshkit/utils/kubernetes"
 	yaml "gopkg.in/yaml.v2"
-	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/kubernetes"
-	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 )
@@ -21,19 +19,22 @@ func (h *Adapter) CreateInstance(kubeconfig []byte, contextName string, ch *chan
 		return ErrCreateInstance(err)
 	}
 
-	err = h.createKubeClient(kubeconfig)
-	if err != nil {
-		return ErrCreateInstance(err)
-	}
-
 	err = h.createKubeconfig(kubeconfig)
 	if err != nil {
 		return ErrCreateInstance(err)
 	}
 
-	err = h.createMesheryKubeclient(kubeconfig)
+	h.MesheryKubeclient, err = mesherykube.New(kubeconfig)
 	if err != nil {
-		return ErrCreateInstance(err)
+		return ErrClientSet(err)
+	}
+
+	h.DynamicKubeClient = h.MesheryKubeclient.DynamicKubeClient
+	h.RestConfig = h.MesheryKubeclient.RestConfig
+
+	h.KubeClient, err = kubernetes.NewForConfig(&h.RestConfig)
+	if err != nil {
+		return ErrClientSet(err)
 	}
 
 	h.ClientcmdConfig.CurrentContext = contextName
@@ -42,63 +43,24 @@ func (h *Adapter) CreateInstance(kubeconfig []byte, contextName string, ch *chan
 	return nil
 }
 
-func (h *Adapter) createKubeClient(kubeconfig []byte) error {
-	var (
-		restConfig *rest.Config
-		err        error
-	)
-
-	if len(kubeconfig) > 0 {
-		restConfig, err = clientcmd.RESTConfigFromKubeConfig(kubeconfig)
-		if err != nil {
-			return ErrClientSet(err)
-		}
-	} else {
-		restConfig, err = rest.InClusterConfig()
-		if err != nil {
-			return ErrClientSet(err)
-		}
-	}
-
-	// To perform operations faster
-	restConfig.QPS = float32(50)
-	restConfig.Burst = int(100)
-
-	clientset, err := kubernetes.NewForConfig(restConfig)
-	if err != nil {
-		return ErrClientSet(err)
-	}
-
-	dynamicClient, err := dynamic.NewForConfig(restConfig)
-	if err != nil {
-		return ErrClientSet(err)
-	}
-
-	h.KubeClient = clientset
-	h.DynamicKubeClient = dynamicClient
-	h.RestConfig = *restConfig
-	return nil
-}
-
 func (h *Adapter) validateKubeconfig(kubeconfig []byte) error {
-	clientcmdConfig, err := clientcmd.Load(kubeconfig)
+	var err error
+	h.ClientcmdConfig, err = clientcmd.Load(kubeconfig)
 	if err != nil {
 		return ErrValidateKubeconfig(err)
 	}
 
-	if err := filterK8sConfigAuthInfos(clientcmdConfig.AuthInfos); err != nil {
+	if err := filterK8sConfigAuthInfos(h.ClientcmdConfig.AuthInfos); err != nil {
 		return ErrValidateKubeconfig(err)
 	}
 
-	if err := clientcmdapi.FlattenConfig(clientcmdConfig); err != nil {
+	if err := clientcmdapi.FlattenConfig(h.ClientcmdConfig); err != nil {
 		return ErrValidateKubeconfig(err)
 	}
 
-	if err := clientcmdapi.MinifyConfig(clientcmdConfig); err != nil {
+	if err := clientcmdapi.MinifyConfig(h.ClientcmdConfig); err != nil {
 		return ErrValidateKubeconfig(err)
 	}
-
-	h.ClientcmdConfig = clientcmdConfig
 
 	return nil
 }
@@ -137,15 +99,6 @@ func (h *Adapter) createKubeconfig(kubeconfig []byte) error {
 	return nil
 }
 
-func (h *Adapter) createMesheryKubeclient(kubeconfig []byte) error {
-	client, err := mesherykube.New(h.KubeClient, h.RestConfig)
-	if err != nil {
-		return err
-	}
-	h.MesheryKubeclient = client
-	return nil
-}
-
 // filterK8sConfigAuthInfos takes in the authInfos map and deletes any invalid
 // authInfo.
 //
@@ -159,7 +112,7 @@ func filterK8sConfigAuthInfos(authInfos map[string]*clientcmdapi.AuthInfo) error
 	for key, authInfo := range authInfos {
 		// If clientCertficateData is not present then proceed to check
 		// the client certicate path
-		if len(authInfo.ClientCertificateData) == 0 {
+		if len(authInfo.ClientCertificateData) == 0 && authInfo.AuthProvider == nil {
 			if _, err := os.Stat(authInfo.ClientCertificate); err != nil {
 				// If the path is inaccessible or invalid then delete that authinfo
 				delete(authInfos, key)

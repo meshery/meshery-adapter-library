@@ -94,11 +94,6 @@ func (h *Adapter) RunSMITest(opts SMITestOptions) (Response, error) {
 	meshType := smp.ServiceMesh_Type(smp.ServiceMesh_Type_value[h.GetType()])
 	name := "smi-conformance"
 
-	kclient, err := mesherykube.New(h.KubeClient, h.RestConfig)
-	if err != nil {
-		return Response{}, ErrSmiInit(fmt.Sprintf("error creating meshery kubernetes client: %v", err))
-	}
-
 	test := &SMITest{
 		ctx:         opts.Ctx,
 		id:          opts.OperationID,
@@ -106,7 +101,7 @@ func (h *Adapter) RunSMITest(opts SMITestOptions) (Response, error) {
 		meshVersion: meshVersion,
 		labels:      opts.Labels,
 		annotations: opts.Annotations,
-		kclient:     kclient,
+		kclient:     h.MesheryKubeclient,
 	}
 
 	response := Response{
@@ -119,22 +114,22 @@ func (h *Adapter) RunSMITest(opts SMITestOptions) (Response, error) {
 		Status:            "deploying",
 	}
 
-	if err = test.installConformanceTool(opts.Manifest, opts.Namespace); err != nil {
+	if err := test.installConformanceTool(opts.Manifest, opts.Namespace); err != nil {
 		response.Status = "installing"
 		return response, ErrInstallSmi(err)
 	}
 
-	if err = test.connectConformanceTool(name, opts.Namespace); err != nil {
+	if err := test.connectConformanceTool(name, opts.Namespace); err != nil {
 		response.Status = "connecting"
 		return response, ErrConnectSmi(err)
 	}
 
-	if err = test.runConformanceTest(&response); err != nil {
+	if err := test.runConformanceTest(&response); err != nil {
 		response.Status = "running"
 		return response, ErrRunSmi(err)
 	}
 
-	if err = test.deleteConformanceTool(opts.Manifest, opts.Namespace); err != nil {
+	if err := test.deleteConformanceTool(opts.Manifest, opts.Namespace); err != nil {
 		response.Status = "deleting"
 		return response, ErrDeleteSmi(err)
 	}
@@ -185,12 +180,17 @@ func (test *SMITest) deleteConformanceTool(smiManifest, ns string) error {
 
 // connectConformanceTool initiates the connection
 func (test *SMITest) connectConformanceTool(name, ns string) error {
-	endpoint, err := test.kclient.GetServiceEndpoint(test.ctx, name, ns)
+	endpoint, err := mesherykube.GetServiceEndpoint(test.ctx, test.kclient.KubeClient, &mesherykube.ServiceOptions{
+		Name:         name,
+		Namespace:    ns,
+		PortSelector: "smi-conformance",
+		APIServerURL: test.kclient.RestConfig.Host,
+	})
 	if err != nil {
 		return err
 	}
 
-	test.smiAddress = fmt.Sprintf("%s:%d", endpoint.Address, endpoint.Port)
+	test.smiAddress = fmt.Sprintf("%s:%d", endpoint.External.Address, endpoint.External.Port)
 	return nil
 }
 
@@ -201,16 +201,28 @@ func (test *SMITest) runConformanceTest(response *Response) error {
 		return err
 	}
 
-	result, err := cClient.CClient.RunTest(context.TODO(), &conformance.Request{
-		Mesh: &smp.ServiceMesh{
-			Annotations: test.annotations,
-			Labels:      test.labels,
-			Type:        test.meshType,
-			Version:     test.meshVersion,
-		},
-	})
-	if err != nil {
-		return err
+	timeout := 100
+	result := &conformance.Response{}
+	for timeout > 0 {
+		time.Sleep(1 * time.Second)
+		result, err = cClient.CClient.RunTest(context.TODO(), &conformance.Request{
+			Mesh: &smp.ServiceMesh{
+				Annotations: test.annotations,
+				Labels:      test.labels,
+				Type:        test.meshType,
+				Version:     test.meshVersion,
+			},
+		})
+		if err == nil {
+			break
+		} else if err != nil && !strings.Contains(err.Error(), "i/o timeout") {
+			return err
+		}
+		timeout--
+	}
+
+	if response.CasesPassed == "" || response.PassingPercentage == "" {
+		return ErrNoResponse
 	}
 
 	response.CasesPassed = result.Casespassed
