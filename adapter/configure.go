@@ -102,7 +102,7 @@ func (h *Adapter) createKubeconfig(kubeconfig []byte) error {
 // filterK8sConfigAuthInfos takes in the authInfos map and deletes any invalid
 // authInfo.
 //
-// An authInfo is invalid if the certificate path mentioned in it is either
+// An authInfo is invalid if the certificate path or the bearer token path mentioned in it is either
 // invalid or is inaccessible to the adapter
 //
 // The function will throw an error if after filtering the authInfos it becomes
@@ -110,11 +110,13 @@ func (h *Adapter) createKubeconfig(kubeconfig []byte) error {
 // with the kubernetes server.
 func filterK8sConfigAuthInfos(authInfos map[string]*clientcmdapi.AuthInfo) error {
 	for key, authInfo := range authInfos {
-		// If clientCertficateData is not present then proceed to check
+		// If clientCertficateData or the bearer token is not present then proceed to check
 		// the client certicate path
-		if len(authInfo.ClientCertificateData) == 0 && authInfo.AuthProvider == nil {
-			if _, err := os.Stat(authInfo.ClientCertificate); err != nil {
-				// If the path is inaccessible or invalid then delete that authinfo
+		if len(authInfo.ClientCertificateData) == 0 && len(authInfo.Token) == 0 && authInfo.AuthProvider == nil {
+			// If the path for clientCertficate and the bearer token, both are inaccessible or invalid then delete that authinfo
+			_, errCC := os.Stat(authInfo.ClientCertificate)
+			_, errToken := os.Stat(authInfo.TokenFile)
+			if errCC != nil && errToken != nil {
 				delete(authInfos, key)
 			}
 		}
