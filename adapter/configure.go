@@ -14,21 +14,16 @@ import (
 // Instantiates clients used in deploying and managing mesh instances, e.g. Kubernetes clients.
 // This needs to be called before applying operations.
 func (h *Adapter) CreateInstance(kubeconfig []byte, contextName string, ch *chan interface{}) error {
-	// When called in-cluster, kubeconfig is nil. mesherykube.New() detects the correct KubeConfig.
-	if len(kubeconfig) > 0 {
-		err := h.validateKubeconfig(kubeconfig)
-		if err != nil {
-			return ErrCreateInstance(err)
-		}
-
-		err = h.createKubeconfig(kubeconfig)
-		if err != nil {
-			return ErrCreateInstance(err)
-		}
-		h.ClientcmdConfig.CurrentContext = contextName
+	err := h.validateKubeconfig(kubeconfig)
+	if err != nil {
+		return ErrCreateInstance(err)
 	}
 
-	var err error
+	err = h.createKubeconfig(kubeconfig)
+	if err != nil {
+		return ErrCreateInstance(err)
+	}
+
 	h.MesheryKubeclient, err = mesherykube.New(kubeconfig)
 	if err != nil {
 		return ErrClientSet(err)
@@ -42,6 +37,7 @@ func (h *Adapter) CreateInstance(kubeconfig []byte, contextName string, ch *chan
 		return ErrClientSet(err)
 	}
 
+	h.ClientcmdConfig.CurrentContext = contextName
 	h.Channel = ch
 
 	return nil
