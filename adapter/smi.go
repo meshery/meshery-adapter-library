@@ -91,7 +91,7 @@ func (h *Adapter) RunSMITest(opts SMITestOptions) (Response, error) {
 	}
 
 	meshVersion := h.GetVersion()
-	meshType := smp.ServiceMesh_Type(smp.ServiceMesh_Type_value[h.GetType()])
+	meshType := smp.ServiceMesh_Type(smp.ServiceMesh_Type_value[h.GetName()])
 	name := "smi-conformance"
 
 	test := &SMITest{

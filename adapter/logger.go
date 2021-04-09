@@ -39,6 +39,14 @@ func (s *adapterLogger) GetName() string {
 	return s.next.GetName()
 }
 
+func (s *adapterLogger) GetComponentInfo(svc interface{}) error {
+	err := s.next.GetComponentInfo(svc)
+	if err != nil {
+		s.log.Error(ErrGetName)
+	}
+	return s.next.GetComponentInfo(svc)
+}
+
 func (s *adapterLogger) CreateInstance(b []byte, st string, c *chan interface{}) error {
 	s.log.Info("Creating instance")
 	err := s.next.CreateInstance(b, st, c)

@@ -95,6 +95,9 @@ var (
 		SmiConformanceOperation: &adapter.Operation{
 			Type:        int32(meshes.OpCategory_VALIDATE),
 			Description: "SMI Conformance",
+			Templates: []adapter.Template{
+				"https://raw.githubusercontent.com/layer5io/learn-layer5/master/smi-conformance/manifest.yml",
+			},
 		},
 	}
 )

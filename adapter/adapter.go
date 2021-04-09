@@ -33,6 +33,7 @@ import (
 // Interface Handler is extended by adapters, and used in package api/grpc that implements the MeshServiceServer.
 type Handler interface {
 	GetName() string                                        // Returns the name of the adapter.
+	GetComponentInfo(interface{}) error                     // Returns the component info.
 	CreateInstance([]byte, string, *chan interface{}) error // Instantiates clients used in deploying and managing mesh instances, e.g. Kubernetes clients.
 	ApplyOperation(context.Context, OperationRequest) error // Applies an adapter operation. This is adapter specific and needs to be implemented by each adapter.
 	ListOperations() (Operations, error)                    // List all operations an adapter supports.
