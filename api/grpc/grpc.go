@@ -43,12 +43,15 @@ import (
 // Service object holds all the information about the server parameters.
 type Service struct {
 	Name      string    `json:"name"`
+	Type      string    `json:"type"`
 	Port      string    `json:"port"`
 	Version   string    `json:"version"`
+	GitSHA    string    `json:"gitsha"`
 	StartedAt time.Time `json:"startedat"`
 	TraceURL  string    `json:"traceurl"`
-	Handler   adapter.Handler
-	Channel   chan interface{}
+
+	Handler adapter.Handler
+	Channel chan interface{}
 
 	meshes.UnimplementedMeshServiceServer
 }

@@ -29,6 +29,7 @@ import (
 var (
 	defaultServerConfig = map[string]string{
 		"name":     "sample-adapter",
+		"type":     "adapter",
 		"port":     "10000",
 		"traceurl": "none",
 		"version":  "v0.1.0",

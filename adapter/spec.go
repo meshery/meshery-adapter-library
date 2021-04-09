@@ -23,7 +23,6 @@ const (
 
 type Spec struct {
 	Name    string `json:"name"`
-	Type    string `json:"type"`
 	Status  string `json:"status"`
 	Version string `json:"version"`
 }
@@ -46,11 +45,10 @@ func (h *Adapter) GetVersion() string {
 	return spec.Version
 }
 
-func (h *Adapter) GetType() string {
-	spec := &Spec{}
-	err := h.Config.GetObject(MeshSpecKey, &spec)
-	if err != nil && len(spec.Type) > 0 {
-		return "INVALID_MESH"
+func (h *Adapter) GetComponentInfo(svc interface{}) error {
+	err := h.Config.GetObject(ServerKey, &svc)
+	if err != nil {
+		return err
 	}
-	return spec.Type
+	return nil
 }

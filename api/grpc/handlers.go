@@ -127,3 +127,25 @@ func (s *Service) ProcessOAM(ctx context.Context, srv *meshes.ProcessOAMRequest)
 	msg, err := s.Handler.ProcessOAM(ctx, operation)
 	return &meshes.ProcessOAMResponse{Message: msg}, err
 }
+
+// ProcessOAM is the handler function for the method ProcessOAM
+func (s *Service) MeshVersions(context.Context, *meshes.MeshVersionsRequest) (*meshes.MeshVersionsResponse, error) {
+	versions := make([]string, 0)
+	return &meshes.MeshVersionsResponse{
+		Version: versions,
+	}, nil
+}
+
+// ProcessOAM is the handler function for the method ProcessOAM
+func (s *Service) ComponentInfo(context.Context, *meshes.ComponentInfoRequest) (*meshes.ComponentInfoResponse, error) {
+	err := s.Handler.GetComponentInfo(s)
+	if err != nil {
+		return nil, err
+	}
+	return &meshes.ComponentInfoResponse{
+		Type:    s.Type,
+		Name:    s.Name,
+		Version: s.Version,
+		GitSha:  s.GitSHA,
+	}, nil
+}
