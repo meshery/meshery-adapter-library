@@ -50,6 +50,12 @@ func (h *Adapter) validateKubeconfig(kubeconfig []byte) error {
 		return ErrValidateKubeconfig(err)
 	}
 
+	// If kubeconfig provided to validate function is empty
+	// and the service is deployed within k8s then skip the validation
+	if len(kubeconfig) == 0 && isDeployedWithinK8s() {
+		return nil
+	}
+
 	if err := filterK8sConfigAuthInfos(h.ClientcmdConfig.AuthInfos); err != nil {
 		return ErrValidateKubeconfig(err)
 	}
@@ -129,4 +135,10 @@ func filterK8sConfigAuthInfos(authInfos map[string]*clientcmdapi.AuthInfo) error
 	}
 
 	return nil
+}
+
+// isDeployedWithinK8s returns true if the adapter is running
+// inside a kubernetes cluster
+func isDeployedWithinK8s() bool {
+	return os.Getenv("KUBERNETES_SERVICE_HOST") != ""
 }
