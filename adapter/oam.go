@@ -25,19 +25,19 @@ type OAMRegistrant struct {
 	//
 	// OAMRegistrant will read the definitions from these
 	// paths and will register them to the OAM registry
-	Paths []OAMRegistrantDefintionPath
+	Paths []OAMRegistrantDefinitionPath
 
 	// OAMHTTPRegistry is the address of an OAM registry
 	OAMHTTPRegistry string
 }
 
-// OAMRegistrantDefintionPath - Structure for configuring registrant paths
-type OAMRegistrantDefintionPath struct {
+// OAMRegistrantDefinitionPath - Structure for configuring registrant paths
+type OAMRegistrantDefinitionPath struct {
 	// OAMDefinitionPath holds the path for OAM Definition file
 	OAMDefintionPath string
 	// OAMRefSchemaPath holds the path for the OAM Ref Schema file
 	OAMRefSchemaPath string
-	// Host is the address of the gRPC host capabale of processing the request
+	// Host is the address of the gRPC host capable of processing the request
 	Host string
 }
 
@@ -55,7 +55,7 @@ type OAMRegistrantData struct {
 }
 
 // NewOAMRegistrant returns an instance of OAMRegistrant
-func NewOAMRegistrant(paths []OAMRegistrantDefintionPath, oamHTTPRegistry string) *OAMRegistrant {
+func NewOAMRegistrant(paths []OAMRegistrantDefinitionPath, oamHTTPRegistry string) *OAMRegistrant {
 	return &OAMRegistrant{
 		Paths:           paths,
 		OAMHTTPRegistry: oamHTTPRegistry,
