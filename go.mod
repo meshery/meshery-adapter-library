@@ -9,6 +9,7 @@ replace (
 )
 
 require (
+	github.com/cenkalti/backoff/v4 v4.1.0
 	github.com/golang/protobuf v1.4.2
 	github.com/grpc-ecosystem/go-grpc-middleware v1.2.0
 	github.com/layer5io/learn-layer5/smi-conformance v0.0.0-20210317075357-06b4f88b3e34

@@ -21,19 +21,22 @@ import (
 )
 
 const (
-	ErrGetNameCode            = "1000"
-	ErrCreateInstanceCode     = "1001"
-	ErrMeshConfigCode         = "1002"
-	ErrValidateKubeconfigCode = "1003"
-	ErrClientConfigCode       = "1004"
-	ErrClientSetCode          = "1005"
-	ErrStreamEventCode        = "1006"
-	ErrOpInvalidCode          = "1007"
-	ErrApplyOperationCode     = "1008"
-	ErrListOperationsCode     = "1009"
-	ErrNewSmiCode             = "1010"
-	ErrRunSmiCode             = "1011"
-	ErrNoResponseCode         = "1011"
+	ErrGetNameCode              = "1000"
+	ErrCreateInstanceCode       = "1001"
+	ErrMeshConfigCode           = "1002"
+	ErrValidateKubeconfigCode   = "1003"
+	ErrClientConfigCode         = "1004"
+	ErrClientSetCode            = "1005"
+	ErrStreamEventCode          = "1006"
+	ErrOpInvalidCode            = "1007"
+	ErrApplyOperationCode       = "1008"
+	ErrListOperationsCode       = "1009"
+	ErrNewSmiCode               = "1010"
+	ErrRunSmiCode               = "1011"
+	ErrNoResponseCode           = "1011"
+	ErrOpenOAMDefintionFileCode = "1013"
+	ErrOpenOAMRefFileCode       = "1014"
+	ErrJSONMarshalCode          = "1015"
 )
 
 var (
@@ -99,4 +102,19 @@ func ErrConnectSmi(err error) error {
 // ErrDeleteSmi is the error for deleting smi tool
 func ErrDeleteSmi(err error) error {
 	return errors.NewDefault(errors.ErrDeleteSmi, fmt.Sprintf("Error deleting smi tool: %s", err.Error()))
+}
+
+// ErrOpenOAMDefintionFile is the error for opening OAM Definition file
+func ErrOpenOAMDefintionFile(err error) error {
+	return errors.NewDefault(ErrOpenOAMDefintionFileCode, fmt.Sprintf("error opening OAM Definition File: %s", err.Error()))
+}
+
+// ErrOpenOAMRefFile is the error for opening OAM Schema Ref file
+func ErrOpenOAMRefFile(err error) error {
+	return errors.NewDefault(errors.ErrDeleteSmi, fmt.Sprintf("error opening OAM Schema Ref File: %s", err.Error()))
+}
+
+// ErrJSONMarshal is the error for json marhal failure
+func ErrJSONMarshal(err error) error {
+	return errors.NewDefault(errors.ErrDeleteSmi, fmt.Sprintf("error marshal JSON: %s", err.Error()))
 }
