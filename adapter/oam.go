@@ -24,7 +24,7 @@ type OAMRegistrant struct {
 	// OAMRefSchema and Host on the filesystem
 	//
 	// OAMRegistrant will read the definitions from these
-	// paths and will register them to the OAM regsitry
+	// paths and will register them to the OAM registry
 	Paths []OAMRegistrantDefintionPath
 
 	// OAMHTTPRegistry is the address of an OAM registry
@@ -33,7 +33,7 @@ type OAMRegistrant struct {
 
 // OAMRegistrantDefintionPath - Structure for configuring registrant paths
 type OAMRegistrantDefintionPath struct {
-	// OAMDefinitionPath holds the path for OAM Defintion file
+	// OAMDefinitionPath holds the path for OAM Definition file
 	OAMDefintionPath string
 	// OAMRefSchemaPath holds the path for the OAM Ref Schema file
 	OAMRefSchemaPath string
@@ -99,7 +99,7 @@ func (or *OAMRegistrant) Register() error {
 		// send request to the register
 		backoffOpt := backoff.NewExponentialBackOff()
 		backoffOpt.MaxElapsedTime = 10 * time.Minute
-		backoff.Retry(func() error {
+		if err := backoff.Retry(func() error {
 			contentByt, err := json.Marshal(ord)
 			if err != nil {
 				return backoff.Permanent(err)
@@ -124,7 +124,9 @@ func (or *OAMRegistrant) Register() error {
 			}
 
 			return nil
-		}, backoffOpt)
+		}, backoffOpt); err != nil {
+			return err
+		}
 	}
 
 	return nil

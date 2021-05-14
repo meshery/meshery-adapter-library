@@ -37,6 +37,7 @@ const (
 	ErrOpenOAMDefintionFileCode = "1013"
 	ErrOpenOAMRefFileCode       = "1014"
 	ErrJSONMarshalCode          = "1015"
+	ErrOAMRetryCode             = "1016"
 )
 
 var (
@@ -111,10 +112,14 @@ func ErrOpenOAMDefintionFile(err error) error {
 
 // ErrOpenOAMRefFile is the error for opening OAM Schema Ref file
 func ErrOpenOAMRefFile(err error) error {
-	return errors.NewDefault(errors.ErrDeleteSmi, fmt.Sprintf("error opening OAM Schema Ref File: %s", err.Error()))
+	return errors.NewDefault(ErrOpenOAMRefFileCode, fmt.Sprintf("error opening OAM Schema Ref File: %s", err.Error()))
 }
 
 // ErrJSONMarshal is the error for json marhal failure
 func ErrJSONMarshal(err error) error {
-	return errors.NewDefault(errors.ErrDeleteSmi, fmt.Sprintf("error marshal JSON: %s", err.Error()))
+	return errors.NewDefault(ErrOAMRetryCode, fmt.Sprintf("error marshal JSON: %s", err.Error()))
+}
+
+func ErrOAMRetry(err error) error {
+	return errors.NewDefault(ErrOAMRetryCode, fmt.Sprintf("error marshal JSON: %s", err.Error()))
 }
