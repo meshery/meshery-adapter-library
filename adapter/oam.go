@@ -125,7 +125,7 @@ func (or *OAMRegistrant) Register() error {
 
 			return nil
 		}, backoffOpt); err != nil {
-			return err
+			return ErrOAMRetry(err)
 		}
 	}
 
