@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"os"
 	"time"
@@ -88,7 +89,7 @@ func (or *OAMRegistrant) Register() error {
 		}
 		ord.OAMDefinition = definitionMap
 
-		schema, err := os.ReadFile(dpath.OAMRefSchemaPath)
+		schema, err := ioutil.ReadFile(dpath.OAMRefSchemaPath)
 		if err != nil {
 			return ErrOpenOAMRefFile(err)
 		}
