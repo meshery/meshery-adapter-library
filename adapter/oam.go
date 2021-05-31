@@ -40,6 +40,13 @@ type OAMRegistrantDefinitionPath struct {
 	OAMRefSchemaPath string
 	// Host is the address of the gRPC host capable of processing the request
 	Host string
+	// Restricted should be set to true if this capability should be restricted
+	// only to the server and shouldn't be exposed to the user for direct usage
+	Restricted bool
+	// Metadata is the other data which can be attached to the post request body
+	//
+	// Metadata like name of the component, etc.
+	Metadata map[string]string
 }
 
 // OAMRegistrantData struct defines the body of the POST request that is sent to the OAM
@@ -49,10 +56,14 @@ type OAMRegistrantDefinitionPath struct {
 // 1. OAM definition, which is in accordance with the OAM spec
 // 2. OAMRefSchema, which is json schema draft-4, draft-7 or draft-8 for the corresponding OAM object
 // 3. Host is this service's grpc address in the form of `hostname:port`
+// 4. Restricted should be set to true if the given capability is meant to be used internally
+// 5. Metadata can be a map of key value pairs
 type OAMRegistrantData struct {
-	OAMDefinition interface{} `json:"oam_definition,omitempty"`
-	OAMRefSchema  string      `json:"oam_ref_schema,omitempty"`
-	Host          string      `json:"host,omitempty"`
+	OAMDefinition interface{}       `json:"oam_definition,omitempty"`
+	OAMRefSchema  string            `json:"oam_ref_schema,omitempty"`
+	Host          string            `json:"host,omitempty"`
+	Restricted    bool              `json:"restricted,omitempty"`
+	Metadata      map[string]string `json:"metadata,omitempty"`
 }
 
 // NewOAMRegistrant returns an instance of OAMRegistrant
@@ -96,6 +107,8 @@ func (or *OAMRegistrant) Register() error {
 		ord.OAMRefSchema = string(schema)
 
 		ord.Host = dpath.Host
+		ord.Metadata = dpath.Metadata
+		ord.Restricted = dpath.Restricted
 
 		// send request to the register
 		backoffOpt := backoff.NewExponentialBackOff()
