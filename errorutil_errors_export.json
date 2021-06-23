@@ -1,0 +1,78 @@
+{
+  "component_name": "meshery-adapter-library",
+  "component_type": "library",
+  "errors": {
+    "1007": {
+      "name": "ErrOpInvalidCode",
+      "code": "1007",
+      "severity": "Alert",
+      "long_description": "",
+      "short_description": "Invalid operation",
+      "probable_cause": "",
+      "suggested_remediation": ""
+    },
+    "1008": {
+      "name": "ErrApplyOperationCode",
+      "code": "1008",
+      "severity": "",
+      "long_description": "",
+      "short_description": "",
+      "probable_cause": "",
+      "suggested_remediation": ""
+    },
+    "1009": {
+      "name": "ErrListOperationsCode",
+      "code": "1009",
+      "severity": "Alert",
+      "long_description": "",
+      "short_description": "Error listing operations",
+      "probable_cause": "",
+      "suggested_remediation": ""
+    },
+    "1010": {
+      "name": "ErrNewSmiCode",
+      "code": "1010",
+      "severity": "Alert",
+      "long_description": "",
+      "short_description": "Error creating new SMI test client",
+      "probable_cause": "",
+      "suggested_remediation": ""
+    },
+    "1013": {
+      "name": "ErrOpenOAMDefintionFileCode",
+      "code": "1013",
+      "severity": "Alert",
+      "long_description": "",
+      "short_description": "error opening OAM Definition File: %s",
+      "probable_cause": "",
+      "suggested_remediation": ""
+    },
+    "1014": {
+      "name": "ErrOpenOAMRefFileCode",
+      "code": "1014",
+      "severity": "Alert",
+      "long_description": "",
+      "short_description": "error opening OAM Schema Ref File: %s",
+      "probable_cause": "",
+      "suggested_remediation": ""
+    },
+    "1015": {
+      "name": "ErrJSONMarshalCode",
+      "code": "1015",
+      "severity": "",
+      "long_description": "",
+      "short_description": "",
+      "probable_cause": "",
+      "suggested_remediation": ""
+    },
+    "1016": {
+      "name": "ErrOAMRetryCode",
+      "code": "1016",
+      "severity": "",
+      "long_description": "",
+      "short_description": "",
+      "probable_cause": "",
+      "suggested_remediation": ""
+    }
+  }
+}

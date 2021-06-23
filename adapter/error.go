@@ -38,12 +38,16 @@ const (
 	ErrOpenOAMRefFileCode       = "1014"
 	ErrJSONMarshalCode          = "1015"
 	ErrOAMRetryCode             = "1016"
+	ErrSmiInitCode              = "1007"
+	ErrInstallSmiCode           = "1008"
+	ErrConnectSmiCode           = "1009"
+	ErrDeleteSmiCode            = "1010"
 )
 
 var (
-	ErrGetName    = errors.NewDefault(ErrGetNameCode, "Unable to get mesh name")
-	ErrOpInvalid  = errors.NewDefault(ErrOpInvalidCode, "Invalid operation")
-	ErrNoResponse = errors.NewDefault(ErrNoResponseCode, "No response from the smi tool")
+	ErrGetName    = errors.New(ErrGetNameCode, errors.Alert, []string{"Unable to get mesh name"}, []string{}, []string{}, []string{})
+	ErrOpInvalid  = errors.New(ErrOpInvalidCode, errors.Alert, []string{"Invalid operation"}, []string{}, []string{}, []string{})
+	ErrNoResponse = errors.New(ErrNoResponseCode, errors.Alert, []string{"No response from the smi tool"}, []string{}, []string{}, []string{})
 
 	// ErrAuthInfosInvalidMsg is the error message when the all of auth infos have invalid or inaccessible paths
 	// as there certificate paths
@@ -51,75 +55,75 @@ var (
 )
 
 func ErrCreateInstance(err error) error {
-	return errors.NewDefault(ErrCreateInstanceCode, "Error creating adapter instance", err.Error())
+	return errors.New(ErrCreateInstanceCode, errors.Alert, []string{"Error creating adapter instance"}, []string{err.Error()}, []string{}, []string{})
 }
 
 func ErrMeshConfig(err error) error {
-	return errors.NewDefault(ErrMeshConfigCode, "Error configuration mesh", err.Error())
+	return errors.New(ErrMeshConfigCode, errors.Alert, []string{"Error configuration mesh"}, []string{err.Error()}, []string{}, []string{})
 }
 
 func ErrValidateKubeconfig(err error) error {
-	return errors.NewDefault(ErrValidateKubeconfigCode, "Error validating kubeconfig", err.Error())
+	return errors.New(ErrValidateKubeconfigCode, errors.Alert, []string{"Error validating kubeconfig"}, []string{err.Error()}, []string{}, []string{})
 }
 
 func ErrClientConfig(err error) error {
-	return errors.NewDefault(ErrClientConfigCode, "Error setting client Config", err.Error())
+	return errors.New(ErrClientConfigCode, errors.Alert, []string{"Error setting client Config"}, []string{err.Error()}, []string{}, []string{})
 }
 
 func ErrClientSet(err error) error {
-	return errors.NewDefault(ErrClientSetCode, "Error setting clientset", err.Error())
+	return errors.New(ErrClientSetCode, errors.Alert, []string{"Error setting clientset"}, []string{err.Error()}, []string{}, []string{})
 }
 
 func ErrStreamEvent(err error) error {
-	return errors.NewDefault(ErrStreamEventCode, "Error streaming event", err.Error())
+	return errors.New(ErrStreamEventCode, errors.Alert, []string{"Error streaming event"}, []string{err.Error()}, []string{}, []string{})
 }
 func ErrListOperations(err error) error {
-	return errors.NewDefault(ErrListOperationsCode, "Error listing operations", err.Error())
+	return errors.New(ErrListOperationsCode, errors.Alert, []string{"Error listing operations"}, []string{err.Error()}, []string{}, []string{})
 }
 
 func ErrNewSmi(err error) error {
-	return errors.NewDefault(ErrNewSmiCode, "Error creating new SMI test client", err.Error())
+	return errors.New(ErrNewSmiCode, errors.Alert, []string{"Error creating new SMI test client"}, []string{err.Error()}, []string{}, []string{})
 }
 
 func ErrRunSmi(err error) error {
-	return errors.NewDefault(ErrRunSmiCode, "Error running SMI conformance test", err.Error())
+	return errors.New(ErrRunSmiCode, errors.Alert, []string{"Error running SMI conformance test"}, []string{err.Error()}, []string{}, []string{})
 }
 
 // ErrSmiInit is the error for smi init method
 func ErrSmiInit(des string) error {
-	return errors.NewDefault(errors.ErrSmiInit, des)
+	return errors.New(ErrSmiInitCode, errors.Alert, []string{des}, []string{}, []string{}, []string{})
 }
 
 // ErrInstallSmi is the error for installing smi tool
 func ErrInstallSmi(err error) error {
-	return errors.NewDefault(errors.ErrInstallSmi, fmt.Sprintf("Error installing smi tool: %s", err.Error()))
+	return errors.New(ErrInstallSmiCode, errors.Alert, []string{"Error installing smi tool"}, []string{err.Error()}, []string{}, []string{})
 }
 
 // ErrConnectSmi is the error for connecting to smi tool
 func ErrConnectSmi(err error) error {
-	return errors.NewDefault(errors.ErrConnectSmi, fmt.Sprintf("Error connecting to smi tool: %s", err.Error()))
+	return errors.New(ErrConnectSmiCode, errors.Alert, []string{"Error connecting to smi tool: %s"}, []string{err.Error()}, []string{}, []string{})
 }
 
 // ErrDeleteSmi is the error for deleting smi tool
 func ErrDeleteSmi(err error) error {
-	return errors.NewDefault(errors.ErrDeleteSmi, fmt.Sprintf("Error deleting smi tool: %s", err.Error()))
+	return errors.New(ErrDeleteSmiCode, errors.Alert, []string{"Error deleting smi tool: %s"}, []string{err.Error()}, []string{}, []string{})
 }
 
 // ErrOpenOAMDefintionFile is the error for opening OAM Definition file
 func ErrOpenOAMDefintionFile(err error) error {
-	return errors.NewDefault(ErrOpenOAMDefintionFileCode, fmt.Sprintf("error opening OAM Definition File: %s", err.Error()))
+	return errors.New(ErrOpenOAMDefintionFileCode, errors.Alert, []string{"error opening OAM Definition File: %s"}, []string{err.Error()}, []string{}, []string{})
 }
 
 // ErrOpenOAMRefFile is the error for opening OAM Schema Ref file
 func ErrOpenOAMRefFile(err error) error {
-	return errors.NewDefault(ErrOpenOAMRefFileCode, fmt.Sprintf("error opening OAM Schema Ref File: %s", err.Error()))
+	return errors.New(ErrOpenOAMRefFileCode, errors.Alert, []string{"error opening OAM Schema Ref File: %s"}, []string{err.Error()}, []string{}, []string{})
 }
 
 // ErrJSONMarshal is the error for json marhal failure
 func ErrJSONMarshal(err error) error {
-	return errors.NewDefault(ErrOAMRetryCode, fmt.Sprintf("error marshal JSON: %s", err.Error()))
+	return errors.New(ErrOAMRetryCode, errors.Alert, []string{"error marshal JSON: %s"}, []string{err.Error()}, []string{}, []string{})
 }
 
 func ErrOAMRetry(err error) error {
-	return errors.NewDefault(ErrOAMRetryCode, fmt.Sprintf("error marshal JSON: %s", err.Error()))
+	return errors.New(ErrOAMRetryCode, errors.Alert, []string{"error marshal JSON: %s"}, []string{err.Error()}, []string{}, []string{})
 }

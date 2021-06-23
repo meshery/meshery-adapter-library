@@ -19,16 +19,19 @@ import (
 )
 
 var (
+	ErrEmptyConfigCode = "1004"
+	ErrViperCode       = "1005"
+	ErrInMemCode       = "1006"
 	// ErrEmptyConfig is returned when the config has not been initialized.
-	ErrEmptyConfig = errors.NewDefault(errors.ErrEmptyConfig, "Config not initialized")
+	ErrEmptyConfig = errors.New(ErrEmptyConfigCode, errors.Alert, []string{"Config not initialized"}, []string{}, []string{}, []string{})
 )
 
 // ErrViper returns a MeshKit error wrapping err in case of an (initialization) error in the Viper provider.
 func ErrViper(err error) error {
-	return errors.NewDefault(errors.ErrViper, "Viper initialization failed with error: ", err.Error())
+	return errors.New(ErrViperCode, errors.Alert, []string{"Viper initialization failed with error: "}, []string{err.Error()}, []string{}, []string{})
 }
 
 // ErrViper returns a MeshKit error wrapping err in case of an (initialization) error in the in-memory provider.
 func ErrInMem(err error) error {
-	return errors.NewDefault(errors.ErrInMem, "InMem initialization failed with error: ", err.Error())
+	return errors.New(ErrInMemCode, errors.Alert, []string{"InMem initialization failed with error: "}, []string{err.Error()}, []string{}, []string{})
 }
