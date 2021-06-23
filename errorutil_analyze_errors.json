@@ -1,0 +1,884 @@
+{
+  "entries": [
+    {
+      "name": "ErrGetNameCode",
+      "old_code": "1000",
+      "code": "1000",
+      "code_is_literal": true,
+      "code_is_int": true,
+      "path": "adapter/error.go"
+    },
+    {
+      "name": "ErrCreateInstanceCode",
+      "old_code": "1001",
+      "code": "1001",
+      "code_is_literal": true,
+      "code_is_int": true,
+      "path": "adapter/error.go"
+    },
+    {
+      "name": "ErrMeshConfigCode",
+      "old_code": "1002",
+      "code": "1002",
+      "code_is_literal": true,
+      "code_is_int": true,
+      "path": "adapter/error.go"
+    },
+    {
+      "name": "ErrValidateKubeconfigCode",
+      "old_code": "1003",
+      "code": "1003",
+      "code_is_literal": true,
+      "code_is_int": true,
+      "path": "adapter/error.go"
+    },
+    {
+      "name": "ErrClientConfigCode",
+      "old_code": "1004",
+      "code": "1004",
+      "code_is_literal": true,
+      "code_is_int": true,
+      "path": "adapter/error.go"
+    },
+    {
+      "name": "ErrClientSetCode",
+      "old_code": "1005",
+      "code": "1005",
+      "code_is_literal": true,
+      "code_is_int": true,
+      "path": "adapter/error.go"
+    },
+    {
+      "name": "ErrStreamEventCode",
+      "old_code": "1006",
+      "code": "1006",
+      "code_is_literal": true,
+      "code_is_int": true,
+      "path": "adapter/error.go"
+    },
+    {
+      "name": "ErrOpInvalidCode",
+      "old_code": "1007",
+      "code": "1007",
+      "code_is_literal": true,
+      "code_is_int": true,
+      "path": "adapter/error.go"
+    },
+    {
+      "name": "ErrApplyOperationCode",
+      "old_code": "1008",
+      "code": "1008",
+      "code_is_literal": true,
+      "code_is_int": true,
+      "path": "adapter/error.go"
+    },
+    {
+      "name": "ErrListOperationsCode",
+      "old_code": "1009",
+      "code": "1009",
+      "code_is_literal": true,
+      "code_is_int": true,
+      "path": "adapter/error.go"
+    },
+    {
+      "name": "ErrNewSmiCode",
+      "old_code": "1010",
+      "code": "1010",
+      "code_is_literal": true,
+      "code_is_int": true,
+      "path": "adapter/error.go"
+    },
+    {
+      "name": "ErrRunSmiCode",
+      "old_code": "1011",
+      "code": "1011",
+      "code_is_literal": true,
+      "code_is_int": true,
+      "path": "adapter/error.go"
+    },
+    {
+      "name": "ErrNoResponseCode",
+      "old_code": "1011",
+      "code": "1011",
+      "code_is_literal": true,
+      "code_is_int": true,
+      "path": "adapter/error.go"
+    },
+    {
+      "name": "ErrOpenOAMDefintionFileCode",
+      "old_code": "1013",
+      "code": "1013",
+      "code_is_literal": true,
+      "code_is_int": true,
+      "path": "adapter/error.go"
+    },
+    {
+      "name": "ErrOpenOAMRefFileCode",
+      "old_code": "1014",
+      "code": "1014",
+      "code_is_literal": true,
+      "code_is_int": true,
+      "path": "adapter/error.go"
+    },
+    {
+      "name": "ErrJSONMarshalCode",
+      "old_code": "1015",
+      "code": "1015",
+      "code_is_literal": true,
+      "code_is_int": true,
+      "path": "adapter/error.go"
+    },
+    {
+      "name": "ErrOAMRetryCode",
+      "old_code": "1016",
+      "code": "1016",
+      "code_is_literal": true,
+      "code_is_int": true,
+      "path": "adapter/error.go"
+    },
+    {
+      "name": "ErrSmiInitCode",
+      "old_code": "test_code",
+      "code": "1007",
+      "code_is_literal": true,
+      "code_is_int": false,
+      "path": "adapter/error.go"
+    },
+    {
+      "name": "ErrInstallSmiCode",
+      "old_code": "test_code",
+      "code": "1008",
+      "code_is_literal": true,
+      "code_is_int": false,
+      "path": "adapter/error.go"
+    },
+    {
+      "name": "ErrConnectSmiCode",
+      "old_code": "test_code",
+      "code": "1009",
+      "code_is_literal": true,
+      "code_is_int": false,
+      "path": "adapter/error.go"
+    },
+    {
+      "name": "ErrDeleteSmiCode",
+      "old_code": "test_code",
+      "code": "1010",
+      "code_is_literal": true,
+      "code_is_int": false,
+      "path": "adapter/error.go"
+    },
+    {
+      "name": "ErrGetName",
+      "old_code": "",
+      "code": "",
+      "code_is_literal": false,
+      "code_is_int": false,
+      "path": "adapter/error.go"
+    },
+    {
+      "name": "ErrOpInvalid",
+      "old_code": "",
+      "code": "",
+      "code_is_literal": false,
+      "code_is_int": false,
+      "path": "adapter/error.go"
+    },
+    {
+      "name": "ErrNoResponse",
+      "old_code": "",
+      "code": "",
+      "code_is_literal": false,
+      "code_is_int": false,
+      "path": "adapter/error.go"
+    },
+    {
+      "name": "ErrAuthInfosInvalidMsg",
+      "old_code": "",
+      "code": "",
+      "code_is_literal": false,
+      "code_is_int": false,
+      "path": "adapter/error.go"
+    },
+    {
+      "name": "ErrRequestInvalidCode",
+      "old_code": "1000",
+      "code": "1000",
+      "code_is_literal": true,
+      "code_is_int": true,
+      "path": "api/grpc/error.go"
+    },
+    {
+      "name": "ErrPanicCode",
+      "old_code": "1001",
+      "code": "1001",
+      "code_is_literal": true,
+      "code_is_int": true,
+      "path": "api/grpc/error.go"
+    },
+    {
+      "name": "ErrGrpcListenerCode",
+      "old_code": "1002",
+      "code": "1002",
+      "code_is_literal": true,
+      "code_is_int": true,
+      "path": "api/grpc/error.go"
+    },
+    {
+      "name": "ErrGrpcServerCode",
+      "old_code": "1003",
+      "code": "1003",
+      "code_is_literal": true,
+      "code_is_int": true,
+      "path": "api/grpc/error.go"
+    },
+    {
+      "name": "ErrRequestInvalid",
+      "old_code": "",
+      "code": "",
+      "code_is_literal": false,
+      "code_is_int": false,
+      "path": "api/grpc/error.go"
+    },
+    {
+      "name": "ErrEmptyConfigCode",
+      "old_code": "1004",
+      "code": "1004",
+      "code_is_literal": true,
+      "code_is_int": true,
+      "path": "config/error.go"
+    },
+    {
+      "name": "ErrViperCode",
+      "old_code": "1005",
+      "code": "1005",
+      "code_is_literal": true,
+      "code_is_int": true,
+      "path": "config/error.go"
+    },
+    {
+      "name": "ErrInMemCode",
+      "old_code": "1006",
+      "code": "1006",
+      "code_is_literal": true,
+      "code_is_int": true,
+      "path": "config/error.go"
+    },
+    {
+      "name": "ErrEmptyConfig",
+      "old_code": "",
+      "code": "",
+      "code_is_literal": false,
+      "code_is_int": false,
+      "path": "config/error.go"
+    }
+  ],
+  "literal_codes": {
+    "1000": [
+      {
+        "name": "ErrGetNameCode",
+        "old_code": "1000",
+        "code": "1000",
+        "code_is_literal": true,
+        "code_is_int": true,
+        "path": "adapter/error.go"
+      },
+      {
+        "name": "ErrRequestInvalidCode",
+        "old_code": "1000",
+        "code": "1000",
+        "code_is_literal": true,
+        "code_is_int": true,
+        "path": "api/grpc/error.go"
+      }
+    ],
+    "1001": [
+      {
+        "name": "ErrCreateInstanceCode",
+        "old_code": "1001",
+        "code": "1001",
+        "code_is_literal": true,
+        "code_is_int": true,
+        "path": "adapter/error.go"
+      },
+      {
+        "name": "ErrPanicCode",
+        "old_code": "1001",
+        "code": "1001",
+        "code_is_literal": true,
+        "code_is_int": true,
+        "path": "api/grpc/error.go"
+      }
+    ],
+    "1002": [
+      {
+        "name": "ErrMeshConfigCode",
+        "old_code": "1002",
+        "code": "1002",
+        "code_is_literal": true,
+        "code_is_int": true,
+        "path": "adapter/error.go"
+      },
+      {
+        "name": "ErrGrpcListenerCode",
+        "old_code": "1002",
+        "code": "1002",
+        "code_is_literal": true,
+        "code_is_int": true,
+        "path": "api/grpc/error.go"
+      }
+    ],
+    "1003": [
+      {
+        "name": "ErrValidateKubeconfigCode",
+        "old_code": "1003",
+        "code": "1003",
+        "code_is_literal": true,
+        "code_is_int": true,
+        "path": "adapter/error.go"
+      },
+      {
+        "name": "ErrGrpcServerCode",
+        "old_code": "1003",
+        "code": "1003",
+        "code_is_literal": true,
+        "code_is_int": true,
+        "path": "api/grpc/error.go"
+      }
+    ],
+    "1004": [
+      {
+        "name": "ErrClientConfigCode",
+        "old_code": "1004",
+        "code": "1004",
+        "code_is_literal": true,
+        "code_is_int": true,
+        "path": "adapter/error.go"
+      },
+      {
+        "name": "ErrEmptyConfigCode",
+        "old_code": "1004",
+        "code": "1004",
+        "code_is_literal": true,
+        "code_is_int": true,
+        "path": "config/error.go"
+      }
+    ],
+    "1005": [
+      {
+        "name": "ErrClientSetCode",
+        "old_code": "1005",
+        "code": "1005",
+        "code_is_literal": true,
+        "code_is_int": true,
+        "path": "adapter/error.go"
+      },
+      {
+        "name": "ErrViperCode",
+        "old_code": "1005",
+        "code": "1005",
+        "code_is_literal": true,
+        "code_is_int": true,
+        "path": "config/error.go"
+      }
+    ],
+    "1006": [
+      {
+        "name": "ErrStreamEventCode",
+        "old_code": "1006",
+        "code": "1006",
+        "code_is_literal": true,
+        "code_is_int": true,
+        "path": "adapter/error.go"
+      },
+      {
+        "name": "ErrInMemCode",
+        "old_code": "1006",
+        "code": "1006",
+        "code_is_literal": true,
+        "code_is_int": true,
+        "path": "config/error.go"
+      }
+    ],
+    "1007": [
+      {
+        "name": "ErrOpInvalidCode",
+        "old_code": "1007",
+        "code": "1007",
+        "code_is_literal": true,
+        "code_is_int": true,
+        "path": "adapter/error.go"
+      }
+    ],
+    "1008": [
+      {
+        "name": "ErrApplyOperationCode",
+        "old_code": "1008",
+        "code": "1008",
+        "code_is_literal": true,
+        "code_is_int": true,
+        "path": "adapter/error.go"
+      }
+    ],
+    "1009": [
+      {
+        "name": "ErrListOperationsCode",
+        "old_code": "1009",
+        "code": "1009",
+        "code_is_literal": true,
+        "code_is_int": true,
+        "path": "adapter/error.go"
+      }
+    ],
+    "1010": [
+      {
+        "name": "ErrNewSmiCode",
+        "old_code": "1010",
+        "code": "1010",
+        "code_is_literal": true,
+        "code_is_int": true,
+        "path": "adapter/error.go"
+      }
+    ],
+    "1011": [
+      {
+        "name": "ErrRunSmiCode",
+        "old_code": "1011",
+        "code": "1011",
+        "code_is_literal": true,
+        "code_is_int": true,
+        "path": "adapter/error.go"
+      },
+      {
+        "name": "ErrNoResponseCode",
+        "old_code": "1011",
+        "code": "1011",
+        "code_is_literal": true,
+        "code_is_int": true,
+        "path": "adapter/error.go"
+      }
+    ],
+    "1013": [
+      {
+        "name": "ErrOpenOAMDefintionFileCode",
+        "old_code": "1013",
+        "code": "1013",
+        "code_is_literal": true,
+        "code_is_int": true,
+        "path": "adapter/error.go"
+      }
+    ],
+    "1014": [
+      {
+        "name": "ErrOpenOAMRefFileCode",
+        "old_code": "1014",
+        "code": "1014",
+        "code_is_literal": true,
+        "code_is_int": true,
+        "path": "adapter/error.go"
+      }
+    ],
+    "1015": [
+      {
+        "name": "ErrJSONMarshalCode",
+        "old_code": "1015",
+        "code": "1015",
+        "code_is_literal": true,
+        "code_is_int": true,
+        "path": "adapter/error.go"
+      }
+    ],
+    "1016": [
+      {
+        "name": "ErrOAMRetryCode",
+        "old_code": "1016",
+        "code": "1016",
+        "code_is_literal": true,
+        "code_is_int": true,
+        "path": "adapter/error.go"
+      }
+    ],
+    "test_code": [
+      {
+        "name": "ErrSmiInitCode",
+        "old_code": "test_code",
+        "code": "1007",
+        "code_is_literal": true,
+        "code_is_int": false,
+        "path": "adapter/error.go"
+      },
+      {
+        "name": "ErrInstallSmiCode",
+        "old_code": "test_code",
+        "code": "1008",
+        "code_is_literal": true,
+        "code_is_int": false,
+        "path": "adapter/error.go"
+      },
+      {
+        "name": "ErrConnectSmiCode",
+        "old_code": "test_code",
+        "code": "1009",
+        "code_is_literal": true,
+        "code_is_int": false,
+        "path": "adapter/error.go"
+      },
+      {
+        "name": "ErrDeleteSmiCode",
+        "old_code": "test_code",
+        "code": "1010",
+        "code_is_literal": true,
+        "code_is_int": false,
+        "path": "adapter/error.go"
+      }
+    ]
+  },
+  "call_expr_codes": [
+    {
+      "name": "ErrGetName",
+      "old_code": "",
+      "code": "",
+      "code_is_literal": false,
+      "code_is_int": false,
+      "path": "adapter/error.go"
+    },
+    {
+      "name": "ErrOpInvalid",
+      "old_code": "",
+      "code": "",
+      "code_is_literal": false,
+      "code_is_int": false,
+      "path": "adapter/error.go"
+    },
+    {
+      "name": "ErrNoResponse",
+      "old_code": "",
+      "code": "",
+      "code_is_literal": false,
+      "code_is_int": false,
+      "path": "adapter/error.go"
+    },
+    {
+      "name": "ErrAuthInfosInvalidMsg",
+      "old_code": "",
+      "code": "",
+      "code_is_literal": false,
+      "code_is_int": false,
+      "path": "adapter/error.go"
+    },
+    {
+      "name": "ErrRequestInvalid",
+      "old_code": "",
+      "code": "",
+      "code_is_literal": false,
+      "code_is_int": false,
+      "path": "api/grpc/error.go"
+    },
+    {
+      "name": "ErrEmptyConfig",
+      "old_code": "",
+      "code": "",
+      "code_is_literal": false,
+      "code_is_int": false,
+      "path": "config/error.go"
+    }
+  ],
+  "deprecated_new_default": null,
+  "errors_raw": {
+    "ErrClientConfigCode": [
+      {
+        "name": "ErrClientConfigCode",
+        "code": "",
+        "severity": "Alert",
+        "long_description": "",
+        "short_description": "Error setting client Config",
+        "probable_cause": "",
+        "suggested_remediation": ""
+      }
+    ],
+    "ErrClientSetCode": [
+      {
+        "name": "ErrClientSetCode",
+        "code": "",
+        "severity": "Alert",
+        "long_description": "",
+        "short_description": "Error setting clientset",
+        "probable_cause": "",
+        "suggested_remediation": ""
+      }
+    ],
+    "ErrConnectSmiCode": [
+      {
+        "name": "ErrConnectSmiCode",
+        "code": "",
+        "severity": "Alert",
+        "long_description": "",
+        "short_description": "Error connecting to smi tool: %s",
+        "probable_cause": "",
+        "suggested_remediation": ""
+      }
+    ],
+    "ErrCreateInstanceCode": [
+      {
+        "name": "ErrCreateInstanceCode",
+        "code": "",
+        "severity": "Alert",
+        "long_description": "",
+        "short_description": "Error creating adapter instance",
+        "probable_cause": "",
+        "suggested_remediation": ""
+      }
+    ],
+    "ErrDeleteSmiCode": [
+      {
+        "name": "ErrDeleteSmiCode",
+        "code": "",
+        "severity": "Alert",
+        "long_description": "",
+        "short_description": "Error deleting smi tool: %s",
+        "probable_cause": "",
+        "suggested_remediation": ""
+      }
+    ],
+    "ErrEmptyConfigCode": [
+      {
+        "name": "ErrEmptyConfigCode",
+        "code": "",
+        "severity": "Alert",
+        "long_description": "",
+        "short_description": "Config not initialized",
+        "probable_cause": "",
+        "suggested_remediation": ""
+      }
+    ],
+    "ErrGetNameCode": [
+      {
+        "name": "ErrGetNameCode",
+        "code": "",
+        "severity": "Alert",
+        "long_description": "",
+        "short_description": "Unable to get mesh name",
+        "probable_cause": "",
+        "suggested_remediation": ""
+      }
+    ],
+    "ErrGrpcListenerCode": [
+      {
+        "name": "ErrGrpcListenerCode",
+        "code": "",
+        "severity": "Alert",
+        "long_description": "",
+        "short_description": "Error during grpc listener initialization",
+        "probable_cause": "",
+        "suggested_remediation": ""
+      }
+    ],
+    "ErrGrpcServerCode": [
+      {
+        "name": "ErrGrpcServerCode",
+        "code": "",
+        "severity": "Alert",
+        "long_description": "",
+        "short_description": "Error during grpc server initialization",
+        "probable_cause": "",
+        "suggested_remediation": ""
+      }
+    ],
+    "ErrInMemCode": [
+      {
+        "name": "ErrInMemCode",
+        "code": "",
+        "severity": "Alert",
+        "long_description": "",
+        "short_description": "InMem initialization failed with error: ",
+        "probable_cause": "",
+        "suggested_remediation": ""
+      }
+    ],
+    "ErrInstallSmiCode": [
+      {
+        "name": "ErrInstallSmiCode",
+        "code": "",
+        "severity": "Alert",
+        "long_description": "",
+        "short_description": "Error installing smi tool",
+        "probable_cause": "",
+        "suggested_remediation": ""
+      }
+    ],
+    "ErrListOperationsCode": [
+      {
+        "name": "ErrListOperationsCode",
+        "code": "",
+        "severity": "Alert",
+        "long_description": "",
+        "short_description": "Error listing operations",
+        "probable_cause": "",
+        "suggested_remediation": ""
+      }
+    ],
+    "ErrMeshConfigCode": [
+      {
+        "name": "ErrMeshConfigCode",
+        "code": "",
+        "severity": "Alert",
+        "long_description": "",
+        "short_description": "Error configuration mesh",
+        "probable_cause": "",
+        "suggested_remediation": ""
+      }
+    ],
+    "ErrNewSmiCode": [
+      {
+        "name": "ErrNewSmiCode",
+        "code": "",
+        "severity": "Alert",
+        "long_description": "",
+        "short_description": "Error creating new SMI test client",
+        "probable_cause": "",
+        "suggested_remediation": ""
+      }
+    ],
+    "ErrNoResponseCode": [
+      {
+        "name": "ErrNoResponseCode",
+        "code": "",
+        "severity": "Alert",
+        "long_description": "",
+        "short_description": "No response from the smi tool",
+        "probable_cause": "",
+        "suggested_remediation": ""
+      }
+    ],
+    "ErrOAMRetryCode": [
+      {
+        "name": "ErrOAMRetryCode",
+        "code": "",
+        "severity": "Alert",
+        "long_description": "",
+        "short_description": "error marshal JSON: %s",
+        "probable_cause": "",
+        "suggested_remediation": ""
+      },
+      {
+        "name": "ErrOAMRetryCode",
+        "code": "",
+        "severity": "Alert",
+        "long_description": "",
+        "short_description": "error marshal JSON: %s",
+        "probable_cause": "",
+        "suggested_remediation": ""
+      }
+    ],
+    "ErrOpInvalidCode": [
+      {
+        "name": "ErrOpInvalidCode",
+        "code": "",
+        "severity": "Alert",
+        "long_description": "",
+        "short_description": "Invalid operation",
+        "probable_cause": "",
+        "suggested_remediation": ""
+      }
+    ],
+    "ErrOpenOAMDefintionFileCode": [
+      {
+        "name": "ErrOpenOAMDefintionFileCode",
+        "code": "",
+        "severity": "Alert",
+        "long_description": "",
+        "short_description": "error opening OAM Definition File: %s",
+        "probable_cause": "",
+        "suggested_remediation": ""
+      }
+    ],
+    "ErrOpenOAMRefFileCode": [
+      {
+        "name": "ErrOpenOAMRefFileCode",
+        "code": "",
+        "severity": "Alert",
+        "long_description": "",
+        "short_description": "error opening OAM Schema Ref File: %s",
+        "probable_cause": "",
+        "suggested_remediation": ""
+      }
+    ],
+    "ErrPanicCode": [
+      {
+        "name": "ErrPanicCode",
+        "code": "",
+        "severity": "Alert",
+        "long_description": "",
+        "short_description": "",
+        "probable_cause": "",
+        "suggested_remediation": ""
+      }
+    ],
+    "ErrRequestInvalidCode": [
+      {
+        "name": "ErrRequestInvalidCode",
+        "code": "",
+        "severity": "Alert",
+        "long_description": "",
+        "short_description": "Apply Request invalid",
+        "probable_cause": "",
+        "suggested_remediation": ""
+      }
+    ],
+    "ErrRunSmiCode": [
+      {
+        "name": "ErrRunSmiCode",
+        "code": "",
+        "severity": "Alert",
+        "long_description": "",
+        "short_description": "Error running SMI conformance test",
+        "probable_cause": "",
+        "suggested_remediation": ""
+      }
+    ],
+    "ErrSmiInitCode": [
+      {
+        "name": "ErrSmiInitCode",
+        "code": "",
+        "severity": "Alert",
+        "long_description": "",
+        "short_description": "",
+        "probable_cause": "",
+        "suggested_remediation": ""
+      }
+    ],
+    "ErrStreamEventCode": [
+      {
+        "name": "ErrStreamEventCode",
+        "code": "",
+        "severity": "Alert",
+        "long_description": "",
+        "short_description": "Error streaming event",
+        "probable_cause": "",
+        "suggested_remediation": ""
+      }
+    ],
+    "ErrValidateKubeconfigCode": [
+      {
+        "name": "ErrValidateKubeconfigCode",
+        "code": "",
+        "severity": "Alert",
+        "long_description": "",
+        "short_description": "Error validating kubeconfig",
+        "probable_cause": "",
+        "suggested_remediation": ""
+      }
+    ],
+    "ErrViperCode": [
+      {
+        "name": "ErrViperCode",
+        "code": "",
+        "severity": "Alert",
+        "long_description": "",
+        "short_description": "Viper initialization failed with error: ",
+        "probable_cause": "",
+        "suggested_remediation": ""
+      }
+    ]
+  }
+}

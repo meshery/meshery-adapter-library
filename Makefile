@@ -1,4 +1,4 @@
-check:
+check: error
 	golangci-lint run
 
 check-clean-cache:
@@ -9,3 +9,6 @@ protoc-setup:
 
 proto:
 	protoc -I meshes/ meshes/meshops.proto --go_out=plugins=grpc:./meshes/
+
+error:
+	go run github.com/layer5io/meshkit/cmd/errorutil -d . update

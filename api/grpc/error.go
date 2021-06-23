@@ -21,17 +21,22 @@ import (
 )
 
 var (
-	ErrRequestInvalid = errors.NewDefault("603", "Apply Request invalid")
+	ErrRequestInvalidCode = "1000"
+	ErrPanicCode          = "1001"
+	ErrGrpcListenerCode   = "1002"
+	ErrGrpcServerCode     = "1003"
+
+	ErrRequestInvalid = errors.New(ErrRequestInvalidCode, errors.Alert, []string{"Apply Request invalid"}, []string{}, []string{}, []string{})
 )
 
 func ErrPanic(r interface{}) error {
-	return errors.NewDefault(errors.ErrPanic, fmt.Sprintf("%v", r))
+	return errors.New(ErrPanicCode, errors.Alert, []string{fmt.Sprintf("%v", r)}, []string{}, []string{}, []string{})
 }
 
 func ErrGrpcListener(err error) error {
-	return errors.NewDefault(errors.ErrGrpcListener, fmt.Sprintf("Error during grpc listener initialization : %v", err))
+	return errors.New(ErrGrpcListenerCode, errors.Alert, []string{"Error during grpc listener initialization"}, []string{err.Error()}, []string{}, []string{})
 }
 
 func ErrGrpcServer(err error) error {
-	return errors.NewDefault(errors.ErrGrpcServer, fmt.Sprintf("Error during grpc server initialization : %v", err))
+	return errors.New(ErrGrpcServerCode, errors.Alert, []string{"Error during grpc server initialization"}, []string{err.Error()}, []string{}, []string{})
 }
