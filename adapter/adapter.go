@@ -20,9 +20,8 @@ package adapter
 import (
 	"context"
 
-	"github.com/layer5io/meshery-adapter-library/config"
+	meshkitCfg "github.com/layer5io/meshkit/config"
 	"github.com/layer5io/meshkit/logger"
-
 	mesherykube "github.com/layer5io/meshkit/utils/kubernetes"
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/kubernetes"
@@ -47,10 +46,10 @@ type Handler interface {
 // Adapter contains all handlers, channels, clients, and other parameters for an adapter.
 // Use type embedding in a specific adapter to extend it.
 type Adapter struct {
-	Config config.Handler
+	Config meshkitCfg.Handler
 	Log    logger.Handler
 
-	KubeconfigHandler config.Handler
+	KubeconfigHandler meshkitCfg.Handler
 	Channel           *chan interface{}
 
 	KubeClient        *kubernetes.Clientset
