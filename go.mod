@@ -14,7 +14,7 @@ require (
 	github.com/golang/protobuf v1.5.2
 	github.com/grpc-ecosystem/go-grpc-middleware v1.2.0
 	github.com/layer5io/learn-layer5/smi-conformance v0.0.0-20210317075357-06b4f88b3e34
-	github.com/layer5io/meshkit v0.2.19
+	github.com/layer5io/meshkit v0.2.20
 	github.com/layer5io/service-mesh-performance v0.3.2
 	github.com/spf13/viper v1.8.1
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc v0.11.0
