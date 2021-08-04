@@ -27,7 +27,7 @@ jobs:
         run: |
           go get github.com/layer5io/meshkit/cmd/errorutil
           go run github.com/layer5io/meshkit/cmd/errorutil -d . update --skip-dirs meshery -i ./helpers -o ./helpers
-      # to update errorutil* files in meshkit repo
+      # to update component_info.json in this repo
       - name: Commit changes
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
