@@ -21,8 +21,8 @@ const (
 	OAMComponentCategoryMetadataKey = "ui.meshery.io/category"
 
 	//Runtime generation methods
-	MANIFESTS   = "MANIFESTS"
-	HELM_CHARTS = "HELM_CHARTS"
+	Manifests  = "MANIFESTS"
+	HelmCHARTS = "HELM_CHARTS"
 )
 
 // ProcessOAM processes OAM components. This is adapter specific and needs to be implemented by each adapter.
@@ -160,7 +160,7 @@ func (or *OAMRegistrant) Register() error {
 
 type DynamicComponentsConfig struct {
 	TimeoutInMinutes time.Duration
-	Url              string
+	URL              string
 	GenerationMethod string
 	Config           manifests.Config
 	Operation        string
@@ -170,12 +170,12 @@ func RegisterWorkLoadsDynamically(runtime, host string, dc *DynamicComponentsCon
 	var comp *manifests.Component
 	var err error
 	switch dc.GenerationMethod {
-	case MANIFESTS:
-		comp, err = manifests.GetFromManifest(dc.Url, manifests.SERVICE_MESH, dc.Config)
-	case HELM_CHARTS:
-		comp, err = manifests.GetFromHelm(dc.Url, manifests.SERVICE_MESH, dc.Config)
+	case Manifests:
+		comp, err = manifests.GetFromManifest(dc.URL, manifests.SERVICE_MESH, dc.Config)
+	case HelmCHARTS:
+		comp, err = manifests.GetFromHelm(dc.URL, manifests.SERVICE_MESH, dc.Config)
 	default:
-		return ErrGenerateComponents(errors.New("Failed to generate components."))
+		return ErrGenerateComponents(errors.New("failed to generate components"))
 	}
 	if err != nil {
 		return ErrGenerateComponents(err)
