@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -11,6 +12,17 @@ import (
 	"time"
 
 	backoff "github.com/cenkalti/backoff/v4"
+	"github.com/layer5io/meshkit/utils/manifests"
+)
+
+const (
+	// OAM Metadata constants
+	OAMAdapterNameMetadataKey       = "adapter.meshery.io/name"
+	OAMComponentCategoryMetadataKey = "ui.meshery.io/category"
+
+	//Runtime generation methods
+	Manifests  = "MANIFESTS"
+	HelmCHARTS = "HELM_CHARTS"
 )
 
 // ProcessOAM processes OAM components. This is adapter specific and needs to be implemented by each adapter.
@@ -143,5 +155,76 @@ func (or *OAMRegistrant) Register() error {
 		}
 	}
 
+	return nil
+}
+
+type DynamicComponentsConfig struct {
+	TimeoutInMinutes time.Duration
+	URL              string
+	GenerationMethod string
+	Config           manifests.Config
+	Operation        string
+}
+
+func RegisterWorkLoadsDynamically(runtime, host string, dc *DynamicComponentsConfig) error {
+	var comp *manifests.Component
+	var err error
+	switch dc.GenerationMethod {
+	case Manifests:
+		comp, err = manifests.GetFromManifest(dc.URL, manifests.SERVICE_MESH, dc.Config)
+	case HelmCHARTS:
+		comp, err = manifests.GetFromHelm(dc.URL, manifests.SERVICE_MESH, dc.Config)
+	default:
+		return ErrGenerateComponents(errors.New("failed to generate components"))
+	}
+	if err != nil {
+		return ErrGenerateComponents(err)
+	}
+	for i, def := range comp.Definitions {
+		var ord OAMRegistrantData
+		ord.OAMRefSchema = comp.Schemas[i]
+
+		//Marshalling the stringified json
+		ord.Host = host
+		definitionMap := map[string]interface{}{}
+		if err := json.Unmarshal([]byte(def), &definitionMap); err != nil {
+			return err
+		}
+		definitionMap["apiVersion"] = "core.oam.dev/v1alpha1"
+		definitionMap["kind"] = "WorkloadDefinition"
+		ord.OAMDefinition = definitionMap
+		ord.Metadata = map[string]string{
+			OAMAdapterNameMetadataKey: dc.Operation,
+		}
+		// send request to the register
+		backoffOpt := backoff.NewExponentialBackOff()
+		backoffOpt.MaxElapsedTime = time.Minute * dc.TimeoutInMinutes
+		if err := backoff.Retry(func() error {
+			contentByt, err := json.Marshal(ord)
+			if err != nil {
+				return backoff.Permanent(err)
+			}
+			content := bytes.NewReader(contentByt)
+			// host here is given by the application itself and is trustworthy hence,
+			// #nosec
+			resp, err := http.Post(fmt.Sprintf("%s/api/oam/workload", runtime), "application/json", content)
+			if err != nil {
+				return err
+			}
+			if resp.StatusCode != http.StatusCreated &&
+				resp.StatusCode != http.StatusOK &&
+				resp.StatusCode != http.StatusAccepted {
+				return fmt.Errorf(
+					"register process failed, host returned status: %s with status code %d",
+					resp.Status,
+					resp.StatusCode,
+				)
+			}
+
+			return nil
+		}, backoffOpt); err != nil {
+			return err
+		}
+	}
 	return nil
 }

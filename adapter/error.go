@@ -42,6 +42,7 @@ const (
 	ErrInstallSmiCode           = "1008"
 	ErrConnectSmiCode           = "1009"
 	ErrDeleteSmiCode            = "1010"
+	ErrGenerateComponentsCode   = "1011"
 )
 
 var (
@@ -126,4 +127,8 @@ func ErrJSONMarshal(err error) error {
 
 func ErrOAMRetry(err error) error {
 	return errors.New(ErrOAMRetryCode, errors.Alert, []string{"error marshal JSON: %s"}, []string{err.Error()}, []string{}, []string{})
+}
+
+func ErrGenerateComponents(err error) error {
+	return errors.New(ErrGenerateComponentsCode, errors.Alert, []string{"error generating components"}, []string{err.Error()}, []string{"Invalid component generation method passed, Some invalid field passed in DynamicComponentsConfig"}, []string{"Pass the correct GenerationMethod in DynamicComponentsConfig", "Pass the correct fields in DynamicComponentsConfig"})
 }
