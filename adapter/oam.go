@@ -198,7 +198,7 @@ func RegisterWorkLoadsDynamically(runtime, host string, dc *DynamicComponentsCon
 		}
 		// send request to the register
 		backoffOpt := backoff.NewExponentialBackOff()
-		backoffOpt.MaxElapsedTime = 10 * dc.TimeoutInMinutes
+		backoffOpt.MaxElapsedTime = time.Minute * dc.TimeoutInMinutes
 		if err := backoff.Retry(func() error {
 			contentByt, err := json.Marshal(ord)
 			if err != nil {
