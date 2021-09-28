@@ -180,6 +180,9 @@ func RegisterWorkLoadsDynamically(runtime, host string, dc *DynamicComponentsCon
 	if err != nil {
 		return ErrGenerateComponents(err)
 	}
+	if comp == nil {
+		return ErrGenerateComponents(errors.New("failed to generate components"))
+	}
 	for i, def := range comp.Definitions {
 		var ord OAMRegistrantData
 		ord.OAMRefSchema = comp.Schemas[i]
