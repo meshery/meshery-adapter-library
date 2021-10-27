@@ -51,6 +51,7 @@ type Operation struct {
 	Type                 int32             `json:"type,string,omitempty"`
 	Description          string            `json:"description,omitempty"`
 	Versions             []Version         `json:"versions,omitempty"`
+	HelmConfig           HelmConfig        `json:"helmconfig,omitempty"`
 	Templates            []Template        `json:"templates,omitempty"`
 	Services             []Service         `json:"services,omitempty"`
 	AdditionalProperties map[string]string `json:"additional_properties,omitempty"`
@@ -58,6 +59,9 @@ type Operation struct {
 
 // Operations contains all operations supported by an adapter.
 type Operations map[string]*Operation
+type HelmConfig struct {
+	URL string `json:"url,string,omitempty"`
+}
 
 // OperationRequest contains the request data from meshes.ApplyRuleRequest.
 type OperationRequest struct {
