@@ -15,8 +15,6 @@
 package adapter
 
 import (
-	"fmt"
-
 	"github.com/layer5io/meshkit/errors"
 )
 
@@ -43,6 +41,7 @@ const (
 	ErrConnectSmiCode           = "1009"
 	ErrDeleteSmiCode            = "1010"
 	ErrGenerateComponentsCode   = "1011"
+	ErrAuthInfosInvalidMsgCode  = "1012"
 )
 
 var (
@@ -52,7 +51,14 @@ var (
 
 	// ErrAuthInfosInvalidMsg is the error message when the all of auth infos have invalid or inaccessible paths
 	// as there certificate paths
-	ErrAuthInfosInvalidMsg = fmt.Errorf("none of the auth infos are valid either the certificate path is invalid or is inaccessible")
+	ErrAuthInfosInvalidMsg = errors.New(
+		ErrAuthInfosInvalidMsgCode,
+		errors.Alert,
+		[]string{"none of the auth info are valid - either the certificate path is invalid or is inaccessible"},
+		[]string{"kubernetes authentication info are either invalid or the their certificate paths are invalid causing meshery adapter setup failure"},
+		[]string{"kubeconfig passed to meshery may be referring to a \"context\" whose auth info is a file path", "adapter may have cached a copy of kubeconfig"},
+		[]string{"ensure kubeconfig passed to meshery is flattened", "if running adapter in kubernetes, attempt to restart the pod; in development environment try deleting ~/.meshery s"},
+	)
 )
 
 func ErrCreateInstance(err error) error {
