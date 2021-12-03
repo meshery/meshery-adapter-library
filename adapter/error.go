@@ -55,7 +55,7 @@ var (
 		ErrAuthInfosInvalidMsgCode,
 		errors.Alert,
 		[]string{"none of the auth info are valid - either the certificate path is invalid or is inaccessible"},
-		[]string{"kubernetes authentication info are either invalid or the their certificate paths are invalid causing meshery adapter setup failure"},
+		[]string{"One or more Kubernetes authentication info is either invalid or the certificate paths are invalid causing Meshery adapter setup failure"},
 		[]string{"kubeconfig passed to Meshery may be referring to a \"context\" whose auth info is a file path", "adapter may have cached a copy of kubeconfig"},
 		[]string{"ensure kubeconfig passed to Meshery is flattened", "if running adapter in Kubernetes, attempt to restart the pod; in development environment try deleting ~/.meshery s"},
 	)
