@@ -116,6 +116,11 @@ func (or *OAMRegistrant) Register() error {
 		if err != nil {
 			return ErrOpenOAMRefFile(err)
 		}
+		if string(schema) == "" { //since this component is unusable if it doesn't have oam_ref_schema
+			continue
+		}
+		formatTitleInOAMRefSchema(&schema)
+
 		ord.OAMRefSchema = string(schema)
 
 		ord.Host = dpath.Host
@@ -230,4 +235,22 @@ func RegisterWorkLoadsDynamically(runtime, host string, dc *DynamicComponentsCon
 		}
 	}
 	return nil
+}
+
+func formatTitleInOAMRefSchema(schema *[]byte) {
+	var schemamap map[string]interface{}
+	err := json.Unmarshal(*schema, &schemamap)
+	if err != nil {
+		return
+	}
+	title, ok := schemamap["title"].(string)
+	if !ok {
+		return
+	}
+
+	schemamap["title"] = manifests.FormatToReadableString(title)
+	(*schema), err = json.Marshal(schemamap)
+	if err != nil {
+		return
+	}
 }
