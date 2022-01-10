@@ -237,21 +237,20 @@ func RegisterWorkLoadsDynamically(runtime, host string, dc *DynamicComponentsCon
 	return nil
 }
 
-func formatTitleInOAMRefSchema(schema *[]byte) error {
+func formatTitleInOAMRefSchema(schema *[]byte) {
 	var schemamap map[string]interface{}
 	err := json.Unmarshal(*schema, &schemamap)
 	if err != nil {
-		return err
+		return
 	}
 	title, ok := schemamap["title"].(string)
 	if !ok {
-		return nil
+		return
 	}
 
 	schemamap["title"] = manifests.FormatToReadableString(title)
 	(*schema), err = json.Marshal(schemamap)
 	if err != nil {
-		return err
+		return
 	}
-	return nil
 }
