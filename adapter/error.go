@@ -142,5 +142,5 @@ func ErrGenerateComponents(err error) error {
 
 //ErrCreatingComponents
 func ErrCreatingComponents(err error) error {
-	return errors.New(ErrCreatingComponentsCode, errors.Alert, []string{"error creating components"}, []string{err.Error()}, []string{}, []string{})
+	return errors.New(ErrCreatingComponentsCode, errors.Alert, []string{"error creating components"}, []string{err.Error()}, []string{"Invalid Path or version passed in static configuration"}, []string{"Make sure to pass correct configuration"})
 }
