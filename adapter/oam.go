@@ -172,7 +172,7 @@ type StaticCompConfig struct {
 	Path    string           //Where to store the directory.(Each directory will have an array of definitions and schemas)
 	DirName string           //The directory's name. By convention, it should be the version name
 	Config  manifests.Config //Filters required to create definition and schema
-	Force   bool             //When set to true, if the file with same name already exists, they will be overriden
+	Force   bool             //When set to true, if the file with same name already exists, they will be overridden
 }
 
 //CreateComponents generates components for a given configuration and stores them.
@@ -195,7 +195,10 @@ func CreateComponents(scfg StaticCompConfig) error {
 	case HelmCHARTS:
 		comp, err = manifests.GetFromHelm(scfg.URL, manifests.SERVICE_MESH, scfg.Config)
 	default:
-		return err
+		return ErrCreatingComponents(errors.New("invalid generation method. Must be either Manifests or HelmCharts"))
+	}
+	if err != nil {
+		return ErrCreatingComponents(err)
 	}
 	if comp == nil {
 		return ErrCreatingComponents(errors.New("nil components"))
