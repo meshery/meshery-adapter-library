@@ -201,7 +201,7 @@ func CreateComponents(scfg StaticCompConfig) error {
 		return ErrCreatingComponents(err)
 	}
 	if comp == nil {
-		return ErrCreatingComponents(errors.New("nil components"))
+		return ErrCreatingComponents(errors.New("no components found"))
 	}
 	for i, def := range comp.Definitions {
 		schema := comp.Schemas[i]
