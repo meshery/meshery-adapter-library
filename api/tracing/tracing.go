@@ -17,10 +17,12 @@ package tracing
 import (
 	"context"
 
-	apitrace "go.opentelemetry.io/otel/api/trace"
-	"go.opentelemetry.io/otel/exporters/trace/jaeger"
-	"go.opentelemetry.io/otel/label"
+	label "go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/exporters/jaeger"
+	"go.opentelemetry.io/otel/sdk/resource"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
+	semconv "go.opentelemetry.io/otel/semconv/v1.7.0"
+	apitrace "go.opentelemetry.io/otel/trace"
 )
 
 type KeyValue struct {
@@ -35,7 +37,7 @@ type Handler interface {
 }
 
 type handler struct {
-	provider apitrace.Provider
+	provider apitrace.TracerProvider
 	context  context.Context
 	span     apitrace.Span
 }
@@ -45,21 +47,24 @@ func New(service string, endpoint string) (Handler, error) {
 		return nil, nil
 	}
 
-	provider, flush, err := jaeger.NewExportPipeline(
-		jaeger.WithCollectorEndpoint(endpoint),
-		jaeger.WithProcess(jaeger.Process{
-			ServiceName: service,
-			Tags: []label.KeyValue{
-				label.Key("name").String(service),
-				label.Key("exporter").String("jaeger"),
-			},
-		}),
-		jaeger.WithSDK(&sdktrace.Config{DefaultSampler: sdktrace.AlwaysSample()}),
+	exporter, err := jaeger.New(
+		jaeger.WithCollectorEndpoint(jaeger.WithEndpoint(endpoint)),
 	)
 	if err != nil {
-		flush()
 		return nil, err
 	}
+
+	provider := sdktrace.NewTracerProvider(
+		sdktrace.WithBatcher(exporter),
+		sdktrace.WithResource(resource.NewWithAttributes(
+			semconv.SchemaURL,
+			semconv.ServiceNameKey.String(service),
+			label.String("name", service),
+			label.String("exporter", "jaeger"),
+		),
+		),
+		sdktrace.WithSampler(sdktrace.AlwaysSample()),
+	)
 
 	return &handler{
 		provider: provider,
@@ -67,7 +72,7 @@ func New(service string, endpoint string) (Handler, error) {
 }
 
 func (h *handler) Tracer(name string) interface{} {
-	return h.provider.Tracer(name)
+	return h.provider
 }
 
 func (h *handler) Span(ctx context.Context) {
@@ -81,5 +86,5 @@ func (h *handler) AddEvent(name string, attrs ...*KeyValue) {
 		kvstore = append(kvstore, label.String(attr.Key, attr.Value))
 	}
 
-	h.span.AddEvent(h.context, name, kvstore...)
+	h.span.AddEvent(name, apitrace.WithAttributes(kvstore...))
 }

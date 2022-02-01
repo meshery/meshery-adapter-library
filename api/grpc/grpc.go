@@ -34,9 +34,9 @@ import (
 
 	middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	grpc_recovery "github.com/grpc-ecosystem/go-grpc-middleware/recovery"
-	otelgrpc "go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc"
+	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
+	apitrace "go.opentelemetry.io/otel/trace"
 
-	apitrace "go.opentelemetry.io/otel/api/trace"
 	"google.golang.org/grpc"
 )
 
@@ -77,7 +77,9 @@ func Start(s *Service, tr tracing.Handler) error {
 	)
 	if tr != nil {
 		middlewares = middleware.ChainUnaryServer(
-			otelgrpc.UnaryServerInterceptor(tr.Tracer(s.Name).(apitrace.Tracer)),
+			otelgrpc.UnaryServerInterceptor(
+				otelgrpc.WithTracerProvider(tr.Tracer(s.Name).(apitrace.TracerProvider)),
+			),
 		)
 	}
 
