@@ -37,6 +37,7 @@ func (h *Adapter) CreateInstance(kubeconfig []byte, contextName string, ch *chan
 		return ErrClientSet(err)
 	}
 
+	h.Log.Info("setting current context as ", contextName)
 	h.ClientcmdConfig.CurrentContext = contextName
 	h.Channel = ch
 
