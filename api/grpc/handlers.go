@@ -103,6 +103,9 @@ func (s *Service) StreamEvents(ctx *meshes.EventsRequest, srv meshes.MeshService
 			EventType:   meshes.EventType(data.(*adapter.Event).EType),
 			Summary:     data.(*adapter.Event).Summary,
 			Details:     data.(*adapter.Event).Details,
+			Cause:       data.(*adapter.Event).Cause,
+			Errcode:     data.(*adapter.Event).ErrCode,
+			Remedy:      data.(*adapter.Event).Remedy,
 		}
 		if err := srv.Send(event); err != nil {
 			// to prevent loosing the event, will re-add to the channel
