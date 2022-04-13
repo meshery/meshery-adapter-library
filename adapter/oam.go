@@ -191,9 +191,9 @@ func CreateComponents(scfg StaticCompConfig) error {
 	var comp *manifests.Component
 	switch scfg.Method {
 	case Manifests:
-		comp, err = manifests.GetFromManifest(scfg.URL, manifests.SERVICE_MESH, scfg.Config)
+		comp, err = manifests.GetFromManifest(context.Background(), scfg.URL, manifests.SERVICE_MESH, scfg.Config)
 	case HelmCHARTS:
-		comp, err = manifests.GetFromHelm(scfg.URL, manifests.SERVICE_MESH, scfg.Config)
+		comp, err = manifests.GetFromHelm(context.Background(), scfg.URL, manifests.SERVICE_MESH, scfg.Config)
 	default:
 		return ErrCreatingComponents(errors.New("invalid generation method. Must be either Manifests or HelmCharts"))
 	}
@@ -264,9 +264,9 @@ func RegisterWorkLoadsDynamically(runtime, host string, dc *DynamicComponentsCon
 	var err error
 	switch dc.GenerationMethod {
 	case Manifests:
-		comp, err = manifests.GetFromManifest(dc.URL, manifests.SERVICE_MESH, dc.Config)
+		comp, err = manifests.GetFromManifest(context.Background(), dc.URL, manifests.SERVICE_MESH, dc.Config)
 	case HelmCHARTS:
-		comp, err = manifests.GetFromHelm(dc.URL, manifests.SERVICE_MESH, dc.Config)
+		comp, err = manifests.GetFromHelm(context.Background(), dc.URL, manifests.SERVICE_MESH, dc.Config)
 	default:
 		return ErrGenerateComponents(errors.New("failed to generate components"))
 	}

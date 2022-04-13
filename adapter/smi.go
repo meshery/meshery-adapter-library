@@ -26,6 +26,8 @@ import (
 	"github.com/layer5io/meshkit/utils"
 	mesherykube "github.com/layer5io/meshkit/utils/kubernetes"
 	smp "github.com/layer5io/service-mesh-performance/spec"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 )
 
 type SMITest struct {
@@ -107,7 +109,7 @@ func (h *Adapter) RunSMITest(opts SMITestOptions) (Response, error) {
 	response := Response{
 		ID:                test.id,
 		Date:              time.Now().Format(time.RFC3339),
-		MeshName:          strings.Title(strings.ToLower(strings.ReplaceAll(test.meshType.String(), "_", " "))),
+		MeshName:          cases.Title(language.Und).String(strings.ReplaceAll(test.meshType.String(), "_", " ")),
 		MeshVersion:       test.meshVersion,
 		CasesPassed:       "0",
 		PassingPercentage: "0",
