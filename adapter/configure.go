@@ -4,45 +4,10 @@ import (
 	"os"
 
 	"github.com/layer5io/meshkit/models"
-	mesherykube "github.com/layer5io/meshkit/utils/kubernetes"
 	yaml "gopkg.in/yaml.v2"
-	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 )
-
-// Instantiates clients used in deploying and managing mesh instances, e.g. Kubernetes clients.
-// This needs to be called before applying operations.
-func (h *Adapter) CreateInstance(kubeconfig []byte, contextName string, ch *chan interface{}) error {
-	err := h.validateKubeconfig(kubeconfig)
-	if err != nil {
-		return ErrCreateInstance(err)
-	}
-
-	err = h.createKubeconfig(kubeconfig)
-	if err != nil {
-		return ErrCreateInstance(err)
-	}
-
-	h.MesheryKubeclient, err = mesherykube.New(kubeconfig)
-	if err != nil {
-		return ErrClientSet(err)
-	}
-
-	h.DynamicKubeClient = h.MesheryKubeclient.DynamicKubeClient
-	h.RestConfig = h.MesheryKubeclient.RestConfig
-
-	h.KubeClient, err = kubernetes.NewForConfig(&h.RestConfig)
-	if err != nil {
-		return ErrClientSet(err)
-	}
-
-	h.Log.Info("setting current context as ", contextName)
-	h.ClientcmdConfig.CurrentContext = contextName
-	h.Channel = ch
-
-	return nil
-}
 
 func (h *Adapter) validateKubeconfig(kubeconfig []byte) error {
 	var err error
