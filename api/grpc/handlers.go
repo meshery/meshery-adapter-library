@@ -59,7 +59,7 @@ func (s *Service) ApplyOperation(ctx context.Context, req *meshes.ApplyRuleReque
 		OperationID:       req.OperationId,
 		K8sConfigs:        req.KubeConfigs,
 	}
-	err := s.Handler.ApplyOperation(ctx, operation)
+	err := s.Handler.ApplyOperation(ctx, operation, &s.Channel)
 	if err != nil {
 		return &meshes.ApplyRuleResponse{
 			Error:       err.Error(),
@@ -126,7 +126,7 @@ func (s *Service) ProcessOAM(ctx context.Context, srv *meshes.ProcessOAMRequest)
 		K8sConfigs: srv.KubeConfigs,
 	}
 
-	msg, err := s.Handler.ProcessOAM(ctx, operation)
+	msg, err := s.Handler.ProcessOAM(ctx, operation, &s.Channel)
 	return &meshes.ProcessOAMResponse{Message: msg}, err
 }
 

@@ -19,14 +19,10 @@ package adapter
 
 import (
 	"context"
+	"sync"
 
 	meshkitCfg "github.com/layer5io/meshkit/config"
 	"github.com/layer5io/meshkit/logger"
-	mesherykube "github.com/layer5io/meshkit/utils/kubernetes"
-	"k8s.io/client-go/dynamic"
-	"k8s.io/client-go/kubernetes"
-	"k8s.io/client-go/rest"
-	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 )
 
 // Interface Handler is extended by adapters, and used in package api/grpc that implements the MeshServiceServer.
@@ -34,9 +30,9 @@ type Handler interface {
 	GetName() string                    // Returns the name of the adapter.
 	GetComponentInfo(interface{}) error // Returns the component info.
 	// CreateInstance(*chan interface{}) error                 // Instantiates clients used in deploying and managing mesh instances, e.g. Kubernetes clients.
-	ApplyOperation(context.Context, OperationRequest) error // Applies an adapter operation. This is adapter specific and needs to be implemented by each adapter.
-	ListOperations() (Operations, error)                    // List all operations an adapter supports.
-	ProcessOAM(ctx context.Context, srv OAMRequest) (string, error)
+	ApplyOperation(context.Context, OperationRequest, *chan interface{}) error // Applies an adapter operation. This is adapter specific and needs to be implemented by each adapter.
+	ListOperations() (Operations, error)                                       // List all operations an adapter supports.
+	ProcessOAM(ctx context.Context, srv OAMRequest, hchan *chan interface{}) (string, error)
 
 	// Need not implement this method and can be reused
 	StreamErr(*Event, error) // Streams an error event, e.g. to a channel
@@ -46,15 +42,14 @@ type Handler interface {
 // Adapter contains all handlers, channels, clients, and other parameters for an adapter.
 // Use type embedding in a specific adapter to extend it.
 type Adapter struct {
-	Config meshkitCfg.Handler
-	Log    logger.Handler
+	Config  meshkitCfg.Handler
+	Log     logger.Handler
+	Channel *chan interface{}
+	mx      sync.Mutex
+}
 
-	KubeconfigHandler meshkitCfg.Handler
-	Channel           *chan interface{}
-	KubeConfigs       []string
-	KubeClient        *kubernetes.Clientset
-	DynamicKubeClient dynamic.Interface
-	RestConfig        rest.Config
-	ClientcmdConfig   *clientcmdapi.Config
-	MesheryKubeclient *mesherykube.Client
+func (a *Adapter) SetChannel(hchan *chan interface{}) {
+	a.mx.Lock()
+	defer a.mx.Unlock()
+	a.Channel = hchan
 }

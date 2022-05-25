@@ -103,7 +103,6 @@ func (h *Adapter) RunSMITest(opts SMITestOptions) (Response, error) {
 		meshVersion: meshVersion,
 		labels:      opts.Labels,
 		annotations: opts.Annotations,
-		kclient:     h.MesheryKubeclient,
 	}
 
 	response := Response{
