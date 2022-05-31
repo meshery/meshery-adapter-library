@@ -19,6 +19,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/layer5io/learn-layer5/smi-conformance/conformance"
@@ -35,7 +36,6 @@ type SMITest struct {
 	meshVersion string
 	meshType    smp.ServiceMesh_Type
 	ctx         context.Context
-	kclient     *mesherykube.Client
 	smiAddress  string
 	annotations map[string]string
 	labels      map[string]string
@@ -82,6 +82,8 @@ type SMITestOptions struct {
 
 	// Annotations is the standard kubernetes annotations
 	Annotations map[string]string
+
+	Kubeconfigs []string
 }
 
 // RunSMITest runs the SMI test on the adapter's service mesh
@@ -103,7 +105,6 @@ func (h *Adapter) RunSMITest(opts SMITestOptions) (Response, error) {
 		meshVersion: meshVersion,
 		labels:      opts.Labels,
 		annotations: opts.Annotations,
-		kclient:     h.MesheryKubeclient,
 	}
 
 	response := Response{
@@ -115,27 +116,46 @@ func (h *Adapter) RunSMITest(opts SMITestOptions) (Response, error) {
 		PassingPercentage: "0",
 		Status:            "deploying",
 	}
+	var errs []error
+	var wg sync.WaitGroup
+	for _, k8sconfig := range opts.Kubeconfigs {
+		wg.Add(1)
+		go func(k8sconfig string) {
+			defer wg.Done()
+			kClient, err := mesherykube.New([]byte(k8sconfig))
+			if err != nil {
+				errs = append(errs, err)
+				return
+			}
+			if err := test.installConformanceTool(opts.Manifest, opts.Namespace, kClient); err != nil {
+				response.Status = "installing"
+				errs = append(errs, err)
+				return
+			}
 
-	if err := test.installConformanceTool(opts.Manifest, opts.Namespace); err != nil {
-		response.Status = "installing"
-		return response, ErrInstallSmi(err)
+			if err := test.connectConformanceTool(name, opts.Namespace, kClient); err != nil {
+				response.Status = "connecting"
+				errs = append(errs, err)
+				return
+			}
+
+			if err := test.runConformanceTest(&response); err != nil {
+				response.Status = "running"
+				errs = append(errs, err)
+				return
+			}
+
+			if err := test.deleteConformanceTool(opts.Manifest, opts.Namespace, kClient); err != nil {
+				response.Status = "deleting"
+				errs = append(errs, err)
+				return
+			}
+		}(k8sconfig)
 	}
-
-	if err := test.connectConformanceTool(name, opts.Namespace); err != nil {
-		response.Status = "connecting"
-		return response, ErrConnectSmi(err)
+	wg.Wait()
+	if len(errs) != 0 {
+		return response, ErrRunSmi(mergeErrors(errs))
 	}
-
-	if err := test.runConformanceTest(&response); err != nil {
-		response.Status = "running"
-		return response, ErrRunSmi(err)
-	}
-
-	if err := test.deleteConformanceTool(opts.Manifest, opts.Namespace); err != nil {
-		response.Status = "deleting"
-		return response, ErrDeleteSmi(err)
-	}
-
 	response.Status = "completed"
 
 	e.Summary = fmt.Sprintf("Smi conformance test %s successfully", response.Status)
@@ -145,16 +165,29 @@ func (h *Adapter) RunSMITest(opts SMITestOptions) (Response, error) {
 
 	return response, nil
 }
+func mergeErrors(errs []error) error {
+	if len(errs) == 0 {
+		return nil
+	}
+
+	var errMsgs []string
+
+	for _, err := range errs {
+		errMsgs = append(errMsgs, err.Error())
+	}
+
+	return fmt.Errorf(strings.Join(errMsgs, "\n"))
+}
 
 // installConformanceTool installs the smi conformance tool
-func (test *SMITest) installConformanceTool(smiManifest, ns string) error {
+func (test *SMITest) installConformanceTool(smiManifest, ns string, kclient *mesherykube.Client) error {
 	// Fetch the meanifest
 	manifest, err := utils.ReadRemoteFile(smiManifest)
 	if err != nil {
 		return err
 	}
 
-	if err := test.kclient.ApplyManifest([]byte(manifest), mesherykube.ApplyOptions{Namespace: ns}); err != nil {
+	if err := kclient.ApplyManifest([]byte(manifest), mesherykube.ApplyOptions{Namespace: ns}); err != nil {
 		return err
 	}
 
@@ -164,14 +197,14 @@ func (test *SMITest) installConformanceTool(smiManifest, ns string) error {
 }
 
 // deleteConformanceTool deletes the smi conformance tool
-func (test *SMITest) deleteConformanceTool(smiManifest, ns string) error {
+func (test *SMITest) deleteConformanceTool(smiManifest, ns string, kclient *mesherykube.Client) error {
 	// Fetch the meanifest
 	manifest, err := utils.ReadRemoteFile(smiManifest)
 	if err != nil {
 		return err
 	}
 
-	if err := test.kclient.ApplyManifest(
+	if err := kclient.ApplyManifest(
 		[]byte(manifest),
 		mesherykube.ApplyOptions{Namespace: ns, Delete: true},
 	); err != nil {
@@ -181,12 +214,12 @@ func (test *SMITest) deleteConformanceTool(smiManifest, ns string) error {
 }
 
 // connectConformanceTool initiates the connection
-func (test *SMITest) connectConformanceTool(name, ns string) error {
-	endpoint, err := mesherykube.GetServiceEndpoint(test.ctx, test.kclient.KubeClient, &mesherykube.ServiceOptions{
+func (test *SMITest) connectConformanceTool(name, ns string, kclient *mesherykube.Client) error {
+	endpoint, err := mesherykube.GetServiceEndpoint(test.ctx, kclient.KubeClient, &mesherykube.ServiceOptions{
 		Name:         name,
 		Namespace:    ns,
 		PortSelector: "smi-conformance",
-		APIServerURL: test.kclient.RestConfig.Host,
+		APIServerURL: kclient.RestConfig.Host,
 	})
 	if err != nil {
 		return err

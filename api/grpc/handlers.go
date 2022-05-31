@@ -23,14 +23,14 @@ import (
 	"context"
 )
 
-// CreateMeshInstance is the handler function for the method CreateMeshInstance.
-func (s *Service) CreateMeshInstance(ctx context.Context, req *meshes.CreateMeshInstanceRequest) (*meshes.CreateMeshInstanceResponse, error) {
-	err := s.Handler.CreateInstance(req.K8SConfig, req.ContextName, &s.Channel)
-	if err != nil {
-		return nil, err
-	}
-	return &meshes.CreateMeshInstanceResponse{}, nil
-}
+// // CreateMeshInstance is the handler function for the method CreateMeshInstance.
+// func (s *Service) CreateMeshInstance(ctx context.Context, req *meshes.CreateMeshInstanceRequest) (*meshes.CreateMeshInstanceResponse, error) {
+// 	err := s.Handler.CreateInstance(&s.Channel)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+// 	return &meshes.CreateMeshInstanceResponse{}, nil
+// }
 
 // MeshName is the handler function for the method MeshName.
 func (s *Service) MeshName(ctx context.Context, req *meshes.MeshNameRequest) (*meshes.MeshNameResponse, error) {
@@ -57,8 +57,9 @@ func (s *Service) ApplyOperation(ctx context.Context, req *meshes.ApplyRuleReque
 		CustomBody:        req.CustomBody,
 		IsDeleteOperation: req.DeleteOp,
 		OperationID:       req.OperationId,
+		K8sConfigs:        req.KubeConfigs,
 	}
-	err := s.Handler.ApplyOperation(ctx, operation)
+	err := s.Handler.ApplyOperation(ctx, operation, &s.Channel)
 	if err != nil {
 		return &meshes.ApplyRuleResponse{
 			Error:       err.Error(),
@@ -118,13 +119,14 @@ func (s *Service) StreamEvents(ctx *meshes.EventsRequest, srv meshes.MeshService
 // ProcessOAM is the handler function for the method ProcessOAM
 func (s *Service) ProcessOAM(ctx context.Context, srv *meshes.ProcessOAMRequest) (*meshes.ProcessOAMResponse, error) {
 	operation := adapter.OAMRequest{
-		Username:  srv.Username,
-		DeleteOp:  srv.DeleteOp,
-		OamComps:  srv.OamComps,
-		OamConfig: srv.OamConfig,
+		Username:   srv.Username,
+		DeleteOp:   srv.DeleteOp,
+		OamComps:   srv.OamComps,
+		OamConfig:  srv.OamConfig,
+		K8sConfigs: srv.KubeConfigs,
 	}
 
-	msg, err := s.Handler.ProcessOAM(ctx, operation)
+	msg, err := s.Handler.ProcessOAM(ctx, operation, &s.Channel)
 	return &meshes.ProcessOAMResponse{Message: msg}, err
 }
 

@@ -67,13 +67,15 @@ type OperationRequest struct {
 	CustomBody        string // Custom operation manifest, in the case of a custom operation (OpCategory_CUSTOM).
 	IsDeleteOperation bool   // If true, the operation specified by OperationName is reverted, i.e. all resources created are deleted.
 	OperationID       string // ID of the operation, if any. This identifies a specific operation invocation.
+	K8sConfigs        []string
 }
 
 type OAMRequest struct {
-	Username  string
-	DeleteOp  bool
-	OamComps  []string
-	OamConfig string
+	Username   string
+	DeleteOp   bool
+	OamComps   []string
+	OamConfig  string
+	K8sConfigs []string
 }
 
 // List all operations an adapter supports.
@@ -87,6 +89,6 @@ func (h *Adapter) ListOperations() (Operations, error) {
 }
 
 // Applies an adapter operation. This is adapter specific and needs to be implemented by each adapter.
-func (h *Adapter) ApplyOperation(context.Context, OperationRequest) error {
+func (h *Adapter) ApplyOperation(ctx context.Context, op OperationRequest, hchan *chan interface{}) error {
 	return nil
 }
