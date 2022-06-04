@@ -4,16 +4,12 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"os"
-	"path/filepath"
 	"time"
 
 	backoff "github.com/cenkalti/backoff/v4"
-	"github.com/layer5io/meshkit/models/oam/core/v1alpha1"
 	"github.com/layer5io/meshkit/utils/manifests"
 )
 
@@ -48,10 +44,7 @@ type OAMRegistrant struct {
 
 // OAMRegistrantDefinitionPath - Structure for configuring registrant paths
 type OAMRegistrantDefinitionPath struct {
-	// OAMDefinitionPath holds the path for OAM Definition file
-	OAMDefintionPath string
-	// OAMRefSchemaPath holds the path for the OAM Ref Schema file
-	OAMRefSchemaPath string
+	ComponentPath string
 	// Host is the address of the gRPC host capable of processing the request
 	Host string
 	// Restricted should be set to true if this capability should be restricted
@@ -59,7 +52,7 @@ type OAMRegistrantDefinitionPath struct {
 	Restricted bool
 	// Metadata is the other data which can be attached to the post request body
 	//
-	// Metadata like name of the component, etc.
+	// Metadata like name of the capability, etc.
 	Metadata map[string]string
 }
 
@@ -98,42 +91,33 @@ func NewOAMRegistrant(paths []OAMRegistrantDefinitionPath, oamHTTPRegistry strin
 // Register function is a blocking function
 func (or *OAMRegistrant) Register() error {
 	for _, dpath := range or.Paths {
-		var ord OAMRegistrantData
 
-		definition, err := os.Open(dpath.OAMDefintionPath)
+		component, err := os.Open(dpath.ComponentPath)
 		if err != nil {
 			return ErrOpenOAMDefintionFile(err)
 		}
 		defer func() {
-			_ = definition.Close()
+			_ = component.Close()
 		}()
 
-		definitionMap := map[string]interface{}{}
-		if err := json.NewDecoder(definition).Decode(&definitionMap); err != nil {
+		compMap := map[string]interface{}{}
+		if err := json.NewDecoder(component).Decode(&compMap); err != nil {
 			return ErrJSONMarshal(err)
 		}
-		ord.OAMDefinition = definitionMap
 
-		schema, err := ioutil.ReadFile(dpath.OAMRefSchemaPath)
-		if err != nil {
-			return ErrOpenOAMRefFile(err)
-		}
-		if string(schema) == "" { //since this component is unusable if it doesn't have oam_ref_schema
-			continue
-		}
-		formatTitleInOAMRefSchema(&schema)
+		// formatTitleInOAMRefSchema(&schema)
 
-		ord.OAMRefSchema = string(schema)
+		// ord.OAMRefSchema = string(schema)
 
-		ord.Host = dpath.Host
-		ord.Metadata = dpath.Metadata
-		ord.Restricted = dpath.Restricted
+		// ord.Host = dpath.Host
+		// ord.Metadata = dpath.Metadata
+		// ord.Restricted = dpath.Restricted
 
 		// send request to the register
 		backoffOpt := backoff.NewExponentialBackOff()
 		backoffOpt.MaxElapsedTime = 10 * time.Minute
 		if err := backoff.Retry(func() error {
-			contentByt, err := json.Marshal(ord)
+			contentByt, err := json.Marshal(compMap)
 			if err != nil {
 				return backoff.Permanent(err)
 			}
@@ -142,6 +126,7 @@ func (or *OAMRegistrant) Register() error {
 			// host here is given by the application itself and is trustworthy hence,
 			// #nosec
 			resp, err := http.Post(or.OAMHTTPRegistry, "application/json", content)
+			fmt.Printf("Resp: \n %v \n Err: \n %v \n", resp, err)
 			if err != nil {
 				return err
 			}
@@ -175,81 +160,6 @@ type StaticCompConfig struct {
 	Force   bool             //When set to true, if the file with same name already exists, they will be overridden
 }
 
-//CreateComponents generates components for a given configuration and stores them.
-func CreateComponents(scfg StaticCompConfig) error {
-	dir := filepath.Join(scfg.Path, scfg.DirName)
-	_, err := os.Stat(dir)
-	if err != nil && !os.IsNotExist(err) {
-		return ErrCreatingComponents(err)
-	}
-	if err != nil && os.IsNotExist(err) {
-		err = os.Mkdir(dir, 0777)
-		if err != nil {
-			return ErrCreatingComponents(err)
-		}
-	}
-	var comp *manifests.Component
-	switch scfg.Method {
-	case Manifests:
-		comp, err = manifests.GetFromManifest(context.Background(), scfg.URL, manifests.SERVICE_MESH, scfg.Config)
-	case HelmCHARTS:
-		comp, err = manifests.GetFromHelm(context.Background(), scfg.URL, manifests.SERVICE_MESH, scfg.Config)
-	default:
-		return ErrCreatingComponents(errors.New("invalid generation method. Must be either Manifests or HelmCharts"))
-	}
-	if err != nil {
-		return ErrCreatingComponents(err)
-	}
-	if comp == nil {
-		return ErrCreatingComponents(errors.New("no components found"))
-	}
-	for i, def := range comp.Definitions {
-		schema := comp.Schemas[i]
-		name := getNameFromWorkloadDefinition([]byte(def))
-		defFileName := name + "_definition.json"
-		schemaFileName := name + ".meshery.layer5io.schema.json"
-		err := writeToFile(filepath.Join(dir, defFileName), []byte(def), scfg.Force)
-		if err != nil {
-			return ErrCreatingComponents(err)
-		}
-		err = writeToFile(filepath.Join(dir, schemaFileName), []byte(schema), scfg.Force)
-		if err != nil {
-			return ErrCreatingComponents(err)
-		}
-	}
-	return nil
-}
-
-//create a file with this filename and stuff the string
-func writeToFile(path string, data []byte, force bool) error {
-	_, err := os.Stat(path)
-	if err != nil && !os.IsNotExist(err) { //There some other error than non existence of file
-		return err
-	}
-
-	if err == nil { //file already exists
-		if !force { // Dont override existing file, skip it
-			fmt.Println("File already exists,skipping...")
-			return nil
-		}
-		err := os.Remove(path) //Remove the existing file, before overriding it
-		if err != nil {
-			return err
-		}
-	}
-	return ioutil.WriteFile(path, data, 0777)
-}
-
-//getNameFromWorkloadDefinition takes out name from workload definition
-func getNameFromWorkloadDefinition(definition []byte) string {
-	var wd v1alpha1.WorkloadDefinition
-	err := json.Unmarshal(definition, &wd)
-	if err != nil {
-		return ""
-	}
-	return wd.Spec.DefinitionRef.Name
-}
-
 //This will be depracated once all adapters migrate to new method of component creation( using static config) and registeration
 type DynamicComponentsConfig struct {
 	TimeoutInMinutes time.Duration
@@ -257,72 +167,6 @@ type DynamicComponentsConfig struct {
 	GenerationMethod string
 	Config           manifests.Config
 	Operation        string
-}
-
-func RegisterWorkLoadsDynamically(runtime, host string, dc *DynamicComponentsConfig) error {
-	var comp *manifests.Component
-	var err error
-	switch dc.GenerationMethod {
-	case Manifests:
-		comp, err = manifests.GetFromManifest(context.Background(), dc.URL, manifests.SERVICE_MESH, dc.Config)
-	case HelmCHARTS:
-		comp, err = manifests.GetFromHelm(context.Background(), dc.URL, manifests.SERVICE_MESH, dc.Config)
-	default:
-		return ErrGenerateComponents(errors.New("failed to generate components"))
-	}
-	if err != nil {
-		return ErrGenerateComponents(err)
-	}
-	if comp == nil {
-		return ErrGenerateComponents(errors.New("failed to generate components"))
-	}
-	for i, def := range comp.Definitions {
-		var ord OAMRegistrantData
-		ord.OAMRefSchema = comp.Schemas[i]
-
-		//Marshalling the stringified json
-		ord.Host = host
-		definitionMap := map[string]interface{}{}
-		if err := json.Unmarshal([]byte(def), &definitionMap); err != nil {
-			return err
-		}
-		definitionMap["apiVersion"] = "core.oam.dev/v1alpha1"
-		definitionMap["kind"] = "WorkloadDefinition"
-		ord.OAMDefinition = definitionMap
-		ord.Metadata = map[string]string{
-			OAMAdapterNameMetadataKey: dc.Operation,
-		}
-		// send request to the register
-		backoffOpt := backoff.NewExponentialBackOff()
-		backoffOpt.MaxElapsedTime = time.Minute * dc.TimeoutInMinutes
-		if err := backoff.Retry(func() error {
-			contentByt, err := json.Marshal(ord)
-			if err != nil {
-				return backoff.Permanent(err)
-			}
-			content := bytes.NewReader(contentByt)
-			// host here is given by the application itself and is trustworthy hence,
-			// #nosec
-			resp, err := http.Post(fmt.Sprintf("%s/api/oam/workload", runtime), "application/json", content)
-			if err != nil {
-				return err
-			}
-			if resp.StatusCode != http.StatusCreated &&
-				resp.StatusCode != http.StatusOK &&
-				resp.StatusCode != http.StatusAccepted {
-				return fmt.Errorf(
-					"register process failed, host returned status: %s with status code %d",
-					resp.Status,
-					resp.StatusCode,
-				)
-			}
-
-			return nil
-		}, backoffOpt); err != nil {
-			return err
-		}
-	}
-	return nil
 }
 
 func formatTitleInOAMRefSchema(schema *[]byte) {
