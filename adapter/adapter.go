@@ -42,10 +42,11 @@ type Handler interface {
 // Adapter contains all handlers, channels, clients, and other parameters for an adapter.
 // Use type embedding in a specific adapter to extend it.
 type Adapter struct {
-	Config  meshkitCfg.Handler
-	Log     logger.Handler
-	Channel *chan interface{}
-	mx      sync.Mutex
+	Config            meshkitCfg.Handler
+	KubeconfigHandler meshkitCfg.Handler
+	Log               logger.Handler
+	Channel           *chan interface{}
+	mx                sync.Mutex
 }
 
 func (a *Adapter) SetChannel(hchan *chan interface{}) {
