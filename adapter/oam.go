@@ -104,14 +104,13 @@ func (or *OAMRegistrant) Register() error {
 		if err != nil {
 			return ErrOpenOAMDefintionFile(err)
 		}
-		defer func() {
-			_ = definition.Close()
-		}()
 
 		definitionMap := map[string]interface{}{}
 		if err := json.NewDecoder(definition).Decode(&definitionMap); err != nil {
+			_ = definition.Close()
 			return ErrJSONMarshal(err)
 		}
+		_ = definition.Close()
 		ord.OAMDefinition = definitionMap
 
 		schema, err := ioutil.ReadFile(dpath.OAMRefSchemaPath)
