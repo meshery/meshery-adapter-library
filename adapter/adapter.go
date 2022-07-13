@@ -49,8 +49,8 @@ type Adapter struct {
 	mx                sync.Mutex
 }
 
-func (a *Adapter) SetChannel(hchan *chan interface{}) {
-	a.mx.Lock()
-	defer a.mx.Unlock()
-	a.Channel = hchan
+func (h *Adapter) SetChannel(hchan *chan interface{}) {
+	h.mx.Lock()
+	defer h.mx.Unlock()
+	h.Channel = hchan
 }
