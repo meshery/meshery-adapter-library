@@ -243,11 +243,10 @@ func copyCoreComponentsToNewVersion(fromDir string, toDir string, newVersion str
 		//core definition file or core schema file
 		if !strings.Contains(strings.TrimSuffix(f.Name(), ".json"), ".") || !strings.Contains(strings.TrimSuffix(f.Name(), ".meshery.layer5io.schema.json"), ".") {
 			fsource, err := os.Open(filepath.Join(fromDir, f.Name()))
-			defer fsource.Close()
 			if err != nil {
 				return err
 			}
-
+			defer fsource.Close()
 			content, err := ioutil.ReadAll(fsource)
 			if err != nil {
 				return err
@@ -259,7 +258,7 @@ func copyCoreComponentsToNewVersion(fromDir string, toDir string, newVersion str
 					return err
 				}
 			}
-			err = ioutil.WriteFile(filepath.Join(toDir, f.Name()), content, 0777)
+			err = ioutil.WriteFile(filepath.Join(toDir, f.Name()), content, 0666)
 			if err != nil {
 				return err
 			}
@@ -313,7 +312,7 @@ func writeToFile(path string, data []byte, force bool) error {
 			return err
 		}
 	}
-	return ioutil.WriteFile(path, data, 0777)
+	return ioutil.WriteFile(path, data, 0666)
 }
 
 //getNameFromWorkloadDefinition takes out name from workload definition

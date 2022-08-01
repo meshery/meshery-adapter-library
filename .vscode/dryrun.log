@@ -1,0 +1,6 @@
+make --dry-run --always-make --keep-going --print-directory
+make: Entering directory `/Users/ashishtiwari/dev/meshery-adapter-library'
+go run github.com/layer5io/meshkit/cmd/errorutil -d . analyze -i ./helpers -o ./helpers
+golangci-lint run
+make: Leaving directory `/Users/ashishtiwari/dev/meshery-adapter-library'
+ 
