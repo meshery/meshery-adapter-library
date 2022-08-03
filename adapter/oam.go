@@ -258,7 +258,7 @@ func copyCoreComponentsToNewVersion(fromDir string, toDir string, newVersion str
 					return err
 				}
 			}
-			err = ioutil.WriteFile(filepath.Join(toDir, f.Name()), content, 0666)
+			err = writeToFile(filepath.Join(toDir, f.Name()), content, false)
 			if err != nil {
 				return err
 			}
