@@ -230,10 +230,11 @@ func CreateComponents(scfg StaticCompConfig) error {
 	return nil
 }
 
-//Currently versioning of Meshery's core components from a given service mesh adapter is corresponding
-//to the service mesh version itself. So everytime components are generated for a new service mesh version,
-// existing core components from previously latest version are to be copied in this new version.
-//Further we can change the schema of copied core components in latest version, or leave it as it is.
+// Meshery core components are versioned alongside their corresponding Adapter components, 
+// which, in turn, are versioned with respect to the infrastructure under management; e.g. "Istio Mesh".
+// Every time that managed components are generated for a new infrastructure version (e.g.  service mesh version),
+// the latest core components are to be replicated (copied) and assigned the latest infrastructure version.
+// The schema of the replicated core components can be augmented or left as-is depending upon the need to do so.
 func copyCoreComponentsToNewVersion(fromDir string, toDir string, newVersion string) error {
 	files, err := ioutil.ReadDir(fromDir)
 	if err != nil {
