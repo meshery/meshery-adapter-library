@@ -10,10 +10,12 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	backoff "github.com/cenkalti/backoff/v4"
 	"github.com/layer5io/meshkit/models/oam/core/v1alpha1"
+	"github.com/layer5io/meshkit/utils"
 	"github.com/layer5io/meshkit/utils/manifests"
 )
 
@@ -176,8 +178,12 @@ type StaticCompConfig struct {
 
 //CreateComponents generates components for a given configuration and stores them.
 func CreateComponents(scfg StaticCompConfig) error {
+	dirName, err := getLatestDirectory(scfg.Path)
+	if err != nil {
+		return ErrCreatingComponents(err)
+	}
 	dir := filepath.Join(scfg.Path, scfg.DirName)
-	_, err := os.Stat(dir)
+	_, err = os.Stat(dir)
 	if err != nil && !os.IsNotExist(err) {
 		return ErrCreatingComponents(err)
 	}
@@ -202,6 +208,7 @@ func CreateComponents(scfg StaticCompConfig) error {
 	if comp == nil {
 		return ErrCreatingComponents(errors.New("no components found"))
 	}
+
 	for i, def := range comp.Definitions {
 		schema := comp.Schemas[i]
 		name := getNameFromWorkloadDefinition([]byte(def))
@@ -216,7 +223,77 @@ func CreateComponents(scfg StaticCompConfig) error {
 			return ErrCreatingComponents(err)
 		}
 	}
+	err = copyCoreComponentsToNewVersion(filepath.Join(scfg.Path, dirName), filepath.Join(scfg.Path, scfg.DirName), scfg.DirName)
+	if err != nil {
+		return ErrCreatingComponents(err)
+	}
 	return nil
+}
+
+// Meshery core components are versioned alongside their corresponding Adapter components,
+// which, in turn, are versioned with respect to the infrastructure under management; e.g. "Istio Mesh".
+// Every time that managed components are generated for a new infrastructure version (e.g.  service mesh version),
+// the latest core components are to be replicated (copied) and assigned the latest infrastructure version.
+// The schema of the replicated core components can be augmented or left as-is depending upon the need to do so.
+func copyCoreComponentsToNewVersion(fromDir string, toDir string, newVersion string) error {
+	files, err := ioutil.ReadDir(fromDir)
+	if err != nil {
+		return err
+	}
+	for _, f := range files {
+		//core definition file or core schema file
+		if !strings.Contains(strings.TrimSuffix(f.Name(), ".json"), ".") || !strings.Contains(strings.TrimSuffix(f.Name(), ".meshery.layer5io.schema.json"), ".") {
+			fsource, err := os.Open(filepath.Join(fromDir, f.Name()))
+			if err != nil {
+				return err
+			}
+			defer fsource.Close()
+			content, err := ioutil.ReadAll(fsource)
+			if err != nil {
+				return err
+			}
+			//only for definition files
+			if !strings.Contains(strings.TrimSuffix(f.Name(), ".json"), ".") {
+				content, err = modifyVersionInDefinition(content, newVersion)
+				if err != nil {
+					return err
+				}
+			}
+			err = writeToFile(filepath.Join(toDir, f.Name()), content, false)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+func modifyVersionInDefinition(old []byte, newversion string) (new []byte, err error) {
+	var def v1alpha1.WorkloadDefinition
+	err = json.Unmarshal(old, &def)
+	if err != nil {
+		return
+	}
+	if def.Spec.Metadata == nil { //to avoid panic
+		def.Spec.Metadata = make(map[string]string)
+	}
+	def.Spec.Metadata["version"] = newversion
+	new, err = json.Marshal(def)
+	return
+}
+func getLatestDirectory(path string) (string, error) {
+	files, err := ioutil.ReadDir(path)
+	if err != nil {
+		return "", err
+	}
+	filenames := []string{}
+	for _, f := range files {
+		filenames = append(filenames, f.Name())
+	}
+	filenames = utils.SortDottedStringsByDigits(filenames)
+	if len(filenames) != 0 {
+		return filenames[len(filenames)-1], nil
+	}
+	return "", fmt.Errorf("no directory found")
 }
 
 //create a file with this filename and stuff the string
@@ -236,7 +313,7 @@ func writeToFile(path string, data []byte, force bool) error {
 			return err
 		}
 	}
-	return ioutil.WriteFile(path, data, 0777)
+	return ioutil.WriteFile(path, data, 0666)
 }
 
 //getNameFromWorkloadDefinition takes out name from workload definition

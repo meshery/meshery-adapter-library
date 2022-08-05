@@ -12,7 +12,6 @@ replace (
 
 require (
 	github.com/cenkalti/backoff/v4 v4.1.2
-	github.com/golang/protobuf v1.5.2
 	github.com/grpc-ecosystem/go-grpc-middleware v1.3.0
 	github.com/layer5io/learn-layer5/smi-conformance v0.0.0-20210317075357-06b4f88b3e34
 	github.com/layer5io/meshkit v0.5.16
@@ -25,8 +24,6 @@ require (
 	golang.org/x/text v0.3.7
 	google.golang.org/grpc v1.45.0
 	google.golang.org/protobuf v1.28.0
-	gopkg.in/yaml.v2 v2.4.0
-	k8s.io/client-go v0.23.5
 )
 
 require (
@@ -65,6 +62,7 @@ require (
 	github.com/go-openapi/swag v0.19.14 // indirect
 	github.com/gobwas/glob v0.2.3 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
+	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/google/btree v1.0.1 // indirect
 	github.com/google/go-cmp v0.5.7 // indirect
 	github.com/google/gofuzz v1.2.0 // indirect
@@ -143,6 +141,7 @@ require (
 	gopkg.in/gorp.v1 v1.7.2 // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect
 	gopkg.in/ini.v1 v1.66.4 // indirect
+	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
 	gorm.io/gorm v1.23.4 // indirect
 	helm.sh/helm/v3 v3.8.2 // indirect
@@ -151,6 +150,7 @@ require (
 	k8s.io/apimachinery v0.23.5 // indirect
 	k8s.io/apiserver v0.23.5 // indirect
 	k8s.io/cli-runtime v0.23.5 // indirect
+	k8s.io/client-go v0.23.5 // indirect
 	k8s.io/component-base v0.23.5 // indirect
 	k8s.io/klog/v2 v2.30.0 // indirect
 	k8s.io/kube-openapi v0.0.0-20211115234752-e816edb12b65 // indirect
