@@ -230,7 +230,7 @@ func CreateComponents(scfg StaticCompConfig) error {
 	return nil
 }
 
-// Meshery core components are versioned alongside their corresponding Adapter components, 
+// Meshery core components are versioned alongside their corresponding Adapter components,
 // which, in turn, are versioned with respect to the infrastructure under management; e.g. "Istio Mesh".
 // Every time that managed components are generated for a new infrastructure version (e.g.  service mesh version),
 // the latest core components are to be replicated (copied) and assigned the latest infrastructure version.
