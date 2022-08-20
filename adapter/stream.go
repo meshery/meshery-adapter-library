@@ -19,6 +19,11 @@ type Event struct {
 	EType       int32  `json:"type,string,omitempty"`
 	Summary     string `json:"summary,omitempty"`
 	Details     string `json:"details,omitempty"`
+	ErrorCode   string `json:"error_code,omitempty"`
+	ProbableCause string `json:"probable_cause,omitempty"`
+	SuggestedRemediation string `json:"suggested_remediation,omitempty`
+	Component string `json:"component,omitempty"`
+	ComponentName string `json:"component_name,omitempty"`
 }
 
 func (h *Adapter) StreamErr(e *Event, err error) {
