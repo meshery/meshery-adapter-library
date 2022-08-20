@@ -97,18 +97,18 @@ func (s *Service) SupportedOperations(ctx context.Context, req *meshes.Supported
 
 // StreamEvents is the handler function for the method StreamEvents.
 func (s *Service) StreamEvents(ctx *meshes.EventsRequest, srv meshes.MeshService_StreamEventsServer) error {
-	for {``
+	for {
 		data := <-s.Channel
 		event := &meshes.EventsResponse{
-			OperationId: data.(*adapter.Event).Operationid,
-			EventType:   meshes.EventType(data.(*adapter.Event).EType),
-			Summary:     data.(*adapter.Event).Summary,
-			Details:     data.(*adapter.Event).Details,
-			ErrorCode:	 data.(*adapter.Event).ErrorCode,
-			ProbableCause: data.(*adapter.Event).ProbableCause,
+			OperationId:          data.(*adapter.Event).Operationid,
+			EventType:            meshes.EventType(data.(*adapter.Event).EType),
+			Summary:              data.(*adapter.Event).Summary,
+			Details:              data.(*adapter.Event).Details,
+			ErrorCode:            data.(*adapter.Event).ErrorCode,
+			ProbableCause:        data.(*adapter.Event).ProbableCause,
 			SuggestedRemediation: data.(*adapter.Event).SuggestedRemediation,
-			Component: data.(*adapter.Event).Component,
-			ComponentName: data.(*adapter.Event).ComponentName,
+			Component:            data.(*adapter.Event).Component,
+			ComponentName:        data.(*adapter.Event).ComponentName,
 		}
 		if err := srv.Send(event); err != nil {
 			// to prevent loosing the event, will re-add to the channel
