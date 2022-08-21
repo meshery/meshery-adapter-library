@@ -59,7 +59,7 @@ func (s *Service) ApplyOperation(ctx context.Context, req *meshes.ApplyRuleReque
 		OperationID:       req.OperationId,
 		K8sConfigs:        req.KubeConfigs,
 	}
-	err := s.Handler.ApplyOperation(ctx, operation, &s.Channel)
+	err := s.Handler.ApplyOperation(ctx, operation)
 	if err != nil {
 		return &meshes.ApplyRuleResponse{
 			Error:       err.Error(),
@@ -97,19 +97,19 @@ func (s *Service) SupportedOperations(ctx context.Context, req *meshes.Supported
 
 // StreamEvents is the handler function for the method StreamEvents.
 func (s *Service) StreamEvents(ctx *meshes.EventsRequest, srv meshes.MeshService_StreamEventsServer) error {
+	clientchan := make(chan interface{}, 10)
+	s.EventBuffer.Copy(clientchan)
+	go s.EventBuffer.Subscribe(clientchan)
 	for {
-		data := <-s.Channel
+		data := <-clientchan
 		event := &meshes.EventsResponse{
 			OperationId: data.(*adapter.Event).Operationid,
 			EventType:   meshes.EventType(data.(*adapter.Event).EType),
 			Summary:     data.(*adapter.Event).Summary,
 			Details:     data.(*adapter.Event).Details,
 		}
+
 		if err := srv.Send(event); err != nil {
-			// to prevent loosing the event, will re-add to the channel
-			go func() {
-				s.Channel <- data
-			}()
 			return err
 		}
 		time.Sleep(500 * time.Millisecond)
@@ -126,7 +126,7 @@ func (s *Service) ProcessOAM(ctx context.Context, srv *meshes.ProcessOAMRequest)
 		K8sConfigs: srv.KubeConfigs,
 	}
 
-	msg, err := s.Handler.ProcessOAM(ctx, operation, &s.Channel)
+	msg, err := s.Handler.ProcessOAM(ctx, operation)
 	return &meshes.ProcessOAMResponse{Message: msg}, err
 }
 

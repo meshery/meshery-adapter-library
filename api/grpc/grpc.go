@@ -28,6 +28,7 @@ import (
 
 	"github.com/layer5io/meshery-adapter-library/adapter"
 	"github.com/layer5io/meshery-adapter-library/api/tracing"
+	"github.com/layer5io/meshery-adapter-library/events"
 	"github.com/layer5io/meshery-adapter-library/meshes"
 
 	"fmt"
@@ -50,8 +51,8 @@ type Service struct {
 	StartedAt time.Time `json:"startedat"`
 	TraceURL  string    `json:"traceurl"`
 
-	Handler adapter.Handler
-	Channel chan interface{}
+	Handler     adapter.Handler
+	EventBuffer *events.EventBuffer
 
 	meshes.UnimplementedMeshServiceServer
 }

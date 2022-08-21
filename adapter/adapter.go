@@ -21,6 +21,7 @@ import (
 	"context"
 	"sync"
 
+	"github.com/layer5io/meshery-adapter-library/events"
 	meshkitCfg "github.com/layer5io/meshkit/config"
 	"github.com/layer5io/meshkit/logger"
 )
@@ -30,9 +31,9 @@ type Handler interface {
 	GetName() string                    // Returns the name of the adapter.
 	GetComponentInfo(interface{}) error // Returns the component info.
 	// CreateInstance(*chan interface{}) error                 // Instantiates clients used in deploying and managing mesh instances, e.g. Kubernetes clients.
-	ApplyOperation(context.Context, OperationRequest, *chan interface{}) error // Applies an adapter operation. This is adapter specific and needs to be implemented by each adapter.
-	ListOperations() (Operations, error)                                       // List all operations an adapter supports.
-	ProcessOAM(ctx context.Context, srv OAMRequest, hchan *chan interface{}) (string, error)
+	ApplyOperation(context.Context, OperationRequest) error // Applies an adapter operation. This is adapter specific and needs to be implemented by each adapter.
+	ListOperations() (Operations, error)                    // List all operations an adapter supports.
+	ProcessOAM(ctx context.Context, srv OAMRequest) (string, error)
 
 	// Need not implement this method and can be reused
 	StreamErr(*Event, error) // Streams an error event, e.g. to a channel
@@ -45,12 +46,6 @@ type Adapter struct {
 	Config            meshkitCfg.Handler
 	KubeconfigHandler meshkitCfg.Handler
 	Log               logger.Handler
-	Channel           *chan interface{}
+	EventsBuffer      *events.EventBuffer
 	mx                sync.Mutex
-}
-
-func (h *Adapter) SetChannel(hchan *chan interface{}) {
-	h.mx.Lock()
-	defer h.mx.Unlock()
-	h.Channel = hchan
 }
