@@ -23,6 +23,7 @@ import (
 	"time"
 
 	"github.com/layer5io/learn-layer5/smi-conformance/conformance"
+	"github.com/layer5io/meshery-adapter-library/meshes"
 	"github.com/layer5io/meshery-adapter-library/status"
 	"github.com/layer5io/meshkit/utils"
 	mesherykube "github.com/layer5io/meshkit/utils/kubernetes"
@@ -88,8 +89,8 @@ type SMITestOptions struct {
 
 // RunSMITest runs the SMI test on the adapter's service mesh
 func (h *Adapter) RunSMITest(opts SMITestOptions) (Response, error) {
-	e := &Event{
-		Operationid: opts.OperationID,
+	e := &meshes.EventsResponse{
+		OperationId: opts.OperationID,
 		Summary:     status.Deploying,
 		Details:     "None",
 	}

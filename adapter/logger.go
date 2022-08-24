@@ -17,6 +17,7 @@ package adapter
 import (
 	"context"
 
+	"github.com/layer5io/meshery-adapter-library/meshes"
 	"github.com/layer5io/meshkit/logger"
 )
 
@@ -85,10 +86,10 @@ func (s *adapterLogger) ListOperations() (Operations, error) {
 	return ops, err
 }
 
-func (s *adapterLogger) StreamErr(e *Event, err error) {
+func (s *adapterLogger) StreamErr(e *meshes.EventsResponse, err error) {
 	s.log.Error(err)
 }
 
-func (s *adapterLogger) StreamInfo(*Event) {
+func (s *adapterLogger) StreamInfo(*meshes.EventsResponse) {
 	s.log.Info("Sending event response")
 }
