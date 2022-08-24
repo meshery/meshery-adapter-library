@@ -21,9 +21,9 @@ import (
 	"context"
 	"sync"
 
-	"github.com/layer5io/meshery-adapter-library/events"
 	meshkitCfg "github.com/layer5io/meshkit/config"
 	"github.com/layer5io/meshkit/logger"
+	"github.com/layer5io/meshkit/utils/events"
 )
 
 // Interface Handler is extended by adapters, and used in package api/grpc that implements the MeshServiceServer.

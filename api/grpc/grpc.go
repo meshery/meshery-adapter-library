@@ -28,8 +28,8 @@ import (
 
 	"github.com/layer5io/meshery-adapter-library/adapter"
 	"github.com/layer5io/meshery-adapter-library/api/tracing"
-	"github.com/layer5io/meshery-adapter-library/events"
 	"github.com/layer5io/meshery-adapter-library/meshes"
+	"github.com/layer5io/meshkit/utils/events"
 
 	"fmt"
 
