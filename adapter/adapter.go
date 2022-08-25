@@ -21,6 +21,7 @@ import (
 	"context"
 	"sync"
 
+	"github.com/layer5io/meshery-adapter-library/meshes"
 	meshkitCfg "github.com/layer5io/meshkit/config"
 	"github.com/layer5io/meshkit/logger"
 )
@@ -35,8 +36,8 @@ type Handler interface {
 	ProcessOAM(ctx context.Context, srv OAMRequest, hchan *chan interface{}) (string, error)
 
 	// Need not implement this method and can be reused
-	StreamErr(*Event, error) // Streams an error event, e.g. to a channel
-	StreamInfo(*Event)       // Streams an informational event, e.g. to a channel
+	StreamErr(*meshes.EventsResponse, error) // Streams an error event, e.g. to a channel
+	StreamInfo(*meshes.EventsResponse)       // Streams an informational event, e.g. to a channel
 }
 
 // Adapter contains all handlers, channels, clients, and other parameters for an adapter.

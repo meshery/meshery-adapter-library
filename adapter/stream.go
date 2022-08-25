@@ -14,21 +14,16 @@
 
 package adapter
 
-type Event struct {
-	Operationid string `json:"operationid,omitempty"`
-	EType       int32  `json:"type,string,omitempty"`
-	Summary     string `json:"summary,omitempty"`
-	Details     string `json:"details,omitempty"`
-}
+import "github.com/layer5io/meshery-adapter-library/meshes"
 
-func (h *Adapter) StreamErr(e *Event, err error) {
+func (h *Adapter) StreamErr(e *meshes.EventsResponse, err error) {
 	h.Log.Error(err)
-	e.EType = 2
+	e.EventType = 2
 	*h.Channel <- e
 }
 
-func (h *Adapter) StreamInfo(e *Event) {
+func (h *Adapter) StreamInfo(e *meshes.EventsResponse) {
 	h.Log.Info("Sending event")
-	e.EType = 0
+	e.EventType = 0
 	*h.Channel <- e
 }
