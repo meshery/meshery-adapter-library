@@ -51,8 +51,8 @@ type Service struct {
 	StartedAt time.Time `json:"startedat"`
 	TraceURL  string    `json:"traceurl"`
 
-	Handler     adapter.Handler
-	EventBuffer *events.EventStreamer
+	Handler       adapter.Handler
+	EventStreamer *events.EventStreamer
 
 	meshes.UnimplementedMeshServiceServer
 }
