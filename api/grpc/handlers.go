@@ -102,10 +102,15 @@ func (s *Service) StreamEvents(ctx *meshes.EventsRequest, srv meshes.MeshService
 	for {
 		data := <-clientchan
 		event := &meshes.EventsResponse{
-			OperationId: data.(*adapter.Event).Operationid,
-			EventType:   meshes.EventType(data.(*adapter.Event).EType),
-			Summary:     data.(*adapter.Event).Summary,
-			Details:     data.(*adapter.Event).Details,
+			OperationId:          data.(*meshes.EventsResponse).OperationId,
+			EventType:            meshes.EventType(data.(*meshes.EventsResponse).EventType),
+			Summary:              data.(*meshes.EventsResponse).Summary,
+			Details:              data.(*meshes.EventsResponse).Details,
+			ErrorCode:            data.(*meshes.EventsResponse).ErrorCode,
+			ProbableCause:        data.(*meshes.EventsResponse).ProbableCause,
+			SuggestedRemediation: data.(*meshes.EventsResponse).SuggestedRemediation,
+			Component:            data.(*meshes.EventsResponse).Component,
+			ComponentName:        data.(*meshes.EventsResponse).ComponentName,
 		}
 
 		if err := srv.Send(event); err != nil {
