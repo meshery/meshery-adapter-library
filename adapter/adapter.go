@@ -46,6 +46,6 @@ type Adapter struct {
 	Config            meshkitCfg.Handler
 	KubeconfigHandler meshkitCfg.Handler
 	Log               logger.Handler
-	EventsBuffer      *events.EventBuffer
+	EventsBuffer      *events.EventStreamer
 	mx                sync.Mutex
 }

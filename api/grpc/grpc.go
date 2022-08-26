@@ -52,7 +52,7 @@ type Service struct {
 	TraceURL  string    `json:"traceurl"`
 
 	Handler     adapter.Handler
-	EventBuffer *events.EventBuffer
+	EventBuffer *events.EventStreamer
 
 	meshes.UnimplementedMeshServiceServer
 }

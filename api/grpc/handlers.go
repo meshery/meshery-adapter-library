@@ -98,7 +98,6 @@ func (s *Service) SupportedOperations(ctx context.Context, req *meshes.Supported
 // StreamEvents is the handler function for the method StreamEvents.
 func (s *Service) StreamEvents(ctx *meshes.EventsRequest, srv meshes.MeshService_StreamEventsServer) error {
 	clientchan := make(chan interface{}, 10)
-	s.EventBuffer.Copy(clientchan)
 	go s.EventBuffer.Subscribe(clientchan)
 	for {
 		data := <-clientchan

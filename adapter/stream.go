@@ -27,7 +27,7 @@ func (h *Adapter) StreamErr(e *Event, err error) {
 	//Putting this under a go routine so that this function is never blocking. If this push is performed synchronously then the call will be blocking in case
 	//when the channel is full with no client to recieve the events. This blocking may cause many operations to not return.
 	go func() {
-		h.EventsBuffer.Enqueue(e)
+		h.EventsBuffer.Publish(e)
 		h.Log.Info("Event stored and sent successfully")
 	}()
 }
@@ -37,7 +37,7 @@ func (h *Adapter) StreamInfo(e *Event) {
 	//Putting this under a go routine so that this function is never blocking. If this push is performed synchronously then the call will be blocking in case
 	//when the channel is full with no client to recieve the events. This blocking may cause many operations to not return.
 	go func() {
-		h.EventsBuffer.Enqueue(e)
+		h.EventsBuffer.Publish(e)
 		h.Log.Info("Event stored and sent successfully")
 	}()
 }
