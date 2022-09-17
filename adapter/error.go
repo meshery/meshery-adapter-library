@@ -135,12 +135,12 @@ func ErrOAMRetry(err error) error {
 	return errors.New(ErrOAMRetryCode, errors.Alert, []string{"error marshal JSON: %s"}, []string{err.Error()}, []string{}, []string{})
 }
 
-//will be depracated
+// will be depracated
 func ErrGenerateComponents(err error) error {
 	return errors.New(ErrGenerateComponentsCode, errors.Alert, []string{"error generating components"}, []string{err.Error()}, []string{"Invalid component generation method passed, Some invalid field passed in DynamicComponentsConfig"}, []string{"Pass the correct GenerationMethod in DynamicComponentsConfig", "Pass the correct fields in DynamicComponentsConfig"})
 }
 
-//ErrCreatingComponents
+// ErrCreatingComponents
 func ErrCreatingComponents(err error) error {
 	return errors.New(ErrCreatingComponentsCode, errors.Alert, []string{"error creating components"}, []string{err.Error()}, []string{"Invalid Path or version passed in static configuration", "URL passed maybe incorrect", "Version passed maybe incorrect"}, []string{"Make sure to pass correct configuration", "Make sure the URL passed in the configuration is correct", "Make sure a valid version is passed in configuration"})
 }

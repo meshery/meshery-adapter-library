@@ -6,7 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -115,7 +115,7 @@ func (or *OAMRegistrant) Register() error {
 		_ = definition.Close()
 		ord.OAMDefinition = definitionMap
 
-		schema, err := ioutil.ReadFile(dpath.OAMRefSchemaPath)
+		schema, err := os.ReadFile(dpath.OAMRefSchemaPath)
 		if err != nil {
 			return ErrOpenOAMRefFile(err)
 		}
@@ -166,7 +166,7 @@ func (or *OAMRegistrant) Register() error {
 	return nil
 }
 
-//StaticCompConfig is used to configure CreateComponents
+// StaticCompConfig is used to configure CreateComponents
 type StaticCompConfig struct {
 	URL     string           //URL
 	Method  string           //Use the constants exported by package. Manifests or Helm
@@ -176,7 +176,7 @@ type StaticCompConfig struct {
 	Force   bool             //When set to true, if the file with same name already exists, they will be overridden
 }
 
-//CreateComponents generates components for a given configuration and stores them.
+// CreateComponents generates components for a given configuration and stores them.
 func CreateComponents(scfg StaticCompConfig) error {
 	dirName, err := getLatestDirectory(scfg.Path)
 	if err != nil {
@@ -236,7 +236,7 @@ func CreateComponents(scfg StaticCompConfig) error {
 // the latest core components are to be replicated (copied) and assigned the latest infrastructure version.
 // The schema of the replicated core components can be augmented or left as-is depending upon the need to do so.
 func copyCoreComponentsToNewVersion(fromDir string, toDir string, newVersion string) error {
-	files, err := ioutil.ReadDir(fromDir)
+	files, err := os.ReadDir(fromDir)
 	if err != nil {
 		return err
 	}
@@ -248,7 +248,7 @@ func copyCoreComponentsToNewVersion(fromDir string, toDir string, newVersion str
 				return err
 			}
 			defer fsource.Close()
-			content, err := ioutil.ReadAll(fsource)
+			content, err := io.ReadAll(fsource)
 			if err != nil {
 				return err
 			}
@@ -281,7 +281,7 @@ func modifyVersionInDefinition(old []byte, newversion string) (new []byte, err e
 	return
 }
 func getLatestDirectory(path string) (string, error) {
-	files, err := ioutil.ReadDir(path)
+	files, err := os.ReadDir(path)
 	if err != nil {
 		return "", err
 	}
@@ -296,7 +296,7 @@ func getLatestDirectory(path string) (string, error) {
 	return "", fmt.Errorf("no directory found")
 }
 
-//create a file with this filename and stuff the string
+// create a file with this filename and stuff the string
 func writeToFile(path string, data []byte, force bool) error {
 	_, err := os.Stat(path)
 	if err != nil && !os.IsNotExist(err) { //There some other error than non existence of file
@@ -313,10 +313,10 @@ func writeToFile(path string, data []byte, force bool) error {
 			return err
 		}
 	}
-	return ioutil.WriteFile(path, data, 0666)
+	return os.WriteFile(path, data, 0666)
 }
 
-//getNameFromWorkloadDefinition takes out name from workload definition
+// getNameFromWorkloadDefinition takes out name from workload definition
 func getNameFromWorkloadDefinition(definition []byte) string {
 	var wd v1alpha1.WorkloadDefinition
 	err := json.Unmarshal(definition, &wd)
@@ -326,7 +326,7 @@ func getNameFromWorkloadDefinition(definition []byte) string {
 	return wd.Spec.DefinitionRef.Name
 }
 
-//This will be depracated once all adapters migrate to new method of component creation( using static config) and registeration
+// This will be depracated once all adapters migrate to new method of component creation( using static config) and registeration
 type DynamicComponentsConfig struct {
 	TimeoutInMinutes time.Duration
 	URL              string
