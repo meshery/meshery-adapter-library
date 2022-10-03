@@ -19,7 +19,6 @@ package adapter
 
 import (
 	"context"
-	"sync"
 
 	"github.com/layer5io/meshery-adapter-library/meshes"
 	meshkitCfg "github.com/layer5io/meshkit/config"
@@ -48,5 +47,5 @@ type Adapter struct {
 	KubeconfigHandler meshkitCfg.Handler
 	Log               logger.Handler
 	EventStreamer     *events.EventStreamer
-	mx                sync.Mutex
+	// mx                sync.Mutex
 }
