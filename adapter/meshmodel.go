@@ -20,7 +20,7 @@ import (
 // The body contains the
 // 1. Host information
 // 2. Entity type
-// 3. Enity
+// 3. Entity
 type MeshModelRegistrantData struct {
 	Host       meshmodel.Host
 	EntityType types.CapabilityType
