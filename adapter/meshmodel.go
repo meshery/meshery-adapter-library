@@ -24,7 +24,7 @@ import (
 type MeshModelRegistrantData struct {
 	Host       meshmodel.Host       `json:"host"`
 	EntityType types.CapabilityType `json:"entityType"`
-	Entity     interface{}          `json:"entity"` //This will be type converted to appropriate entity on server based on passed entitity type
+	Entity     interface{}          `json:"entity"` //This will be type converted to appropriate entity on server based on passed entity type
 }
 
 // MeshModelRegistrantDefinitionPath - Structure for configuring registrant paths
