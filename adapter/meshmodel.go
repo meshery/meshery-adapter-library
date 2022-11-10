@@ -24,7 +24,7 @@ import (
 type MeshModelRegistrantData struct {
 	Host       meshmodel.Host
 	EntityType types.CapabilityType
-	Entity     interface{} //This will be type converted to appropriate entity on server based on passed entitity type
+	Entity     interface{} //This will be type converted to appropriate entity on server based on passed entity type
 }
 
 // MeshModelRegistrantDefinitionPath - Structure for configuring registrant paths
@@ -115,7 +115,6 @@ func (or *MeshModelRegistrant) Register(ctxID string) error {
 				return ErrOAMRetry(err)
 			}
 		}
-
 	}
 
 	return nil
