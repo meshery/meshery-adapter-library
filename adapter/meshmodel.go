@@ -63,7 +63,6 @@ func NewMeshModelRegistrant(paths []MeshModelRegistrantDefinitionPath, HTTPRegis
 // Register function is a blocking function
 func (or *MeshModelRegistrant) Register(ctxID string) error {
 	for _, dpath := range or.Paths {
-
 		var mrd MeshModelRegistrantData
 		definition, err := os.Open(dpath.EntityDefintionPath)
 		if err != nil {
