@@ -185,6 +185,10 @@ func CreateComponents(scfg StaticCompConfig) error {
 	if err != nil {
 		return ErrCreatingComponents(err)
 	}
+	meshmodeldirName, err := getLatestDirectory(scfg.MeshModelPath)
+	if err != nil {
+		return ErrCreatingComponents(err)
+	}
 	dir := filepath.Join(scfg.OAMPath, scfg.DirName)
 	_, err = os.Stat(dir)
 	if err != nil && !os.IsNotExist(err) {
@@ -235,6 +239,7 @@ func CreateComponents(scfg StaticCompConfig) error {
 		if err != nil {
 			return ErrCreatingComponents(err)
 		}
+
 		err := writeToFile(filepath.Join(dir, defFileName), []byte(def), scfg.Force)
 		if err != nil {
 			return ErrCreatingComponents(err)
@@ -250,7 +255,7 @@ func CreateComponents(scfg StaticCompConfig) error {
 		return ErrCreatingComponents(err)
 	}
 	//For Meshmodel components
-	err = copyCoreComponentsToNewVersion(filepath.Join(scfg.MeshModelPath, dirName), filepath.Join(scfg.MeshModelPath, scfg.DirName), scfg.DirName, true)
+	err = copyCoreComponentsToNewVersion(filepath.Join(scfg.MeshModelPath, meshmodeldirName), filepath.Join(scfg.MeshModelPath, scfg.DirName), scfg.DirName, true)
 	if err != nil {
 		return ErrCreatingComponents(err)
 	}

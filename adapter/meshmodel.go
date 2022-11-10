@@ -22,9 +22,9 @@ import (
 // 2. Entity type
 // 3. Enity
 type MeshModelRegistrantData struct {
-	Host       meshmodel.Host
-	EntityType types.CapabilityType
-	Entity     interface{} //This will be type converted to appropriate entity on server based on passed entitity type
+	Host       meshmodel.Host       `json:"host"`
+	EntityType types.CapabilityType `json:"entityType"`
+	Entity     interface{}          `json:"entity"` //This will be type converted to appropriate entity on server based on passed entitity type
 }
 
 // MeshModelRegistrantDefinitionPath - Structure for configuring registrant paths
@@ -41,15 +41,16 @@ type MeshModelRegistrantDefinitionPath struct {
 // MeshModel provides utility functions for registering
 // MeshModel components to a registry in a reliable way
 type MeshModelRegistrant struct {
-	// Paths is a slice for holding the paths of OAMDefitions,
-	// OAMRefSchema and Host on the filesystem
-	//
-	// OAMRegistrant will read the definitions from these
-	// paths and will register them to the OAM registry
-	Paths []MeshModelRegistrantDefinitionPath
-
-	// OAMHTTPRegistry is the address of an OAM registry
+	Paths        []MeshModelRegistrantDefinitionPath
 	HTTPRegistry string
+}
+
+// NewOAMRegistrant returns an instance of OAMRegistrant
+func NewMeshModelRegistrant(paths []MeshModelRegistrantDefinitionPath, HTTPRegistry string) *MeshModelRegistrant {
+	return &MeshModelRegistrant{
+		Paths:        paths,
+		HTTPRegistry: HTTPRegistry,
+	}
 }
 
 // Register will register each capability individually to the OAM Capability registry
@@ -62,8 +63,8 @@ type MeshModelRegistrant struct {
 // Register function is a blocking function
 func (or *MeshModelRegistrant) Register(ctxID string) error {
 	for _, dpath := range or.Paths {
-		var mrd MeshModelRegistrantData
 
+		var mrd MeshModelRegistrantData
 		definition, err := os.Open(dpath.EntityDefintionPath)
 		if err != nil {
 			return ErrOpenOAMDefintionFile(err)
@@ -99,7 +100,6 @@ func (or *MeshModelRegistrant) Register(ctxID string) error {
 				if err != nil {
 					return err
 				}
-
 				if resp.StatusCode != http.StatusCreated &&
 					resp.StatusCode != http.StatusOK &&
 					resp.StatusCode != http.StatusAccepted {
@@ -109,13 +109,11 @@ func (or *MeshModelRegistrant) Register(ctxID string) error {
 						resp.StatusCode,
 					)
 				}
-
 				return nil
 			}, backoffOpt); err != nil {
 				return ErrOAMRetry(err)
 			}
 		}
-
 	}
 
 	return nil
