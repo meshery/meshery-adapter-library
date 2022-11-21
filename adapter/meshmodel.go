@@ -14,19 +14,6 @@ import (
 	"github.com/layer5io/meshkit/models/meshmodel/core/v1alpha1"
 )
 
-// MeshModelRegistrantData struct defines the body of the POST request that is sent to the capability
-// registry (Meshery)
-//
-// The body contains the
-// 1. Host information
-// 2. Entity type
-// 3. Entity
-type MeshModelRegistrantData struct {
-	Host       meshmodel.Host       `json:"host"`
-	EntityType types.CapabilityType `json:"entityType"`
-	Entity     interface{}          `json:"entity"` //This will be type converted to appropriate entity on server based on passed entity type
-}
-
 // MeshModelRegistrantDefinitionPath - Structure for configuring registrant paths
 type MeshModelRegistrantDefinitionPath struct {
 	// EntityDefinitionPath holds the path for Entity Definition file
@@ -63,7 +50,7 @@ func NewMeshModelRegistrant(paths []MeshModelRegistrantDefinitionPath, HTTPRegis
 // Register function is a blocking function
 func (or *MeshModelRegistrant) Register(ctxID string) error {
 	for _, dpath := range or.Paths {
-		var mrd MeshModelRegistrantData
+		var mrd meshmodel.MeshModelRegistrantData
 		definition, err := os.Open(dpath.EntityDefintionPath)
 		if err != nil {
 			return ErrOpenOAMDefintionFile(err)
@@ -82,7 +69,8 @@ func (or *MeshModelRegistrant) Register(ctxID string) error {
 				return ErrJSONMarshal(err)
 			}
 			_ = definition.Close()
-			mrd.Entity = cd
+			enbyt, _ := json.Marshal(cd)
+			mrd.Entity = enbyt
 			// send request to the register
 			backoffOpt := backoff.NewExponentialBackOff()
 			backoffOpt.MaxElapsedTime = 10 * time.Minute
