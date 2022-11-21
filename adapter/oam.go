@@ -14,6 +14,7 @@ import (
 	"time"
 
 	backoff "github.com/cenkalti/backoff/v4"
+	meshmodel "github.com/layer5io/meshkit/models/meshmodel/core/v1alpha1"
 	"github.com/layer5io/meshkit/models/oam/core/v1alpha1"
 	"github.com/layer5io/meshkit/utils"
 	"github.com/layer5io/meshkit/utils/manifests"
@@ -168,21 +169,27 @@ func (or *OAMRegistrant) Register() error {
 
 // StaticCompConfig is used to configure CreateComponents
 type StaticCompConfig struct {
-	URL     string           //URL
-	Method  string           //Use the constants exported by package. Manifests or Helm
-	Path    string           //Where to store the directory.(Each directory will have an array of definitions and schemas)
-	DirName string           //The directory's name. By convention, it should be the version name
-	Config  manifests.Config //Filters required to create definition and schema
-	Force   bool             //When set to true, if the file with same name already exists, they will be overridden
+	MeshModelName string //Used in Adding ModelName onto Core Meshmodel components. Pass it the same as meshName in OAM components
+	URL           string //URL
+	Method        string //Use the constants exported by package. Manifests or Helm
+	OAMPath       string //Where to store the directory.(Each directory will have an array of definitions and schemas)
+	MeshModelPath string
+	DirName       string           //The directory's name. By convention, it should be the version name
+	Config        manifests.Config //Filters required to create definition and schema
+	Force         bool             //When set to true, if the file with same name already exists, they will be overridden
 }
 
 // CreateComponents generates components for a given configuration and stores them.
 func CreateComponents(scfg StaticCompConfig) error {
-	dirName, err := getLatestDirectory(scfg.Path)
+	dirName, err := getLatestDirectory(scfg.OAMPath)
 	if err != nil {
 		return ErrCreatingComponents(err)
 	}
-	dir := filepath.Join(scfg.Path, scfg.DirName)
+	meshmodeldirName, err := getLatestDirectory(scfg.MeshModelPath)
+	if err != nil {
+		return ErrCreatingComponents(err)
+	}
+	dir := filepath.Join(scfg.OAMPath, scfg.DirName)
 	_, err = os.Stat(dir)
 	if err != nil && !os.IsNotExist(err) {
 		return ErrCreatingComponents(err)
@@ -193,6 +200,19 @@ func CreateComponents(scfg StaticCompConfig) error {
 			return ErrCreatingComponents(err)
 		}
 	}
+
+	meshmodelDir := filepath.Join(scfg.MeshModelPath, scfg.DirName)
+	_, err = os.Stat(meshmodelDir)
+	if err != nil && !os.IsNotExist(err) {
+		return ErrCreatingComponents(err)
+	}
+	if err != nil && os.IsNotExist(err) {
+		err = os.Mkdir(meshmodelDir, 0777)
+		if err != nil {
+			return ErrCreatingComponents(err)
+		}
+	}
+
 	var comp *manifests.Component
 	switch scfg.Method {
 	case Manifests:
@@ -214,6 +234,12 @@ func CreateComponents(scfg StaticCompConfig) error {
 		name := getNameFromWorkloadDefinition([]byte(def))
 		defFileName := name + "_definition.json"
 		schemaFileName := name + ".meshery.layer5io.schema.json"
+		meshmodelFileName := name + "_meshmodel.json"
+		err = createMeshModelComponentsFromLegacyOAMComponents([]byte(def), schema, filepath.Join(meshmodelDir, meshmodelFileName), scfg.MeshModelName)
+		if err != nil {
+			return ErrCreatingComponents(err)
+		}
+
 		err := writeToFile(filepath.Join(dir, defFileName), []byte(def), scfg.Force)
 		if err != nil {
 			return ErrCreatingComponents(err)
@@ -223,11 +249,56 @@ func CreateComponents(scfg StaticCompConfig) error {
 			return ErrCreatingComponents(err)
 		}
 	}
-	err = copyCoreComponentsToNewVersion(filepath.Join(scfg.Path, dirName), filepath.Join(scfg.Path, scfg.DirName), scfg.DirName)
+	//For OAM components
+	err = copyCoreComponentsToNewVersion(filepath.Join(scfg.OAMPath, dirName), filepath.Join(scfg.OAMPath, scfg.DirName), scfg.DirName, false)
+	if err != nil {
+		return ErrCreatingComponents(err)
+	}
+	//For Meshmodel components
+	err = copyCoreComponentsToNewVersion(filepath.Join(scfg.MeshModelPath, meshmodeldirName), filepath.Join(scfg.MeshModelPath, scfg.DirName), scfg.DirName, true)
 	if err != nil {
 		return ErrCreatingComponents(err)
 	}
 	return nil
+}
+func convertOAMtoMeshmodel(def []byte, schema string, isCore bool, meshmodelname string) ([]byte, error) {
+	var oamdef v1alpha1.WorkloadDefinition
+	err := json.Unmarshal(def, &oamdef)
+	if err != nil {
+		return nil, err
+	}
+	var c meshmodel.ComponentDefinition
+	c.Metadata.Metadata = make(map[string]interface{})
+	if isCore {
+		c.APIVersion = oamdef.APIVersion
+		c.Kind = oamdef.ObjectMeta.Name
+		c.Metadata.Version = oamdef.Spec.Metadata["version"]
+		c.Metadata.Model = meshmodelname
+		c.Metadata.Metadata["display-name"] = manifests.FormatToReadableString(oamdef.ObjectMeta.Name)
+	} else {
+		c.APIVersion = oamdef.Spec.Metadata["k8sAPIVersion"]
+		c.Kind = oamdef.Spec.Metadata["k8sKind"]
+		c.Metadata.Version = oamdef.Spec.Metadata["meshVersion"]
+		c.Metadata.Model = oamdef.Spec.Metadata["meshName"]
+		c.Metadata.Metadata["display-name"] = manifests.FormatToReadableString(oamdef.Spec.Metadata["k8sKind"])
+	}
+	c.Format = meshmodel.JSON
+	c.Schema = schema
+	byt, err := json.Marshal(c)
+	if err != nil {
+		return nil, err
+	}
+	return byt, nil
+}
+
+// TODO: After OAM is completely removed from meshkit, replace this with fetching native meshmodel components. For now, reuse OAM functions
+func createMeshModelComponentsFromLegacyOAMComponents(def []byte, schema string, path string, meshmodel string) (err error) {
+	byt, err := convertOAMtoMeshmodel(def, schema, false, meshmodel)
+	if err != nil {
+		return err
+	}
+	err = writeToFile(path, byt, true)
+	return
 }
 
 // Meshery core components are versioned alongside their corresponding Adapter components,
@@ -235,7 +306,7 @@ func CreateComponents(scfg StaticCompConfig) error {
 // Every time that managed components are generated for a new infrastructure version (e.g.  service mesh version),
 // the latest core components are to be replicated (copied) and assigned the latest infrastructure version.
 // The schema of the replicated core components can be augmented or left as-is depending upon the need to do so.
-func copyCoreComponentsToNewVersion(fromDir string, toDir string, newVersion string) error {
+func copyCoreComponentsToNewVersion(fromDir string, toDir string, newVersion string, isMeshmodel bool) error {
 	files, err := os.ReadDir(fromDir)
 	if err != nil {
 		return err
@@ -254,7 +325,11 @@ func copyCoreComponentsToNewVersion(fromDir string, toDir string, newVersion str
 			}
 			//only for definition files
 			if !strings.Contains(strings.TrimSuffix(f.Name(), ".json"), ".") {
-				content, err = modifyVersionInDefinition(content, newVersion)
+				if isMeshmodel {
+					content, err = modifyMeshmodelVersionInDefinition(content, newVersion)
+				} else {
+					content, err = modifyVersionInDefinition(content, newVersion)
+				}
 				if err != nil {
 					return err
 				}
@@ -266,6 +341,16 @@ func copyCoreComponentsToNewVersion(fromDir string, toDir string, newVersion str
 		}
 	}
 	return nil
+}
+func modifyMeshmodelVersionInDefinition(old []byte, newversion string) (new []byte, err error) {
+	var def meshmodel.ComponentDefinition
+	err = json.Unmarshal(old, &def)
+	if err != nil {
+		return
+	}
+	def.Metadata.Version = newversion
+	new, err = json.Marshal(def)
+	return
 }
 func modifyVersionInDefinition(old []byte, newversion string) (new []byte, err error) {
 	var def v1alpha1.WorkloadDefinition
