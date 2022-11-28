@@ -268,19 +268,19 @@ func convertOAMtoMeshmodel(def []byte, schema string, isCore bool, meshmodelname
 		return nil, err
 	}
 	var c meshmodel.ComponentDefinition
-	c.Metadata.Metadata = make(map[string]interface{})
+	c.Metadata = make(map[string]interface{})
 	if isCore {
 		c.APIVersion = oamdef.APIVersion
 		c.Kind = oamdef.ObjectMeta.Name
-		c.Metadata.Version = oamdef.Spec.Metadata["version"]
-		c.Metadata.Model = meshmodelname
-		c.Metadata.Metadata["display-name"] = manifests.FormatToReadableString(oamdef.ObjectMeta.Name)
+		c.Model.Version = oamdef.Spec.Metadata["version"]
+		c.Model.Name = meshmodelname
+		c.DisplayName = manifests.FormatToReadableString(oamdef.ObjectMeta.Name)
 	} else {
 		c.APIVersion = oamdef.Spec.Metadata["k8sAPIVersion"]
 		c.Kind = oamdef.Spec.Metadata["k8sKind"]
-		c.Metadata.Version = oamdef.Spec.Metadata["meshVersion"]
-		c.Metadata.Model = oamdef.Spec.Metadata["meshName"]
-		c.Metadata.Metadata["display-name"] = manifests.FormatToReadableString(oamdef.Spec.Metadata["k8sKind"])
+		c.Model.Version = oamdef.Spec.Metadata["meshVersion"]
+		c.Model.Name = oamdef.Spec.Metadata["meshName"]
+		c.DisplayName = manifests.FormatToReadableString(oamdef.ObjectMeta.Name)
 	}
 	c.Format = meshmodel.JSON
 	c.Schema = schema
@@ -348,7 +348,7 @@ func modifyMeshmodelVersionInDefinition(old []byte, newversion string) (new []by
 	if err != nil {
 		return
 	}
-	def.Metadata.Version = newversion
+	def.Model.Version = newversion
 	new, err = json.Marshal(def)
 	return
 }
