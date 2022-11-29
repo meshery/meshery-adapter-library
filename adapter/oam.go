@@ -167,16 +167,23 @@ func (or *OAMRegistrant) Register() error {
 	return nil
 }
 
+type MeshModelConfig struct {
+	Category    string
+	SubCategory string
+	Metadata    map[string]interface{}
+}
+
 // StaticCompConfig is used to configure CreateComponents
 type StaticCompConfig struct {
-	MeshModelName string //Used in Adding ModelName onto Core Meshmodel components. Pass it the same as meshName in OAM components
-	URL           string //URL
-	Method        string //Use the constants exported by package. Manifests or Helm
-	OAMPath       string //Where to store the directory.(Each directory will have an array of definitions and schemas)
-	MeshModelPath string
-	DirName       string           //The directory's name. By convention, it should be the version name
-	Config        manifests.Config //Filters required to create definition and schema
-	Force         bool             //When set to true, if the file with same name already exists, they will be overridden
+	MeshModelName   string //Used in Adding ModelName onto Core Meshmodel components. Pass it the same as meshName in OAM components
+	URL             string //URL
+	Method          string //Use the constants exported by package. Manifests or Helm
+	OAMPath         string //Where to store the directory.(Each directory will have an array of definitions and schemas)
+	MeshModelPath   string
+	MeshModelConfig MeshModelConfig
+	DirName         string           //The directory's name. By convention, it should be the version name
+	Config          manifests.Config //Filters required to create definition and schema
+	Force           bool             //When set to true, if the file with same name already exists, they will be overridden
 }
 
 // CreateComponents generates components for a given configuration and stores them.
@@ -235,7 +242,7 @@ func CreateComponents(scfg StaticCompConfig) error {
 		defFileName := name + "_definition.json"
 		schemaFileName := name + ".meshery.layer5io.schema.json"
 		meshmodelFileName := name + "_meshmodel.json"
-		err = createMeshModelComponentsFromLegacyOAMComponents([]byte(def), schema, filepath.Join(meshmodelDir, meshmodelFileName), scfg.MeshModelName)
+		err = createMeshModelComponentsFromLegacyOAMComponents([]byte(def), schema, filepath.Join(meshmodelDir, meshmodelFileName), scfg.MeshModelName, scfg.MeshModelConfig)
 		if err != nil {
 			return ErrCreatingComponents(err)
 		}
@@ -261,7 +268,7 @@ func CreateComponents(scfg StaticCompConfig) error {
 	}
 	return nil
 }
-func convertOAMtoMeshmodel(def []byte, schema string, isCore bool, meshmodelname string) ([]byte, error) {
+func convertOAMtoMeshmodel(def []byte, schema string, isCore bool, meshmodelname string, mcfg MeshModelConfig) ([]byte, error) {
 	var oamdef v1alpha1.WorkloadDefinition
 	err := json.Unmarshal(def, &oamdef)
 	if err != nil {
@@ -275,7 +282,9 @@ func convertOAMtoMeshmodel(def []byte, schema string, isCore bool, meshmodelname
 		displayname = metaname[0]
 	}
 	c.DisplayName = displayname
-	c.Model.Category = "Service Mesh"
+	c.Model.Category = mcfg.Category
+	c.Model.SubCategory = mcfg.SubCategory
+	c.Metadata = mcfg.Metadata
 	if isCore {
 		c.APIVersion = oamdef.APIVersion
 		c.Kind = oamdef.ObjectMeta.Name
@@ -298,8 +307,8 @@ func convertOAMtoMeshmodel(def []byte, schema string, isCore bool, meshmodelname
 }
 
 // TODO: After OAM is completely removed from meshkit, replace this with fetching native meshmodel components. For now, reuse OAM functions
-func createMeshModelComponentsFromLegacyOAMComponents(def []byte, schema string, path string, meshmodel string) (err error) {
-	byt, err := convertOAMtoMeshmodel(def, schema, false, meshmodel)
+func createMeshModelComponentsFromLegacyOAMComponents(def []byte, schema string, path string, meshmodel string, mcfg MeshModelConfig) (err error) {
+	byt, err := convertOAMtoMeshmodel(def, schema, false, meshmodel, mcfg)
 	if err != nil {
 		return err
 	}
