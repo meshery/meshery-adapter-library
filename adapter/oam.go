@@ -297,6 +297,7 @@ func convertOAMtoMeshmodel(def []byte, schema string, isCore bool, meshmodelname
 		c.Model.Name = oamdef.Spec.Metadata["meshName"]
 	}
 	c.Model.DisplayName = manifests.FormatToReadableString(c.Model.Name)
+	c.Model.Name = strings.ToLower(c.Model.Name)
 	c.Format = meshmodel.JSON
 	c.Schema = schema
 	byt, err := json.Marshal(c)
