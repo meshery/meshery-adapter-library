@@ -34,7 +34,6 @@ check-clean-cache:
 tidy:
 	go mod tidy
 	gofmt -w .
-	$(GOBIN)/goimports -w .
 
 verify:
 	go mod verify
