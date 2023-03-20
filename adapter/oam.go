@@ -168,9 +168,9 @@ func (or *OAMRegistrant) Register() error {
 }
 
 type MeshModelConfig struct {
-	Category    string
-	SubCategory string
-	Metadata    map[string]interface{}
+	Category         string
+	CategoryMetadata map[string]interface{}
+	Metadata         map[string]interface{}
 }
 
 // StaticCompConfig is used to configure CreateComponents
@@ -282,8 +282,12 @@ func convertOAMtoMeshmodel(def []byte, schema string, isCore bool, meshmodelname
 		displayname = metaname[0]
 	}
 	c.DisplayName = displayname
-	c.Model.Category = mcfg.Category
-	c.Model.SubCategory = mcfg.SubCategory
+	c.Model.Category = meshmodel.Category{
+		Name: mcfg.Category,
+	}
+	if mcfg.CategoryMetadata != nil {
+		c.Model.Category.Metadata = mcfg.CategoryMetadata
+	}
 	c.Metadata = mcfg.Metadata
 	if isCore {
 		c.APIVersion = oamdef.APIVersion
