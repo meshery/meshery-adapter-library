@@ -178,7 +178,6 @@ type StaticCompConfig struct {
 	MeshModelName   string //Used in Adding ModelName onto Core Meshmodel components. Pass it the same as meshName in OAM components
 	URL             string //URL
 	Method          string //Use the constants exported by package. Manifests or Helm
-	OAMPath         string //Where to store the directory.(Each directory will have an array of definitions and schemas)
 	MeshModelPath   string
 	MeshModelConfig MeshModelConfig
 	DirName         string           //The directory's name. By convention, it should be the version name
@@ -188,26 +187,10 @@ type StaticCompConfig struct {
 
 // CreateComponents generates components for a given configuration and stores them.
 func CreateComponents(scfg StaticCompConfig) error {
-	dirName, err := getLatestDirectory(scfg.OAMPath)
-	if err != nil {
-		return ErrCreatingComponents(err)
-	}
 	meshmodeldirName, err := getLatestDirectory(scfg.MeshModelPath)
 	if err != nil {
 		return ErrCreatingComponents(err)
 	}
-	dir := filepath.Join(scfg.OAMPath, scfg.DirName)
-	_, err = os.Stat(dir)
-	if err != nil && !os.IsNotExist(err) {
-		return ErrCreatingComponents(err)
-	}
-	if err != nil && os.IsNotExist(err) {
-		err = os.Mkdir(dir, 0777)
-		if err != nil {
-			return ErrCreatingComponents(err)
-		}
-	}
-
 	meshmodelDir := filepath.Join(scfg.MeshModelPath, scfg.DirName)
 	_, err = os.Stat(meshmodelDir)
 	if err != nil && !os.IsNotExist(err) {
@@ -239,27 +222,11 @@ func CreateComponents(scfg StaticCompConfig) error {
 	for i, def := range comp.Definitions {
 		schema := comp.Schemas[i]
 		name := getNameFromWorkloadDefinition([]byte(def))
-		defFileName := name + "_definition.json"
-		schemaFileName := name + ".meshery.layer5io.schema.json"
 		meshmodelFileName := name + "_meshmodel.json"
 		err = createMeshModelComponentsFromLegacyOAMComponents([]byte(def), schema, filepath.Join(meshmodelDir, meshmodelFileName), scfg.MeshModelName, scfg.MeshModelConfig)
 		if err != nil {
 			return ErrCreatingComponents(err)
 		}
-
-		err := writeToFile(filepath.Join(dir, defFileName), []byte(def), scfg.Force)
-		if err != nil {
-			return ErrCreatingComponents(err)
-		}
-		err = writeToFile(filepath.Join(dir, schemaFileName), []byte(schema), scfg.Force)
-		if err != nil {
-			return ErrCreatingComponents(err)
-		}
-	}
-	//For OAM components
-	err = copyCoreComponentsToNewVersion(filepath.Join(scfg.OAMPath, dirName), filepath.Join(scfg.OAMPath, scfg.DirName), scfg.DirName, false)
-	if err != nil {
-		return ErrCreatingComponents(err)
 	}
 	//For Meshmodel components
 	err = copyCoreComponentsToNewVersion(filepath.Join(scfg.MeshModelPath, meshmodeldirName), filepath.Join(scfg.MeshModelPath, scfg.DirName), scfg.DirName, true)
