@@ -187,22 +187,15 @@ type StaticCompConfig struct {
 
 // CreateComponents generates components for a given configuration and stores them.
 func CreateComponents(scfg StaticCompConfig) error {
-	meshmodeldirName, err := getLatestDirectory(scfg.MeshModelPath)
-	if err != nil {
-		return ErrCreatingComponents(err)
-	}
+	meshmodeldirName, _ := getLatestDirectory(scfg.MeshModelPath)
 	meshmodelDir := filepath.Join(scfg.MeshModelPath, scfg.DirName)
-	_, err = os.Stat(meshmodelDir)
-	if err != nil && !os.IsNotExist(err) {
-		return ErrCreatingComponents(err)
-	}
+	_, err := os.Stat(meshmodelDir)
 	if err != nil && os.IsNotExist(err) {
 		err = os.Mkdir(meshmodelDir, 0777)
 		if err != nil {
 			return ErrCreatingComponents(err)
 		}
 	}
-
 	var comp *manifests.Component
 	switch scfg.Method {
 	case Manifests:
@@ -229,9 +222,11 @@ func CreateComponents(scfg StaticCompConfig) error {
 		}
 	}
 	//For Meshmodel components
-	err = copyCoreComponentsToNewVersion(filepath.Join(scfg.MeshModelPath, meshmodeldirName), filepath.Join(scfg.MeshModelPath, scfg.DirName), scfg.DirName, true)
-	if err != nil {
-		return ErrCreatingComponents(err)
+	if meshmodeldirName != "" {
+		err = copyCoreComponentsToNewVersion(filepath.Join(scfg.MeshModelPath, meshmodeldirName), filepath.Join(scfg.MeshModelPath, scfg.DirName), scfg.DirName, true)
+		if err != nil {
+			return ErrCreatingComponents(err)
+		}
 	}
 	return nil
 }
@@ -269,6 +264,7 @@ func convertOAMtoMeshmodel(def []byte, schema string, isCore bool, meshmodelname
 	}
 	c.Model.DisplayName = manifests.FormatToReadableString(c.Model.Name)
 	c.Model.Name = strings.ToLower(c.Model.Name)
+	c.Model.Metadata = c.Metadata
 	c.Format = meshmodel.JSON
 	c.Schema = schema
 	byt, err := json.Marshal(c)
