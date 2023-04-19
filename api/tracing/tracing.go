@@ -17,10 +17,16 @@ package tracing
 import (
 	"context"
 
-	apitrace "go.opentelemetry.io/otel/api/trace"
-	"go.opentelemetry.io/otel/exporters/trace/jaeger"
-	"go.opentelemetry.io/otel/label"
+	//"go.opentelemetry.io/otel"
+	//"go.opentelemetry.io/otel/exporters/jaeger"
+	//"go.opentelemetry.io/otel/sdk/resource"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/exporters/jaeger"
+	"go.opentelemetry.io/otel/sdk/resource"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
+	semconv "go.opentelemetry.io/otel/semconv/v1.17.0"
+	"go.opentelemetry.io/otel/trace"
+	//"go.opentelemetry.io/otel/trace"
 )
 
 type KeyValue struct {
@@ -35,51 +41,48 @@ type Handler interface {
 }
 
 type handler struct {
-	provider apitrace.Provider
+	provider trace.TracerProvider
 	context  context.Context
-	span     apitrace.Span
+	span     trace.Span
 }
 
-func New(service string, endpoint string) (Handler, error) {
+func New(service string, endpoint string) (handler, error) {
 	if len(endpoint) < 2 {
-		return nil, nil
+		return handler{}, nil
 	}
 
-	provider, flush, err := jaeger.NewExportPipeline(
-		jaeger.WithCollectorEndpoint(endpoint),
-		jaeger.WithProcess(jaeger.Process{
-			ServiceName: service,
-			Tags: []label.KeyValue{
-				label.Key("name").String(service),
-				label.Key("exporter").String("jaeger"),
-			},
-		}),
-		jaeger.WithSDK(&sdktrace.Config{DefaultSampler: sdktrace.AlwaysSample()}),
-	)
+	provider, err := jaeger.New(jaeger.WithCollectorEndpoint(jaeger.WithEndpoint(endpoint)))
 	if err != nil {
-		flush()
-		return nil, err
+		return handler{}, err
 	}
 
-	return &handler{
-		provider: provider,
-	}, nil
+	tp := sdktrace.NewTracerProvider(
+		sdktrace.WithSampler(sdktrace.AlwaysSample()),
+		sdktrace.WithBatcher(provider),
+		sdktrace.WithResource(resource.NewWithAttributes(
+			semconv.SchemaURL,
+			semconv.ServiceName(service),
+		)),
+	)
+	return handler{
+		provider: tp,
+	}, err
 }
 
 func (h *handler) Tracer(name string) interface{} {
-	return h.provider.Tracer(name)
+	return otel.GetTracerProvider().Tracer(name)
 }
 
 func (h *handler) Span(ctx context.Context) {
-	h.span = apitrace.SpanFromContext(ctx)
+	h.span = trace.SpanFromContext(ctx)
 	h.context = ctx
 }
 
 func (h *handler) AddEvent(name string, attrs ...*KeyValue) {
-	kvstore := make([]label.KeyValue, 0)
-	for _, attr := range attrs {
-		kvstore = append(kvstore, label.String(attr.Key, attr.Value))
-	}
+	kvstore := make([]trace.EventOption, 0)
+	// for _, attr := range attrs {
+	// kvstore = append(kvstore, trace.WithAttributes(attribute.String(attr.Key, attr.Value)))
+	// }
 
-	h.span.AddEvent(h.context, name, kvstore...)
+	h.span.AddEvent(name, kvstore...)
 }

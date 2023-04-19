@@ -17,7 +17,7 @@ package adapter
 import "github.com/layer5io/meshery-adapter-library/meshes"
 
 func (h *Adapter) StreamErr(e *meshes.EventsResponse, err error) {
-	h.Log.Error(err)
+	h.Log.Error("error with events streaming", err)
 	e.EventType = 2
 	//Putting this under a go routine so that this function is never blocking. If this push is performed synchronously then the call will be blocking in case
 	//when the channel is full with no client to receive the events. This blocking may cause many operations to not return.

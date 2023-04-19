@@ -35,7 +35,7 @@ func AddLogger(logger logger.Handler, h Handler) Handler {
 
 func (s *adapterLogger) GetName() string {
 	if !(len(s.next.GetName()) > 1) {
-		s.log.Error(ErrGetName)
+		s.log.Error("err", ErrGetName)
 	}
 	return s.next.GetName()
 }
@@ -43,9 +43,46 @@ func (s *adapterLogger) GetName() string {
 func (s *adapterLogger) GetComponentInfo(svc interface{}) error {
 	err := s.next.GetComponentInfo(svc)
 	if err != nil {
-		s.log.Error(ErrGetName)
+		s.log.Error("err", ErrGetName)
 	}
 	return s.next.GetComponentInfo(svc)
+}
+
+func (s *adapterLogger) ApplyOperation(ctx context.Context, op OperationRequest) error {
+	s.log.Info("Applying operation ", op.OperationName)
+	err := s.next.ApplyOperation(ctx, op)
+	if err != nil {
+		s.log.Error("err", err)
+	}
+	return err
+}
+
+// ProcessOAM wraps the Handler's ProcessOAM method along with relevant logging
+func (s *adapterLogger) ProcessOAM(ctx context.Context, oamRequest OAMRequest) (string, error) {
+	s.log.Info("Process OAM components")
+	msg, err := s.next.ProcessOAM(ctx, oamRequest)
+	if err != nil {
+		s.log.Error("err", err)
+	}
+
+	return msg, err
+}
+
+func (s *adapterLogger) ListOperations() (Operations, error) {
+	s.log.Info("Listing Operations")
+	ops, err := s.next.ListOperations()
+	if err != nil {
+		s.log.Error("err", err)
+	}
+	return ops, err
+}
+
+func (s *adapterLogger) StreamErr(e *meshes.EventsResponse, err error) {
+	s.log.Error("err", err)
+}
+
+func (s *adapterLogger) StreamInfo(*meshes.EventsResponse) {
+	s.log.Info("Sending event response")
 }
 
 // func (s *adapterLogger) CreateInstance(c *chan interface{}) error {
@@ -56,40 +93,3 @@ func (s *adapterLogger) GetComponentInfo(svc interface{}) error {
 // 	}
 // 	return err
 // }
-
-func (s *adapterLogger) ApplyOperation(ctx context.Context, op OperationRequest) error {
-	s.log.Info("Applying operation ", op.OperationName)
-	err := s.next.ApplyOperation(ctx, op)
-	if err != nil {
-		s.log.Error(err)
-	}
-	return err
-}
-
-// ProcessOAM wraps the Handler's ProcessOAM method along with relevant logging
-func (s *adapterLogger) ProcessOAM(ctx context.Context, oamRequest OAMRequest) (string, error) {
-	s.log.Info("Process OAM components")
-	msg, err := s.next.ProcessOAM(ctx, oamRequest)
-	if err != nil {
-		s.log.Error(err)
-	}
-
-	return msg, err
-}
-
-func (s *adapterLogger) ListOperations() (Operations, error) {
-	s.log.Info("Listing Operations")
-	ops, err := s.next.ListOperations()
-	if err != nil {
-		s.log.Error(err)
-	}
-	return ops, err
-}
-
-func (s *adapterLogger) StreamErr(e *meshes.EventsResponse, err error) {
-	s.log.Error(err)
-}
-
-func (s *adapterLogger) StreamInfo(*meshes.EventsResponse) {
-	s.log.Info("Sending event response")
-}
