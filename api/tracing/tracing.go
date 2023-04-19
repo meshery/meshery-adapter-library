@@ -17,16 +17,12 @@ package tracing
 import (
 	"context"
 
-	//"go.opentelemetry.io/otel"
-	//"go.opentelemetry.io/otel/exporters/jaeger"
-	//"go.opentelemetry.io/otel/sdk/resource"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/exporters/jaeger"
 	"go.opentelemetry.io/otel/sdk/resource"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 	semconv "go.opentelemetry.io/otel/semconv/v1.17.0"
 	"go.opentelemetry.io/otel/trace"
-	//"go.opentelemetry.io/otel/trace"
 )
 
 type KeyValue struct {
@@ -46,14 +42,14 @@ type handler struct {
 	span     trace.Span
 }
 
-func New(service string, endpoint string) (handler, error) {
+func New(service string, endpoint string) (Handler, error) {
 	if len(endpoint) < 2 {
-		return handler{}, nil
+		return nil, nil
 	}
 
 	provider, err := jaeger.New(jaeger.WithCollectorEndpoint(jaeger.WithEndpoint(endpoint)))
 	if err != nil {
-		return handler{}, err
+		return nil, err
 	}
 
 	tp := sdktrace.NewTracerProvider(
@@ -64,7 +60,7 @@ func New(service string, endpoint string) (handler, error) {
 			semconv.ServiceName(service),
 		)),
 	)
-	return handler{
+	return &handler{
 		provider: tp,
 	}, err
 }
@@ -80,6 +76,7 @@ func (h *handler) Span(ctx context.Context) {
 
 func (h *handler) AddEvent(name string, attrs ...*KeyValue) {
 	kvstore := make([]trace.EventOption, 0)
+	// @TODO still need to fix this portion
 	// for _, attr := range attrs {
 	// kvstore = append(kvstore, trace.WithAttributes(attribute.String(attr.Key, attr.Value)))
 	// }
