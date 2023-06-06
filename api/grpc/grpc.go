@@ -21,24 +21,20 @@
 package grpc
 
 import (
+	"fmt"
 	"net"
 	"time"
 
-	"google.golang.org/grpc/reflection"
-
+	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/recovery"
 	"github.com/layer5io/meshery-adapter-library/adapter"
 	"github.com/layer5io/meshery-adapter-library/api/tracing"
 	"github.com/layer5io/meshery-adapter-library/meshes"
 	"github.com/layer5io/meshkit/utils/events"
-
-	"fmt"
-
-	middleware "github.com/grpc-ecosystem/go-grpc-middleware"
-	grpc_recovery "github.com/grpc-ecosystem/go-grpc-middleware/recovery"
-	otelgrpc "go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc"
-
-	apitrace "go.opentelemetry.io/otel/api/trace"
+	otelgrpc "go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
+	"go.opentelemetry.io/otel"
+	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/reflection"
 )
 
 // Service object holds all the information about the server parameters.
@@ -64,37 +60,34 @@ func panicHandler(r interface{}) error {
 }
 
 // Start starts grpc server.
-func Start(s *Service, tr tracing.Handler) error {
+func Start(s *Service, _ tracing.Handler) error {
 	address := fmt.Sprintf(":%s", s.Port)
 	listener, err := net.Listen("tcp", address)
 	if err != nil {
 		return ErrGrpcListener(err)
 	}
 
-	middlewares := middleware.ChainUnaryServer(
-		grpc_recovery.UnaryServerInterceptor(
-			grpc_recovery.WithRecoveryHandler(panicHandler),
-		),
+	tp := sdktrace.NewTracerProvider(
+		sdktrace.WithSampler(sdktrace.AlwaysSample()),
 	)
-	if tr != nil {
-		middlewares = middleware.ChainUnaryServer(
-			otelgrpc.UnaryServerInterceptor(tr.Tracer(s.Name).(apitrace.Tracer)),
-		)
-	}
+
+	otel.SetTracerProvider(tp)
 
 	server := grpc.NewServer(
-		grpc.UnaryInterceptor(middlewares),
+		grpc.ChainUnaryInterceptor(
+			otelgrpc.UnaryServerInterceptor(),
+			recovery.UnaryServerInterceptor(recovery.WithRecoveryHandler(panicHandler)),
+		),
 	)
+
 	// Reflection is enabled to simplify accessing the gRPC service using gRPCurl, e.g.
 	//    grpcurl --plaintext localhost:10002 meshes.MeshService.SupportedOperations
 	// If the use of reflection is not desirable, the parameters '-import-path ./meshes/ -proto meshops.proto' have
 	//    to be added to each grpcurl request, with the appropriate import path.
 	reflection.Register(server)
 
-	//Register Proto
 	meshes.RegisterMeshServiceServer(server, s)
 
-	// Start serving requests
 	if err = server.Serve(listener); err != nil {
 		return ErrGrpcServer(err)
 	}
