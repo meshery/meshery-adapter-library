@@ -14,6 +14,7 @@ import (
 	"time"
 
 	backoff "github.com/cenkalti/backoff/v4"
+	"github.com/layer5io/meshkit/logger"
 	meshmodel "github.com/layer5io/meshkit/models/meshmodel/core/v1alpha1"
 	"github.com/layer5io/meshkit/models/oam/core/v1alpha1"
 	"github.com/layer5io/meshkit/utils"
@@ -47,6 +48,7 @@ type OAMRegistrant struct {
 
 	// OAMHTTPRegistry is the address of an OAM registry
 	OAMHTTPRegistry string
+	Log             logger.Logger
 }
 
 // OAMRegistrantDefinitionPath - Structure for configuring registrant paths
@@ -186,7 +188,7 @@ type StaticCompConfig struct {
 }
 
 // CreateComponents generates components for a given configuration and stores them.
-func CreateComponents(scfg StaticCompConfig) error {
+func CreateComponents(scfg StaticCompConfig, logger logger.Handler) error {
 	meshmodeldirName, _ := getLatestDirectory(scfg.MeshModelPath)
 	meshmodelDir := filepath.Join(scfg.MeshModelPath, scfg.DirName)
 	_, err := os.Stat(meshmodelDir)
@@ -216,14 +218,14 @@ func CreateComponents(scfg StaticCompConfig) error {
 		schema := comp.Schemas[i]
 		name := getNameFromWorkloadDefinition([]byte(def))
 		meshmodelFileName := name + "_meshmodel.json"
-		err = createMeshModelComponentsFromLegacyOAMComponents([]byte(def), schema, filepath.Join(meshmodelDir, meshmodelFileName), scfg.MeshModelName, scfg.MeshModelConfig)
+		err = createMeshModelComponentsFromLegacyOAMComponents([]byte(def), schema, filepath.Join(meshmodelDir, meshmodelFileName), scfg.MeshModelName, scfg.MeshModelConfig, logger)
 		if err != nil {
 			return ErrCreatingComponents(err)
 		}
 	}
 	//For Meshmodel components
 	if meshmodeldirName != "" {
-		err = copyCoreComponentsToNewVersion(filepath.Join(scfg.MeshModelPath, meshmodeldirName), filepath.Join(scfg.MeshModelPath, scfg.DirName), scfg.DirName, true)
+		err = copyCoreComponentsToNewVersion(filepath.Join(scfg.MeshModelPath, meshmodeldirName), filepath.Join(scfg.MeshModelPath, scfg.DirName), scfg.DirName, true, logger)
 		if err != nil {
 			return ErrCreatingComponents(err)
 		}
@@ -275,12 +277,12 @@ func convertOAMtoMeshmodel(def []byte, schema string, isCore bool, meshmodelname
 }
 
 // TODO: After OAM is completely removed from meshkit, replace this with fetching native meshmodel components. For now, reuse OAM functions
-func createMeshModelComponentsFromLegacyOAMComponents(def []byte, schema string, path string, meshmodel string, mcfg MeshModelConfig) (err error) {
+func createMeshModelComponentsFromLegacyOAMComponents(def []byte, schema string, path string, meshmodel string, mcfg MeshModelConfig, logger logger.Handler) (err error) {
 	byt, err := convertOAMtoMeshmodel(def, schema, false, meshmodel, mcfg)
 	if err != nil {
 		return err
 	}
-	err = writeToFile(path, byt, true)
+	err = writeToFile(path, byt, true, logger)
 	return
 }
 
@@ -289,7 +291,7 @@ func createMeshModelComponentsFromLegacyOAMComponents(def []byte, schema string,
 // Every time that managed components are generated for a new infrastructure version (e.g.  service mesh version),
 // the latest core components are to be replicated (copied) and assigned the latest infrastructure version.
 // The schema of the replicated core components can be augmented or left as-is depending upon the need to do so.
-func copyCoreComponentsToNewVersion(fromDir string, toDir string, newVersion string, isMeshmodel bool) error {
+func copyCoreComponentsToNewVersion(fromDir string, toDir string, newVersion string, isMeshmodel bool, logger logger.Handler) error {
 	files, err := os.ReadDir(fromDir)
 	if err != nil {
 		return err
@@ -317,7 +319,7 @@ func copyCoreComponentsToNewVersion(fromDir string, toDir string, newVersion str
 					return err
 				}
 			}
-			err = writeToFile(filepath.Join(toDir, f.Name()), content, false)
+			err = writeToFile(filepath.Join(toDir, f.Name()), content, false, logger)
 			if err != nil {
 				return err
 			}
@@ -365,23 +367,30 @@ func getLatestDirectory(path string) (string, error) {
 }
 
 // create a file with this filename and stuff the string
-func writeToFile(path string, data []byte, force bool) error {
+func writeToFile(path string, data []byte, force bool, logger logger.Handler) error {
 	_, err := os.Stat(path)
-	if err != nil && !os.IsNotExist(err) { //There some other error than non existence of file
+	if err != nil && !os.IsNotExist(err) {
+		logger.Errorf("Error while checking file existence: %v", err)
 		return err
 	}
 
-	if err == nil { //file already exists
-		if !force { // Dont override existing file, skip it
-			fmt.Println("File already exists,skipping...")
+	if err == nil {
+		if !force {
+			logger.Info("File already exists, skipping...")
 			return nil
 		}
-		err := os.Remove(path) //Remove the existing file, before overriding it
+		err := os.Remove(path)
 		if err != nil {
+			logger.Errorf("Error removing existing file: %v", err)
 			return err
 		}
 	}
-	return os.WriteFile(path, data, 0666)
+
+	err = os.WriteFile(path, data, 0666)
+	if err != nil {
+		logger.Errorf("Error writing to file: %v", err)
+	}
+	return err
 }
 
 // getNameFromWorkloadDefinition takes out name from workload definition

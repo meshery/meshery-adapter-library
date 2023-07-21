@@ -47,7 +47,7 @@ func NewViper(opts Options) (config.Handler, error) {
 		v.SetDefault(adapter.OperationsKey, opts.Operations)
 	}
 
-	if err := v.WriteConfig(); err != nil {
+	if err := v.SafeWriteConfig(); err != nil {
 		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
 			// Config file not found; ignore error
 			// Hack until viper issue #433 is fixed
@@ -62,7 +62,7 @@ func NewViper(opts Options) (config.Handler, error) {
 		}
 	}
 
-	if err := viper.ReadInConfig(); err != nil {
+	if err := v.ReadInConfig(); err != nil {
 		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
 			// Config file not found; ignore error
 			// Hack until viper issue #433 is fixed
