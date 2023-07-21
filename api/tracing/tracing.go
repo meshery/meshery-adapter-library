@@ -18,6 +18,7 @@ import (
 	"context"
 
 	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/exporters/jaeger"
 	"go.opentelemetry.io/otel/sdk/resource"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
@@ -76,10 +77,9 @@ func (h *handler) Span(ctx context.Context) {
 
 func (h *handler) AddEvent(name string, attrs ...*KeyValue) {
 	kvstore := make([]trace.EventOption, 0)
-	// @TODO still need to fix this portion
-	// for _, attr := range attrs {
-	// kvstore = append(kvstore, trace.WithAttributes(attribute.String(attr.Key, attr.Value)))
-	// }
+	for _, attr := range attrs {
+		kvstore = append(kvstore, trace.WithAttributes(attribute.String(attr.Key, attr.Value)))
+	}
 
 	h.span.AddEvent(name, kvstore...)
 }

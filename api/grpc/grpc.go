@@ -21,6 +21,7 @@
 package grpc
 
 import (
+	"context"
 	"fmt"
 	"net"
 	"time"
@@ -40,8 +41,9 @@ import (
 // Service object holds all the information about the server parameters.
 type Service struct {
 	Name      string    `json:"name"`
-	Type      string    `json:"type"`
+	Host      string    `json:"host"`
 	Port      string    `json:"port"`
+	Type      string    `json:"type"`
 	Version   string    `json:"version"`
 	GitSHA    string    `json:"gitsha"`
 	StartedAt time.Time `json:"startedat"`
@@ -61,7 +63,8 @@ func panicHandler(r interface{}) error {
 
 // Start starts grpc server.
 func Start(s *Service, _ tracing.Handler) error {
-	address := fmt.Sprintf(":%s", s.Port)
+	address := fmt.Sprintf("%s:%s", s.Host, s.Port)
+
 	listener, err := net.Listen("tcp", address)
 	if err != nil {
 		return ErrGrpcListener(err)
@@ -87,6 +90,14 @@ func Start(s *Service, _ tracing.Handler) error {
 	reflection.Register(server)
 
 	meshes.RegisterMeshServiceServer(server, s)
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	go func() {
+		<-ctx.Done()
+		server.GracefulStop()
+	}()
 
 	if err = server.Serve(listener); err != nil {
 		return ErrGrpcServer(err)

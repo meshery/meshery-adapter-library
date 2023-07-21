@@ -128,7 +128,7 @@ func ErrOpenOAMRefFile(err error) error {
 
 // ErrJSONMarshal is the error for json marhal failure
 func ErrJSONMarshal(err error) error {
-	return errors.New(ErrOAMRetryCode, errors.Alert, []string{"error marshal JSON: %s"}, []string{err.Error()}, []string{}, []string{})
+	return errors.New(ErrJSONMarshalCode, errors.Alert, []string{"error marshal JSON: %s"}, []string{err.Error()}, []string{}, []string{})
 }
 
 func ErrOAMRetry(err error) error {
