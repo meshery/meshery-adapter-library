@@ -23,6 +23,7 @@ package grpc
 import (
 	"fmt"
 	"net"
+	"runtime/debug"
 	"time"
 
 	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/recovery"
@@ -41,6 +42,7 @@ import (
 type Service struct {
 	Name      string    `json:"name"`
 	Type      string    `json:"type"`
+	Host      string    `json:"host"`
 	Port      string    `json:"port"`
 	Version   string    `json:"version"`
 	GitSHA    string    `json:"gitsha"`
@@ -54,14 +56,19 @@ type Service struct {
 }
 
 // panicHandler is the handler function to handle panic errors.
+// panicHandler is the handler function to handle panic errors.
 func panicHandler(r interface{}) error {
-	fmt.Println("600 Error")
+	fmt.Printf("Panic recovered: %v\n", r)
+	debug.PrintStack() // This will print the call stack at the point of the panic.
 	return ErrPanic(r)
 }
 
-// Start starts grpc server.
+// Start starts the gRPC server and listens for incoming requests.
+// It takes as parameters a Service, which holds information about the server,
+// and a tracing.Handler for tracing the requests.
+// The function returns an error if it fails to start the server or listen to the provided address.
 func Start(s *Service, _ tracing.Handler) error {
-	address := fmt.Sprintf(":%s", s.Port)
+	address := fmt.Sprintf("%s:%s", s.Host, s.Port) // Changed this line
 	listener, err := net.Listen("tcp", address)
 	if err != nil {
 		return ErrGrpcListener(err)
