@@ -9,9 +9,9 @@ import (
 	"time"
 
 	backoff "github.com/cenkalti/backoff/v4"
-	"github.com/layer5io/meshkit/models/meshmodel"
 	"github.com/layer5io/meshkit/models/meshmodel/core/types"
 	"github.com/layer5io/meshkit/models/meshmodel/core/v1alpha1"
+	"github.com/layer5io/meshkit/models/meshmodel/registry"
 )
 
 // MeshModelRegistrantDefinitionPath - Structure for configuring registrant paths
@@ -50,15 +50,15 @@ func NewMeshModelRegistrant(paths []MeshModelRegistrantDefinitionPath, HTTPRegis
 // Register function is a blocking function
 func (or *MeshModelRegistrant) Register(ctxID string) error {
 	for _, dpath := range or.Paths {
-		var mrd meshmodel.MeshModelRegistrantData
+		var mrd registry.MeshModelRegistrantData
 		definition, err := os.Open(dpath.EntityDefintionPath)
 		if err != nil {
 			return ErrOpenOAMDefintionFile(err)
 		}
-		mrd.Host = meshmodel.Host{
-			Hostname:  dpath.Host,
-			Port:      dpath.Port,
-			ContextID: ctxID,
+		mrd.Host = registry.Host{
+			Hostname: dpath.Host,
+			Port:     dpath.Port,
+			Metadata: ctxID,
 		}
 		mrd.EntityType = dpath.Type
 		switch dpath.Type {
