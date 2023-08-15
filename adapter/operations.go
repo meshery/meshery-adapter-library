@@ -28,6 +28,10 @@ var (
 
 type Version string
 
+func (v Version) String() string {
+	return string(v)
+}
+
 type Template string
 
 type Service string
@@ -68,6 +72,7 @@ type OperationRequest struct {
 	IsDeleteOperation bool   // If true, the operation specified by OperationName is reverted, i.e. all resources created are deleted.
 	OperationID       string // ID of the operation, if any. This identifies a specific operation invocation.
 	K8sConfigs        []string
+	Version           string // Service mesh version to be installed, defaults to latest version.
 }
 
 type OAMRequest struct {
