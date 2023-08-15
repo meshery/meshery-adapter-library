@@ -58,6 +58,7 @@ func (s *Service) ApplyOperation(ctx context.Context, req *meshes.ApplyRuleReque
 		IsDeleteOperation: req.DeleteOp,
 		OperationID:       req.OperationId,
 		K8sConfigs:        req.KubeConfigs,
+		Version:           req.Version,
 	}
 	err := s.Handler.ApplyOperation(ctx, operation)
 	if err != nil {
