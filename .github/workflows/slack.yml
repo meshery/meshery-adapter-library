@@ -2,7 +2,7 @@ name: Slack Notify on Star
 on: watch
 jobs:
   star-notify:
-    name: Notify Slack on star
+    name: Slack Notify on Star
     runs-on: ubuntu-latest
     steps:
     - name: Get current star count
