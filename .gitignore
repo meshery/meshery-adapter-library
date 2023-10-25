@@ -30,3 +30,4 @@ meshops.proto
 **errorutil_errors_export.json
 
 # End of https://www.toptal.com/developers/gitignore/api/go
+codecov.yml

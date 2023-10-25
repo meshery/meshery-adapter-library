@@ -109,7 +109,7 @@ func (or *OAMRegistrant) Register() error {
 		}
 
 		definitionMap := map[string]interface{}{}
-		if err := json.NewDecoder(definition).Decode(&definitionMap); err != nil {
+		if err = json.NewDecoder(definition).Decode(&definitionMap); err != nil {
 			_ = definition.Close()
 			return ErrJSONMarshal(err)
 		}

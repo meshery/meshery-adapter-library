@@ -1,11 +1,9 @@
-name: Default Meshery Adapter Library Workflow
+name: Default Meshery Adapter Library CI
 
 on:
   push:
     branches:
-      - '**'
-    tags:
-      - 'v*'
+      - 'master'
   pull_request:
     branches:
       - 'master'
@@ -13,26 +11,49 @@ on:
 jobs:
   golangci:
     name: golangci-lint
-    env:
-      ACTIONS_ALLOW_UNSECURE_COMMANDS: true
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-go@v3
+      - uses: actions/checkout@master
+      - uses: actions/setup-go@v4
         with:
           go-version: '1.19'
-          check-latest: true
+          cache: true
+          cache-dependency-path: go.sum
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v3
         with:
-          # Required: the version of golangci-lint is required and must be specified without patch version: we always use the latest patch version.
-          version: v1.52
-
-          # Optional: working directory, useful for monorepos
-          # working-directory: somedir
-
-          # Optional: golangci-lint command line arguments.
-          args: --exclude=G306 
-
-          # Optional: show only new issues if it's a pull request. The default value is `false`.
-          # only-new-issues: true
+          version: latest
+      - name: Run golangci-lint
+        run: make lint
+  tidy:
+    name: tidy
+    needs: [ golangci ]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+      - uses: actions/setup-go@v4
+        with:
+          go-version: '1.19'
+          cache: true
+          cache-dependency-path: go.sum
+      - name: tidy
+        run: make tidy
+  codecov:
+    name: codecov
+    needs: [ tidy ]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+      - uses: actions/setup-go@v4
+        with:
+          go-version: '1.19'
+          cache: true
+          cache-dependency-path: go.sum
+      - name: test
+        run: make test
+      - name: Upload covergae to Codecov
+        if: github.repository == 'meshery/meshery-adapter-library'
+        uses: codecov/codecov-action@v3
+        with:
+          files: ./coverage.out
+          flags: unittests
