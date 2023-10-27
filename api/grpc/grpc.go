@@ -27,12 +27,9 @@ import (
 
 	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/recovery"
 	"github.com/layer5io/meshery-adapter-library/adapter"
-	"github.com/layer5io/meshery-adapter-library/api/tracing"
 	"github.com/layer5io/meshery-adapter-library/meshes"
 	"github.com/layer5io/meshkit/utils/events"
-	otelgrpc "go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
-	"go.opentelemetry.io/otel"
-	sdktrace "go.opentelemetry.io/otel/sdk/trace"
+	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 )
@@ -60,18 +57,12 @@ func panicHandler(r interface{}) error {
 }
 
 // Start starts grpc server.
-func Start(s *Service, _ tracing.Handler) error {
+func Start(s *Service) error {
 	address := fmt.Sprintf(":%s", s.Port)
 	listener, err := net.Listen("tcp", address)
 	if err != nil {
 		return ErrGrpcListener(err)
 	}
-
-	tp := sdktrace.NewTracerProvider(
-		sdktrace.WithSampler(sdktrace.AlwaysSample()),
-	)
-
-	otel.SetTracerProvider(tp)
 
 	server := grpc.NewServer(
 		grpc.ChainUnaryInterceptor(

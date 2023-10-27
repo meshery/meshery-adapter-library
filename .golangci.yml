@@ -20,9 +20,8 @@ linters-settings:
     enabled: true
     check-shadowing: true
     tests: true
-  golint:
+  gofmt:
     enabled: true
-    min-confidence: 0.8
   unused:
     enabled: true
     check-exported: true
@@ -47,7 +46,7 @@ linters:
     - goconst
     - gocritic
     - govet
-    - golint
+    - gofmt
     - unused
     - cyclop
     - scopelint

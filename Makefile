@@ -9,7 +9,6 @@ tidy:
 
 verify:
 	go mod verify
-	go vet ./...
 
 test:
 	go test --short ./... -race -coverprofile=coverage.txt -covermode=atomic
