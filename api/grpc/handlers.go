@@ -23,14 +23,6 @@ import (
 	"context"
 )
 
-// // CreateMeshInstance is the handler function for the method CreateMeshInstance.
-// func (s *Service) CreateMeshInstance(ctx context.Context, req *meshes.CreateMeshInstanceRequest) (*meshes.CreateMeshInstanceResponse, error) {
-// 	err := s.Handler.CreateInstance(&s.Channel)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-// 	return &meshes.CreateMeshInstanceResponse{}, nil
-// }
 
 // MeshName is the handler function for the method MeshName.
 func (s *Service) MeshName(ctx context.Context, req *meshes.MeshNameRequest) (*meshes.MeshNameResponse, error) {
