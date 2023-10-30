@@ -19,30 +19,27 @@ import (
 )
 
 const (
-	ErrGetNameCode              = "1000"
-	ErrCreateInstanceCode       = "1001"
-	ErrMeshConfigCode           = "1002"
-	ErrValidateKubeconfigCode   = "1003"
-	ErrClientConfigCode         = "1004"
-	ErrClientSetCode            = "1005"
-	ErrStreamEventCode          = "1006"
-	ErrOpInvalidCode            = "1007"
-	ErrApplyOperationCode       = "1008"
-	ErrListOperationsCode       = "1009"
-	ErrNewSmiCode               = "1010"
-	ErrRunSmiCode               = "1011"
-	ErrNoResponseCode           = "1011"
-	ErrOpenOAMDefintionFileCode = "1013"
-	ErrOpenOAMRefFileCode       = "1014"
-	ErrJSONMarshalCode          = "1015"
-	ErrOAMRetryCode             = "1016"
-	ErrSmiInitCode              = "1007"
-	ErrInstallSmiCode           = "1008"
-	ErrConnectSmiCode           = "1009"
-	ErrDeleteSmiCode            = "1010"
-	ErrGenerateComponentsCode   = "1011"
-	ErrAuthInfosInvalidMsgCode  = "1012"
-	ErrCreatingComponentsCode   = "1013"
+	ErrGetNameCode             = "1000"
+	ErrCreateInstanceCode      = "1001"
+	ErrMeshConfigCode          = "1002"
+	ErrValidateKubeconfigCode  = "1003"
+	ErrClientConfigCode        = "1004"
+	ErrClientSetCode           = "1005"
+	ErrStreamEventCode         = "1006"
+	ErrOpInvalidCode           = "1007"
+	ErrApplyOperationCode      = "1008"
+	ErrListOperationsCode      = "1009"
+	ErrNewSmiCode              = "1010"
+	ErrRunSmiCode              = "1011"
+	ErrNoResponseCode          = "1011"
+	ErrJSONMarshalCode         = "1015"
+	ErrSmiInitCode             = "1007"
+	ErrInstallSmiCode          = "1008"
+	ErrConnectSmiCode          = "1009"
+	ErrDeleteSmiCode           = "1010"
+	ErrGenerateComponentsCode  = "1011"
+	ErrAuthInfosInvalidMsgCode = "1012"
+	ErrCreatingComponentsCode  = "1013"
 )
 
 var (
@@ -114,25 +111,6 @@ func ErrConnectSmi(err error) error {
 // ErrDeleteSmi is the error for deleting smi tool
 func ErrDeleteSmi(err error) error {
 	return errors.New(ErrDeleteSmiCode, errors.Alert, []string{"Error deleting smi tool: %s"}, []string{err.Error()}, []string{}, []string{})
-}
-
-// ErrOpenOAMDefintionFile is the error for opening OAM Definition file
-func ErrOpenOAMDefintionFile(err error) error {
-	return errors.New(ErrOpenOAMDefintionFileCode, errors.Alert, []string{"error opening OAM Definition File: %s"}, []string{err.Error()}, []string{}, []string{})
-}
-
-// ErrOpenOAMRefFile is the error for opening OAM Schema Ref file
-func ErrOpenOAMRefFile(err error) error {
-	return errors.New(ErrOpenOAMRefFileCode, errors.Alert, []string{"error opening OAM Schema Ref File: %s"}, []string{err.Error()}, []string{}, []string{})
-}
-
-// ErrJSONMarshal is the error for json marhal failure
-func ErrJSONMarshal(err error) error {
-	return errors.New(ErrOAMRetryCode, errors.Alert, []string{"error marshal JSON: %s"}, []string{err.Error()}, []string{}, []string{})
-}
-
-func ErrOAMRetry(err error) error {
-	return errors.New(ErrOAMRetryCode, errors.Alert, []string{"error marshal JSON: %s"}, []string{err.Error()}, []string{}, []string{})
 }
 
 // will be depracated
