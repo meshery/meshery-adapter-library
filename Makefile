@@ -1,4 +1,7 @@
-.PHONY: lint tidy verify
+.PHONY: check
+check: lint
+check: tidy
+check: verify
 
 
 lint:

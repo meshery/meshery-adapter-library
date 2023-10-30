@@ -33,11 +33,8 @@ type Handler interface {
 	// CreateInstance(*chan interface{}) error                 // Instantiates clients used in deploying and managing mesh instances, e.g. Kubernetes clients.
 	ApplyOperation(context.Context, OperationRequest) error // Applies an adapter operation. This is adapter specific and needs to be implemented by each adapter.
 	ListOperations() (Operations, error)                    // List all operations an adapter supports.
-	ProcessOAM(ctx context.Context, srv OAMRequest) (string, error)
-
-	// Need not implement this method and can be reused
-	StreamErr(*meshes.EventsResponse, error) // Streams an error event, e.g. to a channel
-	StreamInfo(*meshes.EventsResponse)       // Streams an informational event, e.g. to a channel
+	StreamErr(*meshes.EventsResponse, error)                // Streams an error event, e.g. to a channel
+	StreamInfo(*meshes.EventsResponse)                      // Streams an informational event, e.g. to a channel
 }
 
 // Adapter contains all handlers, channels, clients, and other parameters for an adapter.
