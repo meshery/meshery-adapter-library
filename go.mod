@@ -5,6 +5,7 @@ go 1.21
 replace github.com/kudobuilder/kuttl => github.com/layer5io/kuttl v0.4.1-0.20200806180306-b7e46afd657f
 
 require (
+	github.com/cenkalti/backoff/v4 v4.2.1
 	github.com/grpc-ecosystem/go-grpc-middleware/v2 v2.0.1
 	github.com/layer5io/learn-layer5/smi-conformance v0.0.0-20210317075357-06b4f88b3e34
 	github.com/layer5io/meshkit v0.6.77

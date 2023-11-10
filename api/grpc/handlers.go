@@ -23,6 +23,7 @@ import (
 	"context"
 )
 
+
 // MeshName is the handler function for the method MeshName.
 func (s *Service) MeshName(ctx context.Context, req *meshes.MeshNameRequest) (*meshes.MeshNameResponse, error) {
 	return &meshes.MeshNameResponse{
@@ -112,6 +113,21 @@ func (s *Service) StreamEvents(ctx *meshes.EventsRequest, srv meshes.MeshService
 	}
 }
 
+// ProcessOAM is the handler function for the method ProcessOAM
+func (s *Service) ProcessOAM(ctx context.Context, srv *meshes.ProcessOAMRequest) (*meshes.ProcessOAMResponse, error) {
+	operation := adapter.OAMRequest{
+		Username:   srv.Username,
+		DeleteOp:   srv.DeleteOp,
+		OamComps:   srv.OamComps,
+		OamConfig:  srv.OamConfig,
+		K8sConfigs: srv.KubeConfigs,
+	}
+
+	msg, err := s.Handler.ProcessOAM(ctx, operation)
+	return &meshes.ProcessOAMResponse{Message: msg}, err
+}
+
+// ProcessOAM is the handler function for the method ProcessOAM
 func (s *Service) MeshVersions(context.Context, *meshes.MeshVersionsRequest) (*meshes.MeshVersionsResponse, error) {
 	versions := make([]string, 0)
 	return &meshes.MeshVersionsResponse{
@@ -119,6 +135,7 @@ func (s *Service) MeshVersions(context.Context, *meshes.MeshVersionsRequest) (*m
 	}, nil
 }
 
+// ProcessOAM is the handler function for the method ProcessOAM
 func (s *Service) ComponentInfo(context.Context, *meshes.ComponentInfoRequest) (*meshes.ComponentInfoResponse, error) {
 	err := s.Handler.GetComponentInfo(s)
 	if err != nil {
