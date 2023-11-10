@@ -8,7 +8,7 @@ require (
 	github.com/cenkalti/backoff/v4 v4.2.1
 	github.com/grpc-ecosystem/go-grpc-middleware/v2 v2.0.1
 	github.com/layer5io/learn-layer5/smi-conformance v0.0.0-20210317075357-06b4f88b3e34
-	github.com/layer5io/meshkit v0.6.77
+	github.com/layer5io/meshkit v0.6.84
 	github.com/layer5io/service-mesh-performance v0.3.4
 	github.com/spf13/viper v1.17.0
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.45.0
