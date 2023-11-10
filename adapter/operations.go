@@ -75,6 +75,14 @@ type OperationRequest struct {
 	Version           string // Service mesh version to be installed, defaults to latest version.
 }
 
+type OAMRequest struct {
+	Username   string
+	DeleteOp   bool
+	OamComps   []string
+	OamConfig  string
+	K8sConfigs []string
+}
+
 // List all operations an adapter supports.
 func (h *Adapter) ListOperations() (Operations, error) {
 	operations := make(Operations)

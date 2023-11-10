@@ -48,6 +48,15 @@ func (s *adapterLogger) GetComponentInfo(svc interface{}) error {
 	return s.next.GetComponentInfo(svc)
 }
 
+// func (s *adapterLogger) CreateInstance(c *chan interface{}) error {
+// 	s.log.Info("Creating instance")
+// 	err := s.next.CreateInstance(c)
+// 	if err != nil {
+// 		s.log.Error(err)
+// 	}
+// 	return err
+// }
+
 func (s *adapterLogger) ApplyOperation(ctx context.Context, op OperationRequest) error {
 	s.log.Info("Applying operation ", op.OperationName)
 	err := s.next.ApplyOperation(ctx, op)
@@ -55,6 +64,17 @@ func (s *adapterLogger) ApplyOperation(ctx context.Context, op OperationRequest)
 		s.log.Error(err)
 	}
 	return err
+}
+
+// ProcessOAM wraps the Handler's ProcessOAM method along with relevant logging
+func (s *adapterLogger) ProcessOAM(ctx context.Context, oamRequest OAMRequest) (string, error) {
+	s.log.Info("Process OAM components")
+	msg, err := s.next.ProcessOAM(ctx, oamRequest)
+	if err != nil {
+		s.log.Error(err)
+	}
+
+	return msg, err
 }
 
 func (s *adapterLogger) ListOperations() (Operations, error) {
