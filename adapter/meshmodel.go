@@ -32,7 +32,7 @@ type MeshModelRegistrant struct {
 	HTTPRegistry string
 }
 
-// NewOAMRegistrant returns an instance of OAMRegistrant
+// NewMeshModelRegistrant returns an instance of NewMeshModelRegistrant
 func NewMeshModelRegistrant(paths []MeshModelRegistrantDefinitionPath, HTTPRegistry string) *MeshModelRegistrant {
 	return &MeshModelRegistrant{
 		Paths:        paths,
