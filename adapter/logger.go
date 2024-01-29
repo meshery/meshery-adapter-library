@@ -68,7 +68,7 @@ func (s *adapterLogger) ApplyOperation(ctx context.Context, op OperationRequest)
 
 // ProcessOAM wraps the Handler's ProcessOAM method along with relevant logging
 func (s *adapterLogger) ProcessOAM(ctx context.Context, oamRequest OAMRequest) (string, error) {
-	s.log.Info("Process OAM components")
+	s.log.Info("Process model components")
 	msg, err := s.next.ProcessOAM(ctx, oamRequest)
 	if err != nil {
 		s.log.Error(err)
