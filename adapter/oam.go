@@ -67,10 +67,11 @@ func CreateComponents(scfg StaticCompConfig) error {
 		return ErrCreatingComponents(errors.New("no components found"))
 	}
 
-	for _, def := range comp.Definitions {
+	for i, def := range comp.Definitions {
+		schema := comp.Schemas[i]
 		name := getNameFromWorkloadDefinition([]byte(def))
 		meshmodelFileName := name + "_meshmodel.json"
-		err = createMeshModelComponentsFromLegacyOAMComponents([]byte(def), filepath.Join(meshmodelDir, meshmodelFileName), scfg.MeshModelName, scfg.MeshModelConfig)
+		err = createMeshModelComponentsFromLegacyOAMComponents([]byte(def), schema, filepath.Join(meshmodelDir, meshmodelFileName), scfg.MeshModelName, scfg.MeshModelConfig)
 		if err != nil {
 			return ErrCreatingComponents(err)
 		}
@@ -84,7 +85,7 @@ func CreateComponents(scfg StaticCompConfig) error {
 	}
 	return nil
 }
-func convertOAMtoMeshmodel(def []byte, isCore bool, meshmodelname string, mcfg MeshModelConfig) ([]byte, error) {
+func convertOAMtoMeshmodel(def []byte, schema string, isCore bool, meshmodelname string, mcfg MeshModelConfig) ([]byte, error) {
 	var oamdef v1alpha1.WorkloadDefinition
 	err := json.Unmarshal(def, &oamdef)
 	if err != nil {
@@ -106,13 +107,13 @@ func convertOAMtoMeshmodel(def []byte, isCore bool, meshmodelname string, mcfg M
 	}
 	c.Metadata = mcfg.Metadata
 	if isCore {
-		c.Metadata["apiVersion"] = oamdef.APIVersion
-		c.Metadata["kind"] = oamdef.ObjectMeta.Name
+		c.Component.TypeMeta.Version = oamdef.APIVersion
+		c.Component.TypeMeta.Kind = oamdef.ObjectMeta.Name
 		c.Model.Version = oamdef.Spec.Metadata["version"]
 		c.Model.Name = meshmodelname
 	} else {
-		c.Metadata["apiVersion"] = oamdef.Spec.Metadata["k8sAPIVersion"]
-		c.Metadata["kind"] = oamdef.Spec.Metadata["k8sKind"]
+		c.Component.TypeMeta.Version = oamdef.Spec.Metadata["k8sAPIVersion"]
+		c.Component.TypeMeta.Kind = oamdef.Spec.Metadata["k8sKind"]
 		c.Model.Version = oamdef.Spec.Metadata["meshVersion"]
 		c.Model.Name = oamdef.Spec.Metadata["meshName"]
 	}
@@ -120,6 +121,7 @@ func convertOAMtoMeshmodel(def []byte, isCore bool, meshmodelname string, mcfg M
 	c.Model.Name = strings.ToLower(c.Model.Name)
 	c.Model.Metadata = c.Metadata
 	c.Format = meshmodel.JSON
+	c.Component.Schema = schema
 	byt, err := json.Marshal(c)
 	if err != nil {
 		return nil, err
@@ -128,8 +130,8 @@ func convertOAMtoMeshmodel(def []byte, isCore bool, meshmodelname string, mcfg M
 }
 
 // TODO: After OAM is completely removed from meshkit, replace this with fetching native meshmodel components. For now, reuse OAM functions
-func createMeshModelComponentsFromLegacyOAMComponents(def []byte, path string, meshmodel string, mcfg MeshModelConfig) (err error) {
-	byt, err := convertOAMtoMeshmodel(def, false, meshmodel, mcfg)
+func createMeshModelComponentsFromLegacyOAMComponents(def []byte, schema, path, meshmodel string, mcfg MeshModelConfig) (err error) {
+	byt, err := convertOAMtoMeshmodel(def, schema, false, meshmodel, mcfg)
 	if err != nil {
 		return err
 	}
