@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"sync"
 
-	"github.com/layer5io/meshkit/models/meshmodel/core/types"
+	types "github.com/layer5io/meshkit/models/meshmodel/entity"
 )
 
 var (

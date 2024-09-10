@@ -11,7 +11,7 @@ import (
 	"strings"
 	"time"
 
-	meshmodel "github.com/layer5io/meshkit/models/meshmodel/core/v1alpha1"
+	types "github.com/layer5io/meshkit/models/meshmodel/entity"
 	"github.com/layer5io/meshkit/models/oam/core/v1alpha1"
 	"github.com/layer5io/meshkit/utils"
 	"github.com/layer5io/meshkit/utils/manifests"
@@ -91,7 +91,7 @@ func convertOAMtoMeshmodel(def []byte, schema string, isCore bool, meshmodelname
 	if err != nil {
 		return nil, err
 	}
-	var c meshmodel.ComponentDefinition
+	var c types.ComponentDefinition
 	c.Metadata = make(map[string]interface{})
 	metaname := strings.Split(manifests.FormatToReadableString(oamdef.ObjectMeta.Name), ".")
 	var displayname string
@@ -99,7 +99,7 @@ func convertOAMtoMeshmodel(def []byte, schema string, isCore bool, meshmodelname
 		displayname = metaname[0]
 	}
 	c.DisplayName = displayname
-	c.Model.Category = meshmodel.Category{
+	c.Model.Category = types.Category{
 		Name: mcfg.Category,
 	}
 	if mcfg.CategoryMetadata != nil {
@@ -120,7 +120,7 @@ func convertOAMtoMeshmodel(def []byte, schema string, isCore bool, meshmodelname
 	c.Model.DisplayName = manifests.FormatToReadableString(c.Model.Name)
 	c.Model.Name = strings.ToLower(c.Model.Name)
 	c.Model.Metadata = c.Metadata
-	c.Format = meshmodel.JSON
+	c.Format = types.JSON
 	c.Schema = schema
 	byt, err := json.Marshal(c)
 	if err != nil {
@@ -181,7 +181,7 @@ func copyCoreComponentsToNewVersion(fromDir string, toDir string, newVersion str
 	return nil
 }
 func modifyMeshmodelVersionInDefinition(old []byte, newversion string) (new []byte, err error) {
-	var def meshmodel.ComponentDefinition
+	var def types.ComponentDefinition
 	err = json.Unmarshal(old, &def)
 	if err != nil {
 		return
