@@ -18,7 +18,7 @@ linters-settings:
       - prealloc
   govet:
     enabled: true
-    check-shadowing: true
+    shadow: true
     tests: true
   gofmt:
     enabled: true
@@ -56,7 +56,9 @@ linters:
 run:
   timeout: 5m
   enable-cache: true
-  skip-dirs:
+
+issues:
+ exclude-dirs:
     - vendor
     - bundle
     - hack
