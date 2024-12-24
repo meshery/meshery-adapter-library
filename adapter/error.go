@@ -142,7 +142,7 @@ func ErrGenerateComponents(err error) error {
 
 // ErrCreatingComponents
 func ErrCreatingComponents(err error) error {
-	return errors.New(ErrCreatingComponentsCode, errors.Alert, []string{"error creating components"}, []string{err.Error()}, []string{"Invalid Path or version passed in static configuration", "URL passed maybe incorrect", "Version passed maybe incorrect"}, []string{"Make sure to pass correct configuration", "Make sure the URL passed in the configuration is correct", "Make sure a valid version is passed in configuration"})
+	return errors.New(ErrCreatingComponentsCode, errors.Alert, []string{"error creating components"}, []string{err.Error()}, []string{"Invalid Path or version passed in static configuration", " URL passed maybe incorrect", " Version passed maybe incorrect"}, []string{"Make sure to pass correct configuration", " Make sure the URL passed in the configuration is correct", " Make sure a valid version is passed in configuration"})
 }
 
 func ErrRegisterComponents(err error) error {
