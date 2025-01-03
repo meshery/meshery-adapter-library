@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"sync"
 
-	"github.com/layer5io/meshkit/models/meshmodel/core/types"
+	"github.com/layer5io/meshkit/models/meshmodel/entity"
 )
 
 var (
@@ -34,7 +34,7 @@ func RegisterMeshModelComponents(uuid, runtime, host, port string) error {
 			EntityDefintionPath: pathSet.meshmodelDefinitionPath,
 			Host:                host,
 			Port:                portint,
-			Type:                types.ComponentDefinition,
+			Type:                entity.ComponentDefinition,
 		})
 	}
 
