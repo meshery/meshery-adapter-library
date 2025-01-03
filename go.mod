@@ -10,6 +10,7 @@ require (
 	github.com/layer5io/learn-layer5/smi-conformance v0.0.0-20210317075357-06b4f88b3e34
 	github.com/layer5io/meshkit v0.8.0
 	github.com/layer5io/service-mesh-performance v0.3.4
+	github.com/meshery/schemas v0.7.38
 	github.com/spf13/viper v1.18.2
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.46.1
 	golang.org/x/text v0.16.0
@@ -103,7 +104,6 @@ require (
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mattn/go-runewidth v0.0.9 // indirect
 	github.com/mattn/go-sqlite3 v1.14.17 // indirect
-	github.com/meshery/schemas v0.7.38 // indirect
 	github.com/mitchellh/copystructure v1.2.0 // indirect
 	github.com/mitchellh/go-wordwrap v1.0.1 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
