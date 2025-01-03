@@ -11,11 +11,11 @@ import (
 	"strings"
 	"time"
 
-	meshmodel "github.com/layer5io/meshkit/models/meshmodel/core/v1beta1"
 	"github.com/layer5io/meshkit/models/oam/core/v1alpha1"
 	"github.com/layer5io/meshkit/utils"
 	"github.com/layer5io/meshkit/utils/manifests"
 	"github.com/meshery/schemas/models/v1beta1/component"
+	"github.com/meshery/schemas/models/v1beta1/category"
 )
 
 var (
@@ -92,15 +92,17 @@ func convertOAMtoMeshmodel(def []byte, schema string, isCore bool, meshmodelname
 	if err != nil {
 		return nil, err
 	}
-	var c meshmodel.ComponentDefinition
-	c.Metadata = make(map[string]interface{})
+	var c component.ComponentDefinition
+//	c.Metadata = make(map[string]interface{})
+	c.Metadata = component.ComponentDefinition_Metadata{}
+
 	metaname := strings.Split(manifests.FormatToReadableString(oamdef.ObjectMeta.Name), ".")
 	var displayname string
 	if len(metaname) > 0 {
 		displayname = metaname[0]
 	}
 	c.DisplayName = displayname
-	c.Model.Category = meshmodel.Category{
+	c.Model.Category = category.CategoryDefinition{
 		Name: mcfg.Category,
 	}
 	if mcfg.CategoryMetadata != nil {
@@ -108,21 +110,21 @@ func convertOAMtoMeshmodel(def []byte, schema string, isCore bool, meshmodelname
 	}
 	c.Metadata = mcfg.Metadata
 	if isCore {
-		c.APIVersion = oamdef.APIVersion
-		c.Kind = oamdef.ObjectMeta.Name
+		c.Version = oamdef.APIVersion
+		c.Component.Kind = oamdef.ObjectMeta.Name
 		c.Model.Version = oamdef.Spec.Metadata["version"]
 		c.Model.Name = meshmodelname
 	} else {
-		c.APIVersion = oamdef.Spec.Metadata["k8sAPIVersion"]
-		c.Kind = oamdef.Spec.Metadata["k8sKind"]
+		c.Version = oamdef.Spec.Metadata["k8sAPIVersion"]
+		c.Component.Kind = oamdef.Spec.Metadata["k8sKind"]
 		c.Model.Version = oamdef.Spec.Metadata["meshVersion"]
 		c.Model.Name = oamdef.Spec.Metadata["meshName"]
 	}
 	c.Model.DisplayName = manifests.FormatToReadableString(c.Model.Name)
 	c.Model.Name = strings.ToLower(c.Model.Name)
-	c.Model.Metadata = c.Metadata
-	c.Format = meshmodel.JSON
-	c.Schema = schema
+	c.Model.Metadata = c.Model.Metadata
+	c.Format = component.JSON
+	c.Component.Schema = schema
 	byt, err := json.Marshal(c)
 	if err != nil {
 		return nil, err
