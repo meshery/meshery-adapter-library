@@ -11,6 +11,9 @@ import (
 	backoff "github.com/cenkalti/backoff/v4"
 	"github.com/layer5io/meshkit/models/meshmodel/entity"
 	"github.com/layer5io/meshkit/models/meshmodel/core/v1alpha1"
+	"github.com/meshery/schemas/models/v1beta1/component"
+	"github.com/layer5io/meshkit/models/meshmodel/core/v1beta1"
+	
 	"github.com/layer5io/meshkit/models/meshmodel/registry"
 )
 
@@ -63,7 +66,7 @@ func (or *MeshModelRegistrant) Register(ctxID string) error {
 		mrd.EntityType = dpath.Type
 		switch dpath.Type {
 		case entity.ComponentDefinition:
-			var cd v1alpha1.ComponentDefinition
+			var cd component.ComponentDefinition
 			if err := json.NewDecoder(definition).Decode(&cd); err != nil {
 				_ = definition.Close()
 				return ErrJSONMarshal(err)
