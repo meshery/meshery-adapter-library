@@ -15,6 +15,7 @@ import (
 	"github.com/layer5io/meshkit/models/oam/core/v1alpha1"
 	"github.com/layer5io/meshkit/utils"
 	"github.com/layer5io/meshkit/utils/manifests"
+	"github.com/meshery/schemas/models/v1beta1/component"
 )
 
 var (
@@ -181,7 +182,7 @@ func copyCoreComponentsToNewVersion(fromDir string, toDir string, newVersion str
 	return nil
 }
 func modifyMeshmodelVersionInDefinition(old []byte, newversion string) (new []byte, err error) {
-	var def meshmodel.ComponentDefinition
+	var def component.ComponentDefinition
 	err = json.Unmarshal(old, &def)
 	if err != nil {
 		return

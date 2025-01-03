@@ -11,6 +11,7 @@ import (
 	backoff "github.com/cenkalti/backoff/v4"
 	"github.com/layer5io/meshkit/models/meshmodel/entity"
 	"github.com/meshery/schemas/models/v1beta1/component"
+	"github.com/layer5io/meshkit/models/meshmodel/core/v1beta1"
 	
 	"github.com/layer5io/meshkit/models/meshmodel/registry"
 )
