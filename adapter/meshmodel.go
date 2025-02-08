@@ -9,8 +9,9 @@ import (
 	"time"
 
 	backoff "github.com/cenkalti/backoff/v4"
-	"github.com/layer5io/meshkit/models/meshmodel/core/types"
-	"github.com/layer5io/meshkit/models/meshmodel/core/v1alpha1"
+	"github.com/layer5io/meshkit/models/meshmodel/entity"
+	"github.com/meshery/schemas/models/v1beta1/component"
+
 	"github.com/layer5io/meshkit/models/meshmodel/registry"
 )
 
@@ -19,7 +20,7 @@ type MeshModelRegistrantDefinitionPath struct {
 	// EntityDefinitionPath holds the path for Entity Definition file
 	EntityDefintionPath string
 
-	Type types.CapabilityType
+	Type entity.EntityType
 	// Host is the address of the gRPC host capable of processing the request
 	Host string
 	Port int
@@ -55,15 +56,15 @@ func (or *MeshModelRegistrant) Register(ctxID string) error {
 		if err != nil {
 			return ErrOpenOAMDefintionFile(err)
 		}
-		mrd.Host = registry.Host{
+		mrd.Connection = registry.Host{
 			Hostname: dpath.Host,
 			Port:     dpath.Port,
 			Metadata: ctxID,
 		}
 		mrd.EntityType = dpath.Type
 		switch dpath.Type {
-		case types.ComponentDefinition:
-			var cd v1alpha1.ComponentDefinition
+		case entity.ComponentDefinition:
+			var cd component.ComponentDefinition
 			if err := json.NewDecoder(definition).Decode(&cd); err != nil {
 				_ = definition.Close()
 				return ErrJSONMarshal(err)
