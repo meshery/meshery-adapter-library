@@ -17,7 +17,7 @@ package provider
 import (
 	"github.com/layer5io/meshery-adapter-library/adapter"
 	"github.com/layer5io/meshery-adapter-library/config"
-	"github.com/layer5io/meshkit/utils"
+	"github.com/meshery/meshkit/utils"
 )
 
 // Type InMem implements the config interface Handler for an in-memory configuration registry.

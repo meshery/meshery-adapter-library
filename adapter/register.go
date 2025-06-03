@@ -4,10 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"strconv"
 	"sync"
-
-	"github.com/layer5io/meshkit/models/meshmodel/core/types"
 )
 
 var (
@@ -28,13 +25,9 @@ func RegisterMeshModelComponents(uuid, runtime, host, port string) error {
 	if err != nil {
 		return ErrRegisterComponents(err)
 	}
-	portint, _ := strconv.Atoi(port)
 	for _, pathSet := range pathSets {
 		meshmodelRDP = append(meshmodelRDP, MeshModelRegistrantDefinitionPath{
 			EntityDefintionPath: pathSet.meshmodelDefinitionPath,
-			Host:                host,
-			Port:                portint,
-			Type:                types.ComponentDefinition,
 		})
 	}
 

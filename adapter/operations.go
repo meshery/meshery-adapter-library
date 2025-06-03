@@ -18,7 +18,7 @@ import (
 	"context"
 	"net/url"
 
-	"github.com/layer5io/meshkit/utils"
+	"github.com/meshery/meshkit/utils"
 )
 
 var (

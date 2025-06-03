@@ -18,7 +18,7 @@ import (
 	"context"
 
 	"github.com/layer5io/meshery-adapter-library/meshes"
-	"github.com/layer5io/meshkit/logger"
+	"github.com/meshery/meshkit/logger"
 )
 
 type adapterLogger struct {

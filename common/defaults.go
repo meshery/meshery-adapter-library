@@ -20,7 +20,7 @@ import (
 
 	configprovider "github.com/layer5io/meshery-adapter-library/config/provider"
 	"github.com/layer5io/meshery-adapter-library/status"
-	"github.com/layer5io/meshkit/utils"
+	"github.com/meshery/meshkit/utils"
 )
 
 // The values provided here are examples of config objects that can be used as a starting point for adapter specific configuration.
