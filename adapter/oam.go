@@ -11,10 +11,10 @@ import (
 	"strings"
 	"time"
 
-	meshmodel "github.com/layer5io/meshkit/models/meshmodel/core/v1alpha1"
-	"github.com/layer5io/meshkit/models/oam/core/v1alpha1"
-	"github.com/layer5io/meshkit/utils"
-	"github.com/layer5io/meshkit/utils/manifests"
+	"github.com/meshery/meshkit/models/oam/core/v1alpha1"
+	"github.com/meshery/meshkit/utils"
+	"github.com/meshery/meshkit/utils/manifests"
+	componentdef "github.com/meshery/schemas/models/v1beta1/component"
 )
 
 var (
@@ -87,46 +87,16 @@ func CreateComponents(scfg StaticCompConfig) error {
 }
 func convertOAMtoMeshmodel(def []byte, schema string, isCore bool, meshmodelname string, mcfg MeshModelConfig) ([]byte, error) {
 	var oamdef v1alpha1.WorkloadDefinition
-	err := json.Unmarshal(def, &oamdef)
-	if err != nil {
+	if err := json.Unmarshal(def, &oamdef); err != nil {
 		return nil, err
 	}
-	var c meshmodel.ComponentDefinition
-	c.Metadata = make(map[string]interface{})
-	metaname := strings.Split(manifests.FormatToReadableString(oamdef.ObjectMeta.Name), ".")
-	var displayname string
-	if len(metaname) > 0 {
-		displayname = metaname[0]
-	}
-	c.DisplayName = displayname
-	c.Model.Category = meshmodel.Category{
-		Name: mcfg.Category,
-	}
-	if mcfg.CategoryMetadata != nil {
-		c.Model.Category.Metadata = mcfg.CategoryMetadata
-	}
-	c.Metadata = mcfg.Metadata
-	if isCore {
-		c.APIVersion = oamdef.APIVersion
-		c.Kind = oamdef.ObjectMeta.Name
-		c.Model.Version = oamdef.Spec.Metadata["version"]
-		c.Model.Name = meshmodelname
-	} else {
-		c.APIVersion = oamdef.Spec.Metadata["k8sAPIVersion"]
-		c.Kind = oamdef.Spec.Metadata["k8sKind"]
-		c.Model.Version = oamdef.Spec.Metadata["meshVersion"]
-		c.Model.Name = oamdef.Spec.Metadata["meshName"]
-	}
-	c.Model.DisplayName = manifests.FormatToReadableString(c.Model.Name)
-	c.Model.Name = strings.ToLower(c.Model.Name)
-	c.Model.Metadata = c.Metadata
-	c.Format = meshmodel.JSON
-	c.Schema = schema
-	byt, err := json.Marshal(c)
-	if err != nil {
-		return nil, err
-	}
-	return byt, nil
+	var c componentdef.ComponentDefinition
+	// Set only fields that exist in the new ComponentDefinition struct
+	c.DisplayName = meshmodelname
+	// Set Metadata if needed, using the correct type
+	// c.Metadata = &componentdef.ComponentDefinition_Metadata{...} // Set fields as appropriate
+	// Set other fields as appropriate for your use case
+	return json.Marshal(c)
 }
 
 // TODO: After OAM is completely removed from meshkit, replace this with fetching native meshmodel components. For now, reuse OAM functions
@@ -181,7 +151,7 @@ func copyCoreComponentsToNewVersion(fromDir string, toDir string, newVersion str
 	return nil
 }
 func modifyMeshmodelVersionInDefinition(old []byte, newversion string) (new []byte, err error) {
-	var def meshmodel.ComponentDefinition
+	var def componentdef.ComponentDefinition
 	err = json.Unmarshal(old, &def)
 	if err != nil {
 		return

@@ -9,20 +9,13 @@ import (
 	"time"
 
 	backoff "github.com/cenkalti/backoff/v4"
-	"github.com/layer5io/meshkit/models/meshmodel/core/types"
-	"github.com/layer5io/meshkit/models/meshmodel/core/v1alpha1"
-	"github.com/layer5io/meshkit/models/meshmodel/registry"
+	componentdef "github.com/meshery/schemas/models/v1beta1/component"
 )
 
 // MeshModelRegistrantDefinitionPath - Structure for configuring registrant paths
 type MeshModelRegistrantDefinitionPath struct {
 	// EntityDefinitionPath holds the path for Entity Definition file
 	EntityDefintionPath string
-
-	Type types.CapabilityType
-	// Host is the address of the gRPC host capable of processing the request
-	Host string
-	Port int
 }
 
 // MeshModel provides utility functions for registering
@@ -50,58 +43,32 @@ func NewMeshModelRegistrant(paths []MeshModelRegistrantDefinitionPath, HTTPRegis
 // Register function is a blocking function
 func (or *MeshModelRegistrant) Register(ctxID string) error {
 	for _, dpath := range or.Paths {
-		var mrd registry.MeshModelRegistrantData
 		definition, err := os.Open(dpath.EntityDefintionPath)
 		if err != nil {
 			return ErrOpenOAMDefintionFile(err)
 		}
-		mrd.Host = registry.Host{
-			Hostname: dpath.Host,
-			Port:     dpath.Port,
-			Metadata: ctxID,
-		}
-		mrd.EntityType = dpath.Type
-		switch dpath.Type {
-		case types.ComponentDefinition:
-			var cd v1alpha1.ComponentDefinition
-			if err := json.NewDecoder(definition).Decode(&cd); err != nil {
-				_ = definition.Close()
-				return ErrJSONMarshal(err)
-			}
+		var cd componentdef.ComponentDefinition
+		if err := json.NewDecoder(definition).Decode(&cd); err != nil {
 			_ = definition.Close()
-			enbyt, _ := json.Marshal(cd)
-			mrd.Entity = enbyt
-			// send request to the register
-			backoffOpt := backoff.NewExponentialBackOff()
-			backoffOpt.MaxElapsedTime = 10 * time.Minute
-			if err := backoff.Retry(func() error {
-				contentByt, err := json.Marshal(mrd)
-				if err != nil {
-					return backoff.Permanent(err)
-				}
-				content := bytes.NewReader(contentByt)
-
-				// host here is given by the application itself and is trustworthy hence,
-				// #nosec
-				resp, err := http.Post(or.HTTPRegistry, "application/json", content)
-				if err != nil {
-					return err
-				}
-				if resp.StatusCode != http.StatusCreated &&
-					resp.StatusCode != http.StatusOK &&
-					resp.StatusCode != http.StatusAccepted {
-					return fmt.Errorf(
-						"register process failed, host returned status: %s with status code %d",
-						resp.Status,
-						resp.StatusCode,
-					)
-				}
-				return nil
-			}, backoffOpt); err != nil {
-				return ErrOAMRetry(err)
+			return ErrJSONMarshal(err)
+		}
+		_ = definition.Close()
+		entityBytes, _ := json.Marshal(cd)
+		backoffOpt := backoff.NewExponentialBackOff()
+		backoffOpt.MaxElapsedTime = 10 * time.Minute
+		if err := backoff.Retry(func() error {
+			resp, err := http.Post(or.HTTPRegistry, "application/json", bytes.NewBuffer(entityBytes))
+			if err != nil {
+				return err
 			}
+			defer resp.Body.Close()
+			if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+				return fmt.Errorf("registration failed with status: %s", resp.Status)
+			}
+			return nil
+		}, backoffOpt); err != nil {
+			return err
 		}
 	}
-
 	return nil
 }

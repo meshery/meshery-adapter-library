@@ -25,9 +25,9 @@ import (
 	"github.com/layer5io/learn-layer5/smi-conformance/conformance"
 	"github.com/layer5io/meshery-adapter-library/meshes"
 	"github.com/layer5io/meshery-adapter-library/status"
-	"github.com/layer5io/meshkit/utils"
-	mesherykube "github.com/layer5io/meshkit/utils/kubernetes"
 	smp "github.com/layer5io/service-mesh-performance/spec"
+	"github.com/meshery/meshkit/utils"
+	mesherykube "github.com/meshery/meshkit/utils/kubernetes"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 )
