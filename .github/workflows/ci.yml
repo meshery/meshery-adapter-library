@@ -38,8 +38,8 @@ jobs:
           cache-dependency-path: go.sum
       - name: tidy
         run: make tidy
-  codecov:
-    name: codecov
+  test:
+    name: test
     needs: [ tidy ]
     runs-on: ubuntu-latest
     steps:
@@ -51,9 +51,3 @@ jobs:
           cache-dependency-path: go.sum
       - name: test
         run: make test
-      - name: Upload covergae to Codecov
-        if: github.repository == 'meshery/meshery-adapter-library'
-        uses: codecov/codecov-action@v3
-        with:
-          files: ./coverage.out
-          flags: unittests
