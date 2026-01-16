@@ -8,32 +8,35 @@ on:
     branches:
       - 'master'
 
+env:
+  go_version: '1.24'
+  golangci_version: 'v2.8.0'
+
 jobs:
   golangci:
     name: golangci-lint
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@master
-      - uses: actions/setup-go@v5
+      - uses: actions/checkout@v6
+      - uses: actions/setup-go@v6
         with:
-          go-version: '1.23'
+          go-version: "${{ env.go_version }}"
           cache: true
           cache-dependency-path: go.sum
       - name: golangci-lint
-        uses: golangci/golangci-lint-action@v6
+        uses: golangci/golangci-lint-action@v9
         with:
-          version: latest
+          version: "${{ env.golangci_version }}"
       - name: Run golangci-lint
         run: make lint
   tidy:
     name: tidy
-    needs: [ golangci ]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@master
-      - uses: actions/setup-go@v5
+      - uses: actions/checkout@v6
+      - uses: actions/setup-go@v6
         with:
-          go-version: '1.23'
+          go-version: "${{ env.go_version }}"
           cache: true
           cache-dependency-path: go.sum
       - name: tidy
@@ -43,10 +46,10 @@ jobs:
     needs: [ tidy ]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@master
-      - uses: actions/setup-go@v5
+      - uses: actions/checkout@v6
+      - uses: actions/setup-go@v6
         with:
-          go-version: '1.23'
+          go-version: "${{ env.go_version }}"
           cache: true
           cache-dependency-path: go.sum
       - name: test
