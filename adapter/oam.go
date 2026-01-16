@@ -30,13 +30,13 @@ type MeshModelConfig struct {
 
 // StaticCompConfig is used to configure CreateComponents
 type StaticCompConfig struct {
-	MeshModelName   string //Used in Adding ModelName onto Core Meshmodel components. Pass it the same as meshName in OAM components
-	URL             string //URL
-	Method          string //Use the constants exported by package. Manifests or Helm
+	MeshModelName   string // Used in Adding ModelName onto Core Meshmodel components. Pass it the same as meshName in OAM components
+	URL             string // URL
+	Method          string // Use the constants exported by package. Manifests or Helm
 	MeshModelPath   string
 	MeshModelConfig MeshModelConfig
-	DirName         string           //The directory's name. By convention, it should be the version name
-	Config          manifests.Config //Filters required to create definition and schema
+	DirName         string           // The directory's name. By convention, it should be the version name
+	Config          manifests.Config // Filters required to create definition and schema
 	Force           bool             //When set to true, if the file with same name already exists, they will be overridden
 }
 

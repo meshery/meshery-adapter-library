@@ -31,11 +31,10 @@ jobs:
         run: make lint
   tidy:
     name: tidy
-    needs: [ golangci ]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@master
-      - uses: actions/setup-go@v5
+      - uses: actions/checkout@v6
+      - uses: actions/setup-go@v6
         with:
           go-version: "${{ env.go_version }}"
           cache: true
