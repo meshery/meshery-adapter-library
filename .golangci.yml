@@ -39,9 +39,7 @@ linters-settings:
 
 # Configuration for golangci-lint that is suitable for a Kubernetes operator project built with Golang
 linters:
-  enable-all: false
-  disable-all: false
-  linters:
+  enable:
     - gci
     - goconst
     - gocritic
@@ -50,16 +48,14 @@ linters:
     - unused
     - cyclop
     - scopelint
-  exclude-rules:
-    - testpackage
+  disable:
+      - testpackage
+  exclusions:
+    paths:
+      - vendor
+      - bundle
+      - hack
+      - img
 
 run:
   timeout: 5m
-  enable-cache: true
-
-issues:
- exclude-dirs:
-    - vendor
-    - bundle
-    - hack
-    - img
