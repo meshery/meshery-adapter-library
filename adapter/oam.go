@@ -37,7 +37,7 @@ type StaticCompConfig struct {
 	MeshModelConfig MeshModelConfig
 	DirName         string           // The directory's name. By convention, it should be the version name
 	Config          manifests.Config // Filters required to create definition and schema
-	Force           bool             //When set to true, if the file with same name already exists, they will be overridden
+	Force           bool             // When set to true, if the file with same name already exists, they will be overridden
 }
 
 // CreateComponents generates components for a given configuration and stores them.
@@ -76,7 +76,7 @@ func CreateComponents(scfg StaticCompConfig) error {
 			return ErrCreatingComponents(err)
 		}
 	}
-	//For Meshmodel components
+	// For Meshmodel components
 	if meshmodeldirName != "" {
 		err = copyCoreComponentsToNewVersion(filepath.Join(scfg.MeshModelPath, meshmodeldirName), filepath.Join(scfg.MeshModelPath, scfg.DirName), scfg.DirName, true)
 		if err != nil {
@@ -150,7 +150,7 @@ func copyCoreComponentsToNewVersion(fromDir string, toDir string, newVersion str
 		return err
 	}
 	for _, f := range files {
-		//core definition file or core schema file
+		// core definition file or core schema file
 		if !strings.Contains(strings.TrimSuffix(f.Name(), ".json"), ".") || !strings.Contains(strings.TrimSuffix(f.Name(), ".meshery.layer5io.schema.json"), ".") {
 			fsource, err := os.Open(filepath.Join(fromDir, f.Name()))
 			if err != nil {
@@ -161,7 +161,7 @@ func copyCoreComponentsToNewVersion(fromDir string, toDir string, newVersion str
 			if err != nil {
 				return err
 			}
-			//only for definition files
+			// only for definition files
 			if !strings.Contains(strings.TrimSuffix(f.Name(), ".json"), ".") {
 				if isMeshmodel {
 					content, err = modifyMeshmodelVersionInDefinition(content, newVersion)
@@ -196,7 +196,7 @@ func modifyVersionInDefinition(old []byte, newversion string) (new []byte, err e
 	if err != nil {
 		return
 	}
-	if def.Spec.Metadata == nil { //to avoid panic
+	if def.Spec.Metadata == nil {
 		def.Spec.Metadata = make(map[string]string)
 	}
 	def.Spec.Metadata["version"] = newversion
@@ -222,16 +222,16 @@ func getLatestDirectory(path string) (string, error) {
 // create a file with this filename and stuff the string
 func writeToFile(path string, data []byte, force bool) error {
 	_, err := os.Stat(path)
-	if err != nil && !os.IsNotExist(err) { //There some other error than non existence of file
+	if err != nil && !os.IsNotExist(err) {
 		return err
 	}
 
-	if err == nil { //file already exists
+	if err == nil {
 		if !force { // Dont override existing file, skip it
 			fmt.Println("File already exists,skipping...")
 			return nil
 		}
-		err := os.Remove(path) //Remove the existing file, before overriding it
+		err := os.Remove(path)
 		if err != nil {
 			return err
 		}
