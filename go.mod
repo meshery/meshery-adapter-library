@@ -1,6 +1,6 @@
 module github.com/layer5io/meshery-adapter-library
 
-go 1.24.0
+go 1.25.0
 
 replace github.com/kudobuilder/kuttl => github.com/layer5io/kuttl v0.4.1-0.20200806180306-b7e46afd657f
 
