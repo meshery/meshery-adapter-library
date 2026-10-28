@@ -9,7 +9,7 @@ on:
       - 'master'
 
 env:
-  golangci_version: 'v2.12.2'
+  golangci_version: 'v2.15.0'
 
 jobs:
   golangci:
