@@ -1,10 +1,8 @@
 package adapter
 
 import (
-	"bytes"
+	"context"
 	"encoding/json"
-	"fmt"
-	"net/http"
 	"os"
 	"time"
 
@@ -71,6 +69,7 @@ func (or *MeshModelRegistrant) Register(ctxID string) error { //nolint:cyclop
 			enbyt, _ := json.Marshal(cd)
 			mrd.Entity = enbyt
 			// send request to the register
+			client := newRegistrationHTTPClient(nil)
 			backoffOpt := backoff.NewExponentialBackOff()
 			backoffOpt.MaxElapsedTime = 10 * time.Minute
 			if err := backoff.Retry(func() error {
@@ -78,24 +77,7 @@ func (or *MeshModelRegistrant) Register(ctxID string) error { //nolint:cyclop
 				if err != nil {
 					return backoff.Permanent(err)
 				}
-				content := bytes.NewReader(contentByt)
-
-				// host here is given by the application itself and is trustworthy hence,
-				// #nosec
-				resp, err := http.Post(or.HTTPRegistry, "application/json", content)
-				if err != nil {
-					return err
-				}
-				if resp.StatusCode != http.StatusCreated &&
-					resp.StatusCode != http.StatusOK &&
-					resp.StatusCode != http.StatusAccepted {
-					return fmt.Errorf(
-						"register process failed, host returned status: %s with status code %d",
-						resp.Status,
-						resp.StatusCode,
-					)
-				}
-				return nil
+				return client.post(context.Background(), or.HTTPRegistry, contentByt)
 			}, backoffOpt); err != nil {
 				return ErrOAMRetry(err)
 			}

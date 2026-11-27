@@ -183,16 +183,50 @@ func copyCoreComponentsToNewVersion(fromDir string, toDir string, newVersion str
 	}
 	return nil
 }
-func modifyMeshmodelVersionInDefinition(old []byte, newversion string) (new []byte, err error) {
-	var def meshmodel.ComponentDefinition
-	err = json.Unmarshal(old, &def)
-	if err != nil {
-		return
+func modifyMeshmodelVersionInDefinition(old []byte, newversion string) ([]byte, error) {
+	var def map[string]json.RawMessage
+	if err := json.Unmarshal(old, &def); err != nil {
+		return nil, err
 	}
-	def.Model.Version = newversion
-	new, err = json.Marshal(def)
-	return
+
+	var model map[string]json.RawMessage
+	if err := json.Unmarshal(def["model"], &model); err != nil {
+		return nil, err
+	}
+	if model == nil {
+		return nil, errors.New("component model is missing")
+	}
+
+	version, err := json.Marshal(newversion)
+	if err != nil {
+		return nil, err
+	}
+
+	if raw, exists := model["model"]; exists {
+		var nested map[string]json.RawMessage
+		if err := json.Unmarshal(raw, &nested); err != nil {
+			return nil, err
+		}
+		if nested == nil {
+			return nil, errors.New("nested model is missing")
+		}
+		nested["version"] = version
+		model["model"], err = json.Marshal(nested)
+	} else {
+		model["version"] = version
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	def["model"], err = json.Marshal(model)
+	if err != nil {
+		return nil, err
+	}
+
+	return json.Marshal(def)
 }
+
 func modifyVersionInDefinition(old []byte, newversion string) (new []byte, err error) {
 	var def v1alpha1.WorkloadDefinition
 	err = json.Unmarshal(old, &def)
