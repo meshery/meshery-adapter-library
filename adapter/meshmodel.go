@@ -1,10 +1,9 @@
 package adapter
 
 import (
-	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
-	"net/http"
 	"os"
 	"time"
 
@@ -40,67 +39,108 @@ func NewMeshModelRegistrant(paths []MeshModelRegistrantDefinitionPath, httpRegis
 	}
 }
 
-// Register will register each capability individually to the OAM Capability registry
-//
-// It sends a POST request to the endpoint in the "OAMHTTPRegistry", if the request
-// fails then the request is retried. It uses exponential backoff algorithm to determine
-// the interval between in the retries. It will retry only for 10 mins and will stop retrying
-// after that.
-//
-// Register function is a blocking function
-func (or *MeshModelRegistrant) Register(ctxID string) error { //nolint:cyclop
-	for _, dpath := range or.Paths {
-		var mrd registry.MeshModelRegistrantData
-		definition, err := os.Open(dpath.EntityDefintionPath)
-		if err != nil {
-			return ErrOpenOAMDefintionFile(err)
-		}
-		mrd.Host = registry.Host{
-			Hostname: dpath.Host,
-			Port:     dpath.Port,
-			Metadata: ctxID,
-		}
-		mrd.EntityType = dpath.Type
-		if dpath.Type == types.ComponentDefinition {
-			var cd v1alpha1.ComponentDefinition
-			if err := json.NewDecoder(definition).Decode(&cd); err != nil {
-				_ = definition.Close()
-				return ErrJSONMarshal(err)
-			}
-			_ = definition.Close()
-			enbyt, _ := json.Marshal(cd)
-			mrd.Entity = enbyt
-			// send request to the register
-			backoffOpt := backoff.NewExponentialBackOff()
-			backoffOpt.MaxElapsedTime = 10 * time.Minute
-			if err := backoff.Retry(func() error {
-				contentByt, err := json.Marshal(mrd)
-				if err != nil {
-					return backoff.Permanent(err)
-				}
-				content := bytes.NewReader(contentByt)
+// Register registers capabilities using a background context.
+// Existing callers retain their original blocking behavior.
+func (or *MeshModelRegistrant) Register(ctxID string) error {
+	return or.RegisterWithContext(context.Background(), ctxID)
+}
 
-				// host here is given by the application itself and is trustworthy hence,
-				// #nosec
-				resp, err := http.Post(or.HTTPRegistry, "application/json", content)
-				if err != nil {
-					return err
-				}
-				if resp.StatusCode != http.StatusCreated &&
-					resp.StatusCode != http.StatusOK &&
-					resp.StatusCode != http.StatusAccepted {
-					return fmt.Errorf(
-						"register process failed, host returned status: %s with status code %d",
-						resp.Status,
-						resp.StatusCode,
-					)
-				}
-				return nil
-			}, backoffOpt); err != nil {
-				return ErrOAMRetry(err)
+// RegisterWithContext registers capabilities with caller-controlled
+// cancellation and bounded exponential retries for each component.
+func (or *MeshModelRegistrant) RegisterWithContext(
+	ctx context.Context,
+	ctxID string,
+) error {
+	if or == nil {
+		return fmt.Errorf("nil meshmodel registrant")
+	}
+
+	if ctx == nil {
+		return fmt.Errorf("registration context is required")
+	}
+
+	client := newRegistrationHTTPClient(nil)
+
+	for _, dpath := range or.Paths {
+		if err := ctx.Err(); err != nil {
+			return err
+		}
+
+		if dpath.Type != types.ComponentDefinition {
+			continue
+		}
+
+		payload, err := legacyRegistrationPayload(dpath, ctxID)
+		if err != nil {
+			return err
+		}
+
+		if err := or.registerLegacyPayload(ctx, client, payload); err != nil {
+			if ctxErr := ctx.Err(); ctxErr != nil {
+				return ctxErr
 			}
+			return ErrOAMRetry(err)
 		}
 	}
 
 	return nil
+}
+
+func legacyRegistrationPayload(
+	dpath MeshModelRegistrantDefinitionPath,
+	ctxID string,
+) ([]byte, error) {
+	definition, err := os.Open(dpath.EntityDefintionPath)
+	if err != nil {
+		return nil, ErrOpenOAMDefintionFile(err)
+	}
+	defer func() {
+		_ = definition.Close()
+	}()
+
+	var cd v1alpha1.ComponentDefinition
+	if err := json.NewDecoder(definition).Decode(&cd); err != nil {
+		return nil, ErrJSONMarshal(err)
+	}
+
+	entity, err := json.Marshal(cd)
+	if err != nil {
+		return nil, ErrJSONMarshal(err)
+	}
+
+	mrd := registry.MeshModelRegistrantData{
+		Host: registry.Host{
+			Hostname: dpath.Host,
+			Port:     dpath.Port,
+			Metadata: ctxID,
+		},
+		EntityType: dpath.Type,
+		Entity:     entity,
+	}
+
+	payload, err := json.Marshal(mrd)
+	if err != nil {
+		return nil, ErrJSONMarshal(err)
+	}
+
+	return payload, nil
+}
+
+func (or *MeshModelRegistrant) registerLegacyPayload(
+	ctx context.Context,
+	client *registrationHTTPClient,
+	payload []byte,
+) error {
+	retry := backoff.NewExponentialBackOff()
+	retry.MaxElapsedTime = 10 * time.Minute
+
+	return backoff.Retry(func() error {
+		if err := ctx.Err(); err != nil {
+			return backoff.Permanent(err)
+		}
+
+		return classifyRegistrationError(
+			client.post(ctx, or.HTTPRegistry, payload),
+		)
+	}, backoff.WithContext(retry, ctx))
 }

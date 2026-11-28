@@ -150,6 +150,10 @@ func copyCoreComponentsToNewVersion(fromDir string, toDir string, newVersion str
 		return err
 	}
 	for _, f := range files {
+		if !f.Type().IsRegular() {
+			continue
+		}
+
 		// core definition file or core schema file
 		if !strings.Contains(strings.TrimSuffix(f.Name(), ".json"), ".") || !strings.Contains(strings.TrimSuffix(f.Name(), ".meshery.layer5io.schema.json"), ".") {
 			fsource, err := os.Open(filepath.Join(fromDir, f.Name()))
@@ -183,16 +187,50 @@ func copyCoreComponentsToNewVersion(fromDir string, toDir string, newVersion str
 	}
 	return nil
 }
-func modifyMeshmodelVersionInDefinition(old []byte, newversion string) (new []byte, err error) {
-	var def meshmodel.ComponentDefinition
-	err = json.Unmarshal(old, &def)
-	if err != nil {
-		return
+func modifyMeshmodelVersionInDefinition(old []byte, newversion string) ([]byte, error) {
+	var def map[string]json.RawMessage
+	if err := json.Unmarshal(old, &def); err != nil {
+		return nil, err
 	}
-	def.Model.Version = newversion
-	new, err = json.Marshal(def)
-	return
+
+	var model map[string]json.RawMessage
+	if err := json.Unmarshal(def["model"], &model); err != nil {
+		return nil, err
+	}
+	if model == nil {
+		return nil, errors.New("component model is missing")
+	}
+
+	version, err := json.Marshal(newversion)
+	if err != nil {
+		return nil, err
+	}
+
+	if raw, exists := model["model"]; exists {
+		var nested map[string]json.RawMessage
+		if err := json.Unmarshal(raw, &nested); err != nil {
+			return nil, err
+		}
+		if nested == nil {
+			return nil, errors.New("nested model is missing")
+		}
+		nested["version"] = version
+		model["model"], err = json.Marshal(nested)
+	} else {
+		model["version"] = version
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	def["model"], err = json.Marshal(model)
+	if err != nil {
+		return nil, err
+	}
+
+	return json.Marshal(def)
 }
+
 func modifyVersionInDefinition(old []byte, newversion string) (new []byte, err error) {
 	var def v1alpha1.WorkloadDefinition
 	err = json.Unmarshal(old, &def)
@@ -222,24 +260,63 @@ func getLatestDirectory(path string) (string, error) {
 	return "", fmt.Errorf("no directory found")
 }
 
-// create a file with this filename and stuff the string
+// writeToFile publishes a complete file without exposing partial writes.
 func writeToFile(path string, data []byte, force bool) error {
 	_, err := os.Stat(path)
 	if err != nil && !os.IsNotExist(err) {
 		return err
 	}
 
-	if err == nil {
-		if !force { // Dont override existing file, skip it
-			fmt.Println("File already exists,skipping...")
+	if err == nil && !force {
+		fmt.Println("File already exists,skipping...")
+		return nil
+	}
+
+	return publishComponentFile(path, data, force)
+}
+
+func publishComponentFile(path string, data []byte, force bool) error {
+	tempDir, err := os.MkdirTemp(
+		filepath.Dir(path), ".component-*.tmp",
+	)
+	if err != nil {
+		return err
+	}
+	defer func() {
+		_ = os.RemoveAll(tempDir)
+	}()
+
+	tempPath := filepath.Join(tempDir, "component")
+	temp, err := os.OpenFile(
+		tempPath, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0666,
+	)
+	if err != nil {
+		return err
+	}
+	defer func() {
+		_ = temp.Close()
+	}()
+
+	if _, err := temp.Write(data); err != nil {
+		return err
+	}
+
+	if err := temp.Close(); err != nil {
+		return err
+	}
+
+	if force {
+		return os.Rename(tempPath, path)
+	}
+
+	if err := os.Link(tempPath, path); err != nil {
+		if os.IsExist(err) {
 			return nil
 		}
-		err := os.Remove(path)
-		if err != nil {
-			return err
-		}
+		return err
 	}
-	return os.WriteFile(path, data, 0666)
+
+	return nil
 }
 
 // getNameFromWorkloadDefinition takes out name from workload definition

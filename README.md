@@ -18,6 +18,217 @@ and others will follow.
 
 <img alt="Overview and usage of meshery-adapter-library" src="./doc/meshery-adapter-library-overview.png" align="center"/>
 
+### MeshModel component generation and registration
+
+The adapter package provides modern MeshModel generation and
+registration APIs alongside the existing legacy APIs.
+
+#### Component generation
+
+| API | Purpose |
+| --- | --- |
+| `GenerateNativeComponent` | Generate a component definition from a CRD. |
+| `GenerateNativeComponentWithModel` | Generate a component with model information and styles. |
+| `CreateModernComponents` | Generate component files from a configured source. |
+| `CreateModernComponentsFromSources` | Generate component files from multiple sources as one batch. |
+
+Example:
+
+```go
+definition, err := adapter.GenerateNativeComponentWithModel(
+    crd,
+    modelName,
+    releaseVersion,
+    adapter.MeshModelConfig{
+        Category: "Cloud Native Network",
+    },
+)
+if err != nil {
+    return err
+}
+```
+
+The file generation APIs use `StaticCompConfig` to configure
+sources, destinations, model metadata, release directories
+and overwrite behavior.
+
+Manifest and Helm chart sources are supported.
+
+For multi-version CRDs, generation prefers a served storage
+version and otherwise selects the first served version.
+The selected version determines component API identity and schema.
+Legacy Kubernetes v1beta1 CRDs may use a shared OpenAPI schema
+under spec.validation. Modern v1 CRDs require a version-specific
+OpenAPI schema.
+
+Existing component filename conventions are preserved.
+Filename collisions are detected before writing generated files.
+Collision errors identify both component kinds, API versions
+and positions in the combined resource batch.
+
+With `Force` disabled, existing files are preserved.
+Component files are written to temporary files before publication.
+Forced writes use rename-based replacement; non-forced writes
+use hard-link publication to avoid overwriting existing files.
+
+Modern generation creates a `.generation-incomplete` marker
+before writing component files and removes it only after
+generation and core component recovery succeed.
+
+Core component recovery excludes the target release directory
+and directories containing an incomplete-generation marker.
+Historical unmarked directories remain eligible for backward
+compatibility. Source selection does not independently verify
+historical directory completeness or that a release precedes
+the target.
+
+Generation is not transactional. An unsuccessful operation
+may leave a partially populated destination directory.
+The marker does not provide concurrent-generation locking,
+power-loss durability, or protection against interruption
+between destination creation and marker publication.
+Atomic file publication depends on filesystem support.
+
+#### Modern component registration
+
+Use `RegisterModernMeshModelComponents` to discover and register
+component files from the configured `MeshmodelComponents` directory.
+
+Use `RegisterModernMeshModelComponentFiles` to register an
+explicit list of component definition files.
+
+```go
+ctx, cancel := context.WithTimeout(
+    context.Background(),
+    2*time.Minute,
+)
+defer cancel()
+
+err := adapter.RegisterModernMeshModelComponentFiles(
+    ctx,
+    instanceID,
+    mesheryServerAddress,
+    adapterHost,
+    adapterPort,
+    componentPaths,
+)
+if err != nil {
+    return err
+}
+```
+
+The examples assume imports for the adapter package and,
+where applicable, the standard context and time packages.
+
+The server address must include an HTTP or HTTPS scheme.
+The adapter port is a string representing a port from 1 to 65535.
+
+Modern registration uses `POST /api/registry/components`.
+
+For lower-level control, `ModernComponentRegistrant` accepts
+an explicit endpoint, serialized connection information
+and an optional HTTP client. Its `RegisterFiles` method
+accepts a context and component definition paths.
+
+Automatic discovery includes only regular files ending
+with `_meshmodel.json`. Documentation, placeholder files,
+unrelated JSON files and symbolic links are excluded.
+
+Explicit file registration does not apply this discovery filter.
+
+Modern registration accepts modern component definitions
+and migrates supported legacy definitions before submission.
+
+Legacy definitions with omitted or empty formats are treated
+as JSON when their schemas contain valid JSON.
+Explicit unsupported formats and invalid JSON are rejected.
+
+These checks do not constitute full schema conformance validation.
+
+#### Legacy registration compatibility
+
+The existing `RegisterMeshModelComponents` and
+`MeshModelRegistrant.Register` APIs remain available.
+
+For caller-controlled cancellation, use
+`RegisterMeshModelComponentsWithContext` or
+`MeshModelRegistrant.RegisterWithContext`.
+
+Legacy registration retains its existing payload structure
+and the `POST /api/meshmodel/components/register` endpoint.
+
+The original APIs use a background context. Applications
+requiring caller-controlled deadlines should use the
+context-aware variants.
+
+#### Registration timeout and retry behavior
+
+Both registration paths use a shared HTTP client implementation.
+
+- Each HTTP attempt has a 30-second context deadline,
+  subject to an earlier caller deadline.
+- HTTP 200, 201 and 202 responses are treated as acknowledgements.
+  A subsequent response-body read failure does not invalidate the
+  acknowledgement or trigger another registration attempt.
+- Request-construction errors are permanent failures.
+- HTTP 4xx responses other than 408 and 429 are permanent failures.
+- Other unsuccessful HTTP responses and transport failures
+  are eligible for exponential-backoff retries.
+- The backoff elapsed-time limit is ten minutes per component.
+  It is not a strict overall batch deadline.
+- Error response excerpts are limited to 4096 bytes.
+- Caller cancellation stops context-aware HTTP operations
+  and retry waits.
+
+Registration errors may contain server response excerpts.
+Applications should consider this when logging errors.
+
+#### Partial registration outcomes
+
+Modern registration processes files sequentially and stops
+at the first unrecoverable error.
+
+Use the standard errors package to inspect partial outcomes:
+
+```go
+var partial *adapter.PartialRegistrationError
+
+if errors.As(err, &partial) {
+    // partial.Acknowledged: files receiving successful HTTP responses.
+    // partial.Failed: file at which processing stopped.
+    // partial.Unattempted: remaining files not processed.
+    // partial.Err: underlying error.
+}
+```
+
+The failed file may not have reached HTTP submission,
+for example when cancellation or file validation fails.
+
+The underlying error is available through Go error unwrapping.
+
+Partial registration outcomes are provided by the modern
+registration path. Initial argument validation errors
+may be returned directly without a partial result.
+
+#### Registration consistency and idempotency
+
+A successful HTTP response is an acknowledgement,
+not independent verification of database persistence.
+
+A failed or timed-out request may already have been processed
+by the server. Repeated registration and retries after
+ambiguous failures may create duplicate registry entries.
+
+Do not assume that replaying a registration batch or retrying
+its failed file is safe. Reconcile registry state before replay.
+
+End-to-end registration idempotency and the final component
+schema version contract require coordination with registry
+and schema maintainers.
+
+These APIs do not guarantee exactly-once registration
+or compatibility with every Meshery server release.
+
 ### Package dependencies hierarchy
 A clear picture of dependencies between packages in a module helps avoid circular dependencies (import cycles), 
 understand where to put code, design coherent packages etc.
