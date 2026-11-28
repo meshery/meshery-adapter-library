@@ -2,6 +2,7 @@ package adapter
 
 import (
 	"context"
+	"errors"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -76,7 +77,7 @@ func TestRegistrationHTTPClientCanceledContext(t *testing.T) {
 	client := newRegistrationHTTPClient(nil)
 	err := client.post(ctx, "http://127.0.0.1:1", []byte(`{}`))
 
-	if err == nil {
-		t.Fatal("expected canceled-context error")
+	if !errors.Is(err, context.Canceled) {
+		t.Fatalf("expected context.Canceled, got %v", err)
 	}
 }
