@@ -76,6 +76,9 @@ func (or *MeshModelRegistrant) RegisterWithContext(
 		}
 
 		if err := or.registerLegacyPayload(ctx, client, payload); err != nil {
+			if ctxErr := ctx.Err(); ctxErr != nil {
+				return ctxErr
+			}
 			return ErrOAMRetry(err)
 		}
 	}

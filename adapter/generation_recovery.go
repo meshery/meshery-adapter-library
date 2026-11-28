@@ -3,12 +3,16 @@ package adapter
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 
 	"github.com/layer5io/meshkit/utils"
 )
 
-// previousComponentVersion selects a copy source while excluding
-// the current target, including partially generated directories.
+const incompleteGenerationMarker = ".generation-incomplete"
+
+// previousComponentVersion excludes the current target and
+// directories marked as having incomplete generation.
+// Historical unmarked directories remain eligible.
 func previousComponentVersion(root, target string) (string, error) {
 	entries, err := os.ReadDir(root)
 	if os.IsNotExist(err) {
@@ -25,6 +29,18 @@ func previousComponentVersion(root, target string) (string, error) {
 			entry.Name() == target ||
 			!componentFilePart.MatchString(entry.Name()) {
 			continue
+		}
+
+		marker := filepath.Join(
+			root, entry.Name(), incompleteGenerationMarker,
+		)
+
+		_, err := os.Lstat(marker)
+		if err == nil {
+			continue
+		}
+		if !os.IsNotExist(err) {
+			return "", fmt.Errorf("inspect generation marker: %w", err)
 		}
 
 		versions = append(versions, entry.Name())

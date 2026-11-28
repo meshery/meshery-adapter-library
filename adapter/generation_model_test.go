@@ -44,7 +44,7 @@ func TestNewGeneratedModel(t *testing.T) {
 
 func TestNewGeneratedModelInvalidInput(t *testing.T) {
 	for _, input := range [][2]string{
-		{"", "1.0.0"},
+		{"", defaultDefinitionVersion},
 		{testLinkerdName, ""},
 	} {
 		if _, err := newGeneratedModel(

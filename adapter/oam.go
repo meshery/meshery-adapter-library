@@ -150,6 +150,10 @@ func copyCoreComponentsToNewVersion(fromDir string, toDir string, newVersion str
 		return err
 	}
 	for _, f := range files {
+		if !f.Type().IsRegular() {
+			continue
+		}
+
 		// core definition file or core schema file
 		if !strings.Contains(strings.TrimSuffix(f.Name(), ".json"), ".") || !strings.Contains(strings.TrimSuffix(f.Name(), ".meshery.layer5io.schema.json"), ".") {
 			fsource, err := os.Open(filepath.Join(fromDir, f.Name()))
@@ -256,24 +260,63 @@ func getLatestDirectory(path string) (string, error) {
 	return "", fmt.Errorf("no directory found")
 }
 
-// create a file with this filename and stuff the string
+// writeToFile publishes a complete file without exposing partial writes.
 func writeToFile(path string, data []byte, force bool) error {
 	_, err := os.Stat(path)
 	if err != nil && !os.IsNotExist(err) {
 		return err
 	}
 
-	if err == nil {
-		if !force { // Dont override existing file, skip it
-			fmt.Println("File already exists,skipping...")
+	if err == nil && !force {
+		fmt.Println("File already exists,skipping...")
+		return nil
+	}
+
+	return publishComponentFile(path, data, force)
+}
+
+func publishComponentFile(path string, data []byte, force bool) error {
+	tempDir, err := os.MkdirTemp(
+		filepath.Dir(path), ".component-*.tmp",
+	)
+	if err != nil {
+		return err
+	}
+	defer func() {
+		_ = os.RemoveAll(tempDir)
+	}()
+
+	tempPath := filepath.Join(tempDir, "component")
+	temp, err := os.OpenFile(
+		tempPath, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0666,
+	)
+	if err != nil {
+		return err
+	}
+	defer func() {
+		_ = temp.Close()
+	}()
+
+	if _, err := temp.Write(data); err != nil {
+		return err
+	}
+
+	if err := temp.Close(); err != nil {
+		return err
+	}
+
+	if force {
+		return os.Rename(tempPath, path)
+	}
+
+	if err := os.Link(tempPath, path); err != nil {
+		if os.IsExist(err) {
 			return nil
 		}
-		err := os.Remove(path)
-		if err != nil {
-			return err
-		}
+		return err
 	}
-	return os.WriteFile(path, data, 0666)
+
+	return nil
 }
 
 // getNameFromWorkloadDefinition takes out name from workload definition

@@ -49,7 +49,7 @@ func TestGeneratedComponentDefinitionVersion(t *testing.T) {
 				t.Fatal(err)
 			}
 
-			if definition.Version != "1.0.0" {
+			if definition.Version != defaultDefinitionVersion {
 				t.Fatalf("unexpected definition version: %q",
 					definition.Version)
 			}

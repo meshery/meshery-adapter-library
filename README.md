@@ -67,13 +67,27 @@ Collision errors identify both component kinds, API versions
 and positions in the combined resource batch.
 
 With `Force` disabled, existing files are preserved.
+Component files are written to temporary files before publication.
+Forced writes use rename-based replacement; non-forced writes
+use hard-link publication to avoid overwriting existing files.
+
+Modern generation creates a `.generation-incomplete` marker
+before writing component files and removes it only after
+generation and core component recovery succeed.
+
 Core component recovery excludes the target release directory
-when selecting the latest eligible source directory.
-Source selection does not independently verify directory
-completeness or that its release precedes the target.
+and directories containing an incomplete-generation marker.
+Historical unmarked directories remain eligible for backward
+compatibility. Source selection does not independently verify
+historical directory completeness or that a release precedes
+the target.
 
 Generation is not transactional. An unsuccessful operation
 may leave a partially populated destination directory.
+The marker does not provide concurrent-generation locking,
+power-loss durability, or protection against interruption
+between destination creation and marker publication.
+Atomic file publication depends on filesystem support.
 
 #### Modern component registration
 

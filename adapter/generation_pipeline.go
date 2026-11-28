@@ -64,6 +64,11 @@ func persistModernComponentFiles(generated map[string][]byte, cfg StaticCompConf
 		return err
 	}
 
+	marker := filepath.Join(destination, incompleteGenerationMarker)
+	if err := writeToFile(marker, []byte("incomplete\n"), false); err != nil {
+		return fmt.Errorf("mark incomplete generation: %w", err)
+	}
+
 	for filename, data := range generated {
 		path := filepath.Join(destination, filename)
 
@@ -81,6 +86,10 @@ func persistModernComponentFiles(generated map[string][]byte, cfg StaticCompConf
 		); err != nil {
 			return fmt.Errorf("preserve core components: %w", err)
 		}
+	}
+
+	if err := os.Remove(marker); err != nil {
+		return fmt.Errorf("clear generation marker: %w", err)
 	}
 
 	return nil

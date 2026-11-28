@@ -50,14 +50,8 @@ func TestModernGenerationRecoversCoreOnRetry(t *testing.T) {
 
 	destination := filepath.Join(root, target)
 
-	entries, err := os.ReadDir(destination)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	if len(entries) != 1 {
-		t.Fatalf("expected incomplete target, got %d files", len(entries))
-	}
+	generatedFilename := assertIncompleteGeneration(t, destination)
+	marker := filepath.Join(destination, incompleteGenerationMarker)
 
 	// Repair the source without removing the incomplete target.
 	original, err := os.ReadFile(filepath.Join(
@@ -77,6 +71,10 @@ func TestModernGenerationRecoversCoreOnRetry(t *testing.T) {
 		t.Fatalf("generation retry failed: %v", err)
 	}
 
+	if _, err := os.Stat(marker); !os.IsNotExist(err) {
+		t.Fatalf("expected marker removal after successful retry, got %v", err)
+	}
+
 	copied, err := os.ReadFile(filepath.Join(destination, filename))
 	if err != nil {
 		t.Fatal(err)
@@ -86,8 +84,39 @@ func TestModernGenerationRecoversCoreOnRetry(t *testing.T) {
 
 	assertRecoveryPreservesExistingFiles(
 		t, resources, cfg, destination, filename,
-		entries[0].Name(), copied, target,
+		generatedFilename, copied, target,
 	)
+}
+
+func assertIncompleteGeneration(t *testing.T, destination string) string {
+	t.Helper()
+
+	entries, err := os.ReadDir(destination)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if len(entries) != 2 {
+		t.Fatalf("expected generated file and marker, got %d entries", len(entries))
+	}
+
+	marker := filepath.Join(destination, incompleteGenerationMarker)
+	if _, err := os.Stat(marker); err != nil {
+		t.Fatalf("missing incomplete generation marker: %v", err)
+	}
+
+	var generatedFilename string
+	for _, entry := range entries {
+		if entry.Name() != incompleteGenerationMarker {
+			generatedFilename = entry.Name()
+		}
+	}
+
+	if generatedFilename == "" {
+		t.Fatal("missing generated component")
+	}
+
+	return generatedFilename
 }
 
 func TestPreviousComponentVersionExcludesTarget(t *testing.T) {
@@ -207,4 +236,140 @@ func assertRecoveryPreservesExistingFiles(
 	}
 
 	assertPreservedCoreComponent(t, unchanged, target)
+}
+
+func TestPreviousComponentVersionSkipsIncomplete(t *testing.T) {
+	root := t.TempDir()
+	complete := defaultDefinitionVersion
+	incomplete := "1.1.0"
+	target := "1.2.0"
+
+	for _, version := range []string{
+		complete, incomplete, target,
+	} {
+		if err := os.MkdirAll(
+			filepath.Join(root, version), 0755,
+		); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	marker := filepath.Join(
+		root, incomplete, incompleteGenerationMarker,
+	)
+
+	if err := os.WriteFile(marker, nil, 0644); err != nil {
+		t.Fatal(err)
+	}
+
+	version, err := previousComponentVersion(root, target)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if version != complete {
+		t.Fatalf("expected eligible source %q, got %q",
+			complete, version)
+	}
+
+	if err := os.Remove(marker); err != nil {
+		t.Fatal(err)
+	}
+
+	version, err = previousComponentVersion(root, target)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if version != incomplete {
+		t.Fatalf("expected newly eligible source %q, got %q",
+			incomplete, version)
+	}
+}
+
+func TestModernGenerationSkipsIncompleteSource(t *testing.T) {
+	root := t.TempDir()
+
+	complete := filepath.Join(root, defaultDefinitionVersion)
+	incomplete := filepath.Join(root, "1.1.0")
+	target := "1.2.0"
+
+	core := prepareIncompleteRecoverySources(t, complete, incomplete)
+
+	cfg := StaticCompConfig{
+		MeshModelPath: root,
+		DirName:       target,
+	}
+
+	generated := map[string][]byte{
+		"example.v1_meshmodel.json": []byte(`{}`),
+	}
+
+	if err := persistModernComponentFiles(generated, cfg); err != nil {
+		t.Fatal(err)
+	}
+
+	destination := filepath.Join(root, target)
+
+	expected, err := modifyMeshmodelVersionInDefinition(core, target)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	assertAtomicFileContent(t,
+		filepath.Join(destination, testLinkerdCoreFilename),
+		expected,
+	)
+
+	if _, err := os.Stat(filepath.Join(
+		destination, incompleteGenerationMarker,
+	)); !os.IsNotExist(err) {
+		t.Fatalf("expected completed generation, got %v", err)
+	}
+
+	if _, err := os.Stat(filepath.Join(
+		incomplete, incompleteGenerationMarker,
+	)); err != nil {
+		t.Fatalf("incomplete source marker was modified: %v", err)
+	}
+}
+
+func prepareIncompleteRecoverySources(t *testing.T, complete, incomplete string) []byte {
+	t.Helper()
+
+	for _, dir := range []string{complete, incomplete} {
+		if err := os.MkdirAll(dir, 0755); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	core, err := os.ReadFile(filepath.Join(
+		"testdata", "linkerd", testLinkerdCoreFilename,
+	))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if err := os.WriteFile(
+		filepath.Join(complete, testLinkerdCoreFilename),
+		core, 0644,
+	); err != nil {
+		t.Fatal(err)
+	}
+
+	if err := os.WriteFile(
+		filepath.Join(incomplete, incompleteGenerationMarker),
+		nil, 0644,
+	); err != nil {
+		t.Fatal(err)
+	}
+
+	// A non-component directory must not interfere with core copying.
+	if err := os.Mkdir(
+		filepath.Join(complete, "temporary"), 0755,
+	); err != nil {
+		t.Fatal(err)
+	}
+
+	return core
 }
