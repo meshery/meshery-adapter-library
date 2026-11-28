@@ -11,3 +11,9 @@ const (
 	testAdapterHostname          = "meshery-linkerd"
 	testContextID                = "test-context"
 )
+
+const (
+	testLinkerdCoreFilename = "linkerdmesh_meshmodel.json"
+	testInvalidJSON         = "invalid JSON"
+	testLinkerdNextRelease  = "edge-26.7.1"
+)

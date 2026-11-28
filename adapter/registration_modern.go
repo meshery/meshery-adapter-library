@@ -27,6 +27,10 @@ func (r *ModernComponentRegistrant) RegisterFiles(
 		return fmt.Errorf("nil component registrant")
 	}
 
+	if ctx == nil {
+		return fmt.Errorf("registration context is required")
+	}
+
 	if r.Endpoint == "" {
 		return fmt.Errorf("registration endpoint is required")
 	}
@@ -37,29 +41,44 @@ func (r *ModernComponentRegistrant) RegisterFiles(
 
 	client := newRegistrationHTTPClient(r.Client)
 
-	for _, path := range paths {
-		componentJSON, err := os.ReadFile(path)
-		if err != nil {
-			return fmt.Errorf("read component definition %q: %w", path, err)
+	for index, path := range paths {
+		if err := ctx.Err(); err != nil {
+			return newPartialRegistrationError(paths, index, err)
 		}
 
-		componentJSON, err = prepareComponentForRegistration(componentJSON)
-		if err != nil {
-			return fmt.Errorf("prepare component definition %q: %w", path, err)
+		if err := r.registerFile(ctx, client, path); err != nil {
+			return newPartialRegistrationError(paths, index, err)
 		}
+	}
 
-		payload, err := newComponentRegistrationPayload(
-			r.Connection,
-			componentJSON,
-		)
-		if err != nil {
-			return fmt.Errorf("prepare component %q: %w", path, err)
-		}
+	return nil
+}
 
-		if err := r.registerPayload(ctx, client, payload); err != nil {
-			return fmt.Errorf("register component %q: %w", path, err)
-		}
+func (r *ModernComponentRegistrant) registerFile(
+	ctx context.Context,
+	client *registrationHTTPClient,
+	path string,
+) error {
+	componentJSON, err := os.ReadFile(path)
+	if err != nil {
+		return fmt.Errorf("read component definition %q: %w", path, err)
+	}
 
+	componentJSON, err = prepareComponentForRegistration(componentJSON)
+	if err != nil {
+		return fmt.Errorf("prepare component definition %q: %w", path, err)
+	}
+
+	payload, err := newComponentRegistrationPayload(
+		r.Connection,
+		componentJSON,
+	)
+	if err != nil {
+		return fmt.Errorf("prepare component %q: %w", path, err)
+	}
+
+	if err := r.registerPayload(ctx, client, payload); err != nil {
+		return fmt.Errorf("register component %q: %w", path, err)
 	}
 
 	return nil
@@ -80,8 +99,12 @@ func (r *ModernComponentRegistrant) registerPayload(
 }
 
 func classifyRegistrationError(err error) error {
-	var httpErr *registrationHTTPError
+	var requestErr *registrationRequestError
+	if errors.As(err, &requestErr) {
+		return backoff.Permanent(err)
+	}
 
+	var httpErr *registrationHTTPError
 	if errors.As(err, &httpErr) {
 		code := httpErr.StatusCode
 

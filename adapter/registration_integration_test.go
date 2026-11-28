@@ -38,7 +38,7 @@ func TestModernComponentRegistrationHTTPContract(t *testing.T) {
 
 			if err := json.Unmarshal(body, &payload); err != nil {
 				t.Errorf("decode request: %v", err)
-				http.Error(w, "invalid JSON", http.StatusBadRequest)
+				http.Error(w, testInvalidJSON, http.StatusBadRequest)
 				return
 			}
 

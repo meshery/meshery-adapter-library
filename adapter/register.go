@@ -24,7 +24,27 @@ type meshmodelDefinitionPathSet struct {
 	meshmodelDefinitionPath string
 }
 
+// RegisterMeshModelComponents registers legacy component definitions.
 func RegisterMeshModelComponents(uuid, runtime, host, port string) error {
+	return RegisterMeshModelComponentsWithContext(
+		context.Background(), uuid, runtime, host, port,
+	)
+}
+
+// RegisterMeshModelComponentsWithContext registers legacy components
+// with caller-controlled cancellation.
+func RegisterMeshModelComponentsWithContext(
+	ctx context.Context,
+	uuid, runtime, host, port string,
+) error {
+	if ctx == nil {
+		return fmt.Errorf("registration context is required")
+	}
+
+	if err := ctx.Err(); err != nil {
+		return err
+	}
+
 	meshmodelRDP := []MeshModelRegistrantDefinitionPath{}
 	pathSets, err := loadMeshmodelComponents(MeshmodelComponents)
 	if err != nil {
@@ -41,7 +61,7 @@ func RegisterMeshModelComponents(uuid, runtime, host, port string) error {
 	}
 
 	return NewMeshModelRegistrant(meshmodelRDP, fmt.Sprintf("%s/api/meshmodel/components/register", runtime)).
-		Register(uuid)
+		RegisterWithContext(ctx, uuid)
 }
 
 var versionLock sync.Mutex
@@ -53,7 +73,9 @@ func loadMeshmodelComponents(basepath string) ([]meshmodelDefinitionPathSet, err
 			return err
 		}
 
-		if info.IsDir() {
+		// Discover only regular MeshModel component definition files.
+		if !info.Mode().IsRegular() ||
+			!strings.HasSuffix(info.Name(), "_meshmodel.json") {
 			return nil
 		}
 

@@ -31,7 +31,7 @@ func TestModernComponentFilename(t *testing.T) {
 			name:     "Linkerd core component",
 			data:     `{"component":{"kind":"LinkerdMesh","version":"core.meshmodel.dev/v1alpha1"}}`,
 			meshType: testLinkerdType,
-			want:     "linkerdmesh_meshmodel.json",
+			want:     testLinkerdCoreFilename,
 		},
 		{
 			name: "Empty mesh type",
@@ -57,7 +57,7 @@ func TestModernComponentFilename(t *testing.T) {
 
 func TestModernComponentFilenameInvalidInput(t *testing.T) {
 	cases := []string{
-		`invalid JSON`,
+		testInvalidJSON,
 		`{}`,
 		`{"component":{"kind":"","version":"v1"}}`,
 		`{"component":{"kind":"Server","version":""}}`,

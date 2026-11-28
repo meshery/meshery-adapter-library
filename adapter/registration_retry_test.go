@@ -55,7 +55,7 @@ func TestModernRegistrationRetryPolicy(t *testing.T) {
 
 			err := registrant.RegisterFiles(ctx, []string{
 				filepath.Join("testdata", testLinkerdName,
-					"linkerdmesh_meshmodel.json"),
+					testLinkerdCoreFilename),
 			})
 
 			if (err != nil) != tc.wantError {

@@ -181,8 +181,14 @@ func validateLegacyComponent(legacy legacyComponentDefinition) error {
 		return fmt.Errorf("incomplete legacy component identity")
 	}
 
-	if legacy.Format != "JSON" || !json.Valid([]byte(legacy.Schema)) {
-		return fmt.Errorf("invalid or unsupported legacy schema")
+	// Older component definitions may omit the format field.
+	// Accept them only when their schema contains valid JSON.
+	if legacy.Format != "" && legacy.Format != string(component.JSON) {
+		return fmt.Errorf("unsupported legacy schema format: %q", legacy.Format)
+	}
+
+	if !json.Valid([]byte(legacy.Schema)) {
+		return fmt.Errorf("invalid legacy JSON schema")
 	}
 
 	return nil

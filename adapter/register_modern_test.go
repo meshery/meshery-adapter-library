@@ -52,7 +52,7 @@ func TestRegisterModernMeshModelComponentFiles(t *testing.T) {
 	path := filepath.Join(
 		"testdata",
 		testLinkerdName,
-		"linkerdmesh_meshmodel.json",
+		testLinkerdCoreFilename,
 	)
 
 	err := RegisterModernMeshModelComponentFiles(

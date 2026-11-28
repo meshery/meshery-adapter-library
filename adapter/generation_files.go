@@ -63,3 +63,25 @@ func validateComponentFileIdentity(kind, apiVersion, group, meshType string, fou
 
 	return nil
 }
+
+// componentResourceIdentity describes a generated component
+// for collision diagnostics without changing its filename.
+func componentResourceIdentity(data []byte, position int) string {
+	var definition struct {
+		Component struct {
+			Kind    string `json:"kind"`
+			Version string `json:"version"`
+		} `json:"component"`
+	}
+
+	if err := json.Unmarshal(data, &definition); err != nil {
+		return fmt.Sprintf("resource #%d (identity unavailable)", position)
+	}
+
+	return fmt.Sprintf(
+		"resource #%d (kind=%q, apiVersion=%q)",
+		position,
+		definition.Component.Kind,
+		definition.Component.Version,
+	)
+}

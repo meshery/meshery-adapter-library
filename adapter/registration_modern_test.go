@@ -171,7 +171,7 @@ func TestModernRegistrantMigratesLegacyFiles(t *testing.T) {
 
 func TestPrepareComponentRejectsInvalidDefinitions(t *testing.T) {
 	cases := []string{
-		`invalid JSON`,
+		testInvalidJSON,
 		`{}`,
 		nullResource,
 		`{"kind":"ServiceProfile"}`,

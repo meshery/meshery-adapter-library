@@ -133,8 +133,8 @@ func TestGenerateModernComponentFilesCollision(t *testing.T) {
 func TestGenerateModernComponentFilesPreservesCore(t *testing.T) {
 	root := t.TempDir()
 	oldVersion := testLinkerdRelease
-	newVersion := "edge-26.7.1"
-	filename := "linkerdmesh_meshmodel.json"
+	newVersion := testLinkerdNextRelease
+	filename := testLinkerdCoreFilename
 
 	sourceDir := filepath.Join(root, oldVersion)
 

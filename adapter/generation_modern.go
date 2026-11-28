@@ -12,7 +12,12 @@ const defaultDefinitionVersion = "1.0.0"
 
 // GenerateNativeComponent generates a component definition using MeshKit.
 func GenerateNativeComponent(resource string) ([]byte, error) {
-	definition, err := generator.Generate(resource)
+	normalized, err := selectServedCRDVersion(resource)
+	if err != nil {
+		return nil, fmt.Errorf("select CRD version: %w", err)
+	}
+
+	definition, err := generator.Generate(normalized)
 	if err != nil {
 		return nil, fmt.Errorf("generate component: %w", err)
 	}
@@ -47,7 +52,12 @@ func GenerateNativeComponentWithModel(
 	resource, name, version string,
 	cfg MeshModelConfig,
 ) ([]byte, error) {
-	definition, err := generator.Generate(resource)
+	normalized, err := selectServedCRDVersion(resource)
+	if err != nil {
+		return nil, fmt.Errorf("select CRD version: %w", err)
+	}
+
+	definition, err := generator.Generate(normalized)
 	if err != nil {
 		return nil, fmt.Errorf("generate component: %w", err)
 	}

@@ -48,7 +48,12 @@ func generateModernComponentFiles(
 }
 
 func persistModernComponentFiles(generated map[string][]byte, cfg StaticCompConfig) error {
-	previousVersion, _ := getLatestDirectory(cfg.MeshModelPath)
+	previousVersion, err := previousComponentVersion(
+		cfg.MeshModelPath, cfg.DirName,
+	)
+	if err != nil {
+		return err
+	}
 
 	destination := filepath.Join(
 		cfg.MeshModelPath,
@@ -67,8 +72,7 @@ func persistModernComponentFiles(generated map[string][]byte, cfg StaticCompConf
 		}
 	}
 
-	if previousVersion != "" &&
-		previousVersion != cfg.DirName {
+	if previousVersion != "" {
 		if err := copyCoreComponentsToNewVersion(
 			filepath.Join(cfg.MeshModelPath, previousVersion),
 			destination,
@@ -121,8 +125,9 @@ func buildModernComponentFiles(resources []string, cfg StaticCompConfig) (map[st
 	}
 
 	generated := make(map[string][]byte)
+	positions := make(map[string]int)
 
-	for _, resource := range resources {
+	for index, resource := range resources {
 		data, err := GenerateNativeComponentWithModel(
 			resource,
 			modelName,
@@ -140,14 +145,17 @@ func buildModernComponentFiles(resources []string, cfg StaticCompConfig) (map[st
 			return nil, err
 		}
 
-		if _, exists := generated[filename]; exists {
+		if previous, exists := generated[filename]; exists {
 			return nil, fmt.Errorf(
-				"component filename collision: %s",
+				"component filename collision: %s: %s conflicts with %s",
 				filename,
+				componentResourceIdentity(previous, positions[filename]),
+				componentResourceIdentity(data, index+1),
 			)
 		}
 
 		generated[filename] = data
+		positions[filename] = index + 1
 	}
 
 	return generated, nil
